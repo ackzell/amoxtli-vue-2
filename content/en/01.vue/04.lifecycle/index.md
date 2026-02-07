@@ -1,3 +1,0 @@
-# Vue Lifecycle Hooks
-
-// TODO:

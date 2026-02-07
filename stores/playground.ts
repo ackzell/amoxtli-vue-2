@@ -106,8 +106,22 @@ export const usePlaygroundStore = defineStore('playground', () => {
     abortController = new AbortController()
     const signal = abortController.signal
 
-    if (reinstall)
+    if (reinstall) {
       hasInstalled = false
+    } else if (!hasInstalled) {
+      // Check if node_modules already exists (smart install skip)
+      try {
+        const files = await wc.fs.readdir('node_modules')
+        // If we can read at least a few files, node_modules is ready
+        if (files && files.length > 0) {
+          hasInstalled = true
+          status.value = 'start'
+        }
+      } catch (e) {
+        // node_modules doesn't exist or error, need to install
+        hasInstalled = false
+      }
+    }
 
     if (!hasInstalled)
       await launchInstallProcess(wc, signal)

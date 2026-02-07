@@ -1,6 +1,6 @@
+import type { ClientInfo, FrameFunctions, ParentFunctions } from '../../../types/rpc'
 import { createBirpc } from 'birpc'
 import { createApp } from 'vue'
-import type { ClientInfo, FrameFunctions, ParentFunctions } from '../../../types/rpc'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -30,9 +30,18 @@ const rpc = createBirpc<ParentFunctions, FrameFunctions>(functions, {
   },
 })
 
-// Signal to parent that Vue app is ready
+// Signal to parent that Vue app is ready with actual installed versions
+let vueVersion = 'unknown'
+try {
+  const vuePackage = await fetch('/node_modules/vue/package.json').then(r => r.json())
+  vueVersion = vuePackage.version
+} catch (e) {
+  // Fallback: try to read from window if available
+  vueVersion = (window as any).__vueVersion || 'unknown'
+}
+
 const clientInfo: ClientInfo = {
-  versionVue: '3.4.0',
+  versionVue: vueVersion,
   versionNuxt: 'N/A',
 }
 rpc.onReady(clientInfo)

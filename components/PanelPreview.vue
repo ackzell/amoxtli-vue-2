@@ -108,19 +108,6 @@ function navigate() {
                 v{{ preview.clientInfo.versionVue }}
               </code>
             </div>
-            <div i-simple-icons-nuxtdotjs text-xl />
-            <div flex="~ gap-2 items-center">
-              <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
-              {{ $t('nuxtVersion') }}:
-              <div
-                v-if="!preview.clientInfo?.versionNuxt"
-                i-svg-spinners-90-ring-with-bg
-              />
-              <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
-              <code v-else>
-                v{{ preview.clientInfo.versionNuxt }}
-              </code>
-            </div>
           </div>
         </template>
       </VDropdown>
