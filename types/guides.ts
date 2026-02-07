@@ -6,6 +6,11 @@ export interface GuideMeta {
   features?: PlaygroundFeatures
   startingFile?: string
   startingUrl?: string
+  /**
+   * Template to use for this guide ('vue' or 'html')
+   * @default 'vue'
+   */
+  template?: 'vue' | 'html'
   // TODO:
   packageJsonOverrides?: any
   /**

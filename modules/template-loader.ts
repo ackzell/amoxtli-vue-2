@@ -1,6 +1,6 @@
-import { addTemplate, addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
+import { addTemplate, addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 // import consola from 'consola'
 import fg from 'fast-glob'
 import { relative, resolve } from 'pathe'
@@ -19,6 +19,35 @@ export default defineNuxtModule({
       filename: 'templates/vue.ts',
       getContents: async () => {
         const dir = fileURLToPath(new URL('../templates/vue', import.meta.url))
+        const files = await fg('**/*.*', {
+          ignore: [
+            '**/node_modules/**',
+            '**/.git/**',
+            '**/.nuxt/**',
+          ],
+          dot: true,
+          cwd: dir,
+          onlyFiles: true,
+          absolute: true,
+        })
+
+        const filesMap: Record<string, string> = {}
+
+        await Promise.all(
+          files.sort().map(async (filename) => {
+            const content = await fs.readFile(filename, 'utf-8')
+            filesMap[relative(dir, filename)] = content
+          }),
+        )
+
+        return `export default ${JSON.stringify(filesMap)}`
+      },
+    })
+
+    addTemplate({
+      filename: 'templates/html.ts',
+      getContents: async () => {
+        const dir = fileURLToPath(new URL('../templates/html', import.meta.url))
         const files = await fg('**/*.*', {
           ignore: [
             '**/node_modules/**',

@@ -41,10 +41,12 @@ export const useGuideStore = defineStore('guide', () => {
     // eslint-disable-next-line no-console
     console.log('mounting guide', guide)
 
+    const templateName = guide?.template === 'html' ? 'html' : 'vue'
+
     await play.mount({
       ...guide?.files,
       ...withSolution ? guide?.solutions : {},
-    })
+    }, templateName)
 
     play.fileSelected = play.files.get(guide?.startingFile || 'app.vue')
     preview.location.fullPath = guide?.startingUrl || '/'

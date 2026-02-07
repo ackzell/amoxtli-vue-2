@@ -27,6 +27,10 @@ export const usePlaygroundStore = defineStore('playground', () => {
   const webcontainer = shallowRef<Raw<WebContainer>>()
 
   let filesTemplate: Record<string, string> = {}
+  let templatesMap: Record<string, Record<string, string>> = {
+    vue: {},
+    html: {},
+  }
   const files = shallowReactive<Raw<Map<string, VirtualFile>>>(new Map())
   const fileSelected = shallowRef<Raw<VirtualFile>>()
 
@@ -39,24 +43,32 @@ export const usePlaygroundStore = defineStore('playground', () => {
     async function init() {
       const [
         wc,
-        filesRaw,
+        vueTemplate,
+        htmlTemplate,
       ] = await Promise.all([
         import('@webcontainer/api')
           .then(({ WebContainer }) => WebContainer.boot()),
 
         import('../templates')
-          .then(r => r.templates.basic()),
+          .then(r => r.templates.vue()),
+
+        import('../templates')
+          .then(r => r.templates.html()),
       ])
 
-      filesTemplate = filesRaw
+      filesTemplate = vueTemplate
+      templatesMap = {
+        vue: vueTemplate,
+        html: htmlTemplate,
+      }
       webcontainer.value = wc
 
       // Inject console interceptor into HTML files before creating VirtualFile objects
-      for (const [path, content] of Object.entries(filesRaw)) {
+      for (const [path, content] of Object.entries(vueTemplate)) {
         if (path.endsWith('.html') || path === 'index.html') {
           // Inject console interceptor script before closing head tag
           if (content.includes('</head>') && !content.includes('console-interceptor')) {
-            filesRaw[path] = content.replace(
+            vueTemplate[path] = content.replace(
               '</head>',
               `  <script type="module">
                 ${CONSOLE_INTERCEPTOR_CODE}
@@ -67,7 +79,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
         }
       }
 
-      Object.entries(filesRaw)
+      Object.entries(vueTemplate)
         .forEach(([path, content]) => {
           files.set(path, new VirtualFile(path, content, wc))
         })
@@ -79,7 +91,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
             origin: url,
             fullPath: '/',
           }
-          status.value = 'polling'
+          status.value = 'ready'
         }
       })
 
@@ -208,7 +220,32 @@ export const usePlaygroundStore = defineStore('playground', () => {
     if (isNuxtProject)
       args.push('--no-qr')
 
+    const serverReady = new Promise<void>((resolve) => {
+      const timeout = setTimeout(() => {
+        // Fallback: after 5 seconds, assume server is ready even if event didn't fire
+        if (status.value === 'start') {
+          status.value = 'ready'
+        }
+        resolve()
+      }, 5000)
+
+      const checkReady = () => {
+        if (status.value === 'ready') {
+          clearTimeout(timeout)
+          resolve()
+        }
+      }
+
+      // Check every 100ms if status changed to ready
+      const interval = setInterval(checkReady, 100)
+      signal.addEventListener('abort', () => {
+        clearTimeout(timeout)
+        clearInterval(interval)
+      })
+    })
+
     await spawn(wc, 'pnpm', args)
+    await serverReady
   }
 
   async function launchInteractiveProcess(wc: WebContainer, signal: AbortSignal) {
@@ -237,7 +274,8 @@ export const usePlaygroundStore = defineStore('playground', () => {
    * Mount files to WebContainer.
    * This will do a diff with the current files and only update the ones that changed
    */
-  async function mount(map: Record<string, string>, templates = filesTemplate) {
+  async function mount(map: Record<string, string>, templateName: 'vue' | 'html' = 'vue') {
+    const templates = templatesMap[templateName] || templatesMap.vue || {}
     const objects = {
       ...templates,
       ...map,
