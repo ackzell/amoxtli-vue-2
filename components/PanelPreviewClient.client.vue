@@ -44,10 +44,12 @@ onMounted(() => {
   })
 
   window.addEventListener('message', handleConsoleMessage)
+  window.addEventListener('message', handleColorModeRequest)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('message', handleConsoleMessage)
+  window.removeEventListener('message', handleColorModeRequest)
 })
 
 function handleConsoleMessage(event: MessageEvent) {
@@ -65,8 +67,20 @@ function handleConsoleMessage(event: MessageEvent) {
   }
 }
 
+function handleColorModeRequest(event: MessageEvent) {
+  if (typeof event.data !== 'object')
+    return
+  if (event.data.source === 'nuxt-playground-color-mode-request') {
+    syncColorMode()
+  }
+}
+
 function syncColorMode() {
   rpc?.onColorModeChange(colorMode.value)
+  iframe.value?.contentWindow?.postMessage({
+    source: 'nuxt-playground-color-mode',
+    mode: colorMode.value,
+  }, '*')
 }
 
 watch(
@@ -88,5 +102,6 @@ defineExpose({
     :style="play.status === 'ready' ? '' : 'opacity: 0.001; pointer-events: none;'"
     :class="{ 'pointer-events-none': ui.isPanelDragging }"
     absolute inset-0 h-full w-full bg-transparent allow="geolocation; microphone; camera; payment; autoplay; serial; cross-origin-isolated"
+    @load="syncColorMode"
   />
 </template>

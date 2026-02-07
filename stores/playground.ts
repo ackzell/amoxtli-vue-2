@@ -26,7 +26,6 @@ export const usePlaygroundStore = defineStore('playground', () => {
   const currentProcess = shallowRef<Raw<WebContainerProcess | undefined>>()
   const webcontainer = shallowRef<Raw<WebContainer>>()
 
-  let filesTemplate: Record<string, string> = {}
   let templatesMap: Record<string, Record<string, string>> = {
     vue: {},
     html: {},
@@ -34,7 +33,6 @@ export const usePlaygroundStore = defineStore('playground', () => {
   const files = shallowReactive<Raw<Map<string, VirtualFile>>>(new Map())
   const fileSelected = shallowRef<Raw<VirtualFile>>()
 
-  const colorMode = useColorMode()
   let _promiseInit: Promise<void> | undefined
   let hasInstalled = false
 
@@ -56,29 +54,13 @@ export const usePlaygroundStore = defineStore('playground', () => {
           .then(r => r.templates.html()),
       ])
 
-      filesTemplate = vueTemplate
       templatesMap = {
         vue: vueTemplate,
         html: htmlTemplate,
       }
       webcontainer.value = wc
 
-      // Inject console interceptor into HTML files before creating VirtualFile objects
-      for (const [path, content] of Object.entries(vueTemplate)) {
-        if (path.endsWith('.html') || path === 'index.html') {
-          // Inject console interceptor script before closing head tag
-          if (content.includes('</head>') && !content.includes('console-interceptor')) {
-            vueTemplate[path] = content.replace(
-              '</head>',
-              `  <script type="module">
-                ${CONSOLE_INTERCEPTOR_CODE}
-                  </script>
-               </head>`,
-            )
-          }
-        }
-      }
-
+      // Create VirtualFile objects with clean content (no injection)
       Object.entries(vueTemplate)
         .forEach(([path, content]) => {
           files.set(path, new VirtualFile(path, content, wc))
@@ -91,6 +73,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
             origin: url,
             fullPath: preview.pendingFullPath,
           }
+          preview.updateUrl()
           status.value = 'ready'
         }
       })
@@ -255,15 +238,33 @@ export const usePlaygroundStore = defineStore('playground', () => {
     await spawn(wc, 'jsh')
   }
 
+  const CONSOLE_INTERCEPTOR_SCRIPT = `<script type="module">
+          ${CONSOLE_INTERCEPTOR_CODE}
+        </script>`
+
+  function injectHtmlScripts(content: string): string {
+    if (!content.includes('console-interceptor')) {
+      if (content.includes('</head>')) {
+        return content.replace('</head>', `${CONSOLE_INTERCEPTOR_SCRIPT}\n</head>`)
+      }
+      return `${CONSOLE_INTERCEPTOR_SCRIPT}\n${content}`
+    }
+    return content
+  }
+
   async function _updateOrCreateFile(filepath: string, content: string) {
     const file = files.get(filepath)
     if (file) {
+      if (filepath.endsWith('.html'))
+        file.fsTransform = injectHtmlScripts
       if (file.read() !== content)
         await file.write(content)
       return file
     }
     else {
       const newFile = new VirtualFile(filepath, content, webcontainer.value!)
+      if (filepath.endsWith('.html'))
+        newFile.fsTransform = injectHtmlScripts
       files.set(filepath, newFile)
       await newFile.write(content)
       return newFile
