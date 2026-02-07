@@ -1,6 +1,6 @@
+import { addTemplate, addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { addTemplate, addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 // import consola from 'consola'
 import fg from 'fast-glob'
 import { relative, resolve } from 'pathe'
@@ -16,9 +16,9 @@ export default defineNuxtModule({
     // consola.wrapAll = () => {}
 
     addTemplate({
-      filename: 'templates/basic.ts',
+      filename: 'templates/vue.ts',
       getContents: async () => {
-        const dir = fileURLToPath(new URL('../templates/basic', import.meta.url))
+        const dir = fileURLToPath(new URL('../templates/vue', import.meta.url))
         const files = await fg('**/*.*', {
           ignore: [
             '**/node_modules/**',

@@ -1,5 +1,5 @@
+import template from '#build/templates/vue'
 import type { TemplateOptions } from './types'
-import template from '#build/templates/basic'
 
 export default function load(options: TemplateOptions = {}) {
   if (import.meta.server)
@@ -8,14 +8,6 @@ export default function load(options: TemplateOptions = {}) {
   const rawFiles: Record<string, string> = {
     ...template,
     ...options.files,
-  }
-
-  // Merge .nuxtrc
-  if (options.nuxtrc) {
-    rawFiles['.nuxtrc'] = [
-      ...(rawFiles['.nuxtrc'] || '').split(/\n/g),
-      ...options.nuxtrc,
-    ].filter(Boolean).join('\n')
   }
 
   return rawFiles

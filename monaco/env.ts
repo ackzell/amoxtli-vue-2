@@ -1,10 +1,10 @@
-import type { FileType } from './types'
-import type { CreateData } from './vue.worker'
 import * as volar from '@volar/monaco'
 import { editor, languages, Uri } from 'monaco-editor-core'
 import { basename, dirname } from 'pathe'
 import stripJsonComments from 'strip-json-comments'
+import type { FileType } from './types'
 import { getOrCreateModel } from './utils'
+import type { CreateData } from './vue.worker'
 
 export type PlaygroundMonacoContext = Pick<PlaygroundStore, 'webcontainer' | 'files'>
 
@@ -82,39 +82,52 @@ export async function reloadLanguageTools(ctx: PlaygroundMonacoContext) {
   // eslint-disable-next-line no-console
   console.info('Initializing Vue Language Service...')
 
-  // Try load tsconfig.json from .nuxt
-  const tsconfigRaw = await ctx.webcontainer?.fs
-    .readFile('.nuxt/tsconfig.json', 'utf-8')
+  // Try load tsconfig.json from root (or .nuxt for Nuxt projects)
+  let tsconfigRaw = await ctx.webcontainer?.fs
+    .readFile('tsconfig.json', 'utf-8')
     .catch(() => undefined)
 
-  if (!tsconfigRaw)
-    return
+  // Fallback to .nuxt/tsconfig.json for Nuxt projects
+  if (!tsconfigRaw) {
+    tsconfigRaw = await ctx.webcontainer?.fs
+      .readFile('.nuxt/tsconfig.json', 'utf-8')
+      .catch(() => undefined)
+  }
 
   const tsconfig = tsconfigRaw
     ? JSON.parse(stripJsonComments(tsconfigRaw, { trailingCommas: true }))
-    : {}
+    : { compilerOptions: {} }
 
-  // Resolve .nuxt/tsconfig.json paths from `./.nuxt` to `./`
-  function resolvePath(path: string) {
-    if (path.startsWith('./'))
-      return `./.nuxt/${path.slice(2)}`
-    if (path.startsWith('..'))
-      return `.${path.slice(2)}`
+  // Resolve tsconfig paths - support both .nuxt and plain setups
+  function resolvePath(path: string, isNuxtProject: boolean) {
+    if (isNuxtProject) {
+      if (path.startsWith('./'))
+        return `./.nuxt/${path.slice(2)}`
+      if (path.startsWith('..'))
+        return `.${path.slice(2)}`
+    }
     return path
   }
+  const isNuxtProjectCheck = await ctx.webcontainer?.fs
+    .readFile('.nuxt/tsconfig.json', 'utf-8')
+    .then(() => true)
+    .catch(() => false)
+
+  const isNuxtProject = isNuxtProjectCheck ?? false
+
   tsconfig.compilerOptions ||= {}
   tsconfig.compilerOptions.paths ||= {}
   Object.values(tsconfig.compilerOptions.paths as Record<string, string[]>)
     .forEach((paths) => {
       paths.forEach((path, i) => {
-        paths[i] = resolvePath(path)
+        paths[i] = resolvePath(path, isNuxtProject)
       })
     })
 
   // Load files into Model so that the language service is aware of it
   // In VS Code this is done by `include` in tsconfig.json, while here in Monaco
   // `include` and `exclude` are not supported.
-  const extraFiles = await loadFiles(ctx, ['.nuxt/nuxt.d.ts'])
+  const extraFiles = await loadFiles(ctx, isNuxtProject ? ['.nuxt/nuxt.d.ts'] : [])
 
   const worker = editor.createWebWorker<any>({
     moduleId: 'vs/language/vue/vueWorker',

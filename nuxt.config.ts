@@ -21,7 +21,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      titleTemplate: '%s - Nuxt Tutorial',
+      titleTemplate: '%s - Amoxtli Vue',
       htmlAttrs: {
         lang: 'en-US',
       },
@@ -32,7 +32,7 @@ export default defineNuxtConfig({
   },
 
   site: {
-    url: 'https://learn.nuxt.com',
+    url: 'https://amoxtli-vue.netlify.app',
   },
 
   colorMode: {

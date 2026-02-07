@@ -15,7 +15,7 @@ export const PlaygroundStatusOrder = [
 
 export type PlaygroundStatus = typeof PlaygroundStatusOrder[number] | 'error'
 
-const NUXT_PORT = 4000
+const DEV_SERVER_PORT = 5173
 
 export const usePlaygroundStore = defineStore('playground', () => {
   const preview = usePreviewStore()
@@ -44,14 +44,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
           .then(({ WebContainer }) => WebContainer.boot()),
 
         import('../templates')
-          .then(r => r.templates.basic({
-            nuxtrc: [
-              // Have color mode on initial load
-              colorMode.value === 'dark'
-                ? 'app.head.htmlAttrs.class=dark'
-                : '',
-            ],
-          })),
+          .then(r => r.templates.basic()),
       ])
 
       filesTemplate = filesRaw
@@ -63,9 +56,8 @@ export const usePlaygroundStore = defineStore('playground', () => {
         })
 
       wc.on('server-ready', async (port, url) => {
-        // Nuxt listen to multiple ports, and 'server-ready' is emitted for each of them
-        // We need the main one
-        if (port === NUXT_PORT) {
+        // Dev server might listen on multiple ports, we need the main one
+        if (port === DEV_SERVER_PORT) {
           preview.location = {
             origin: url,
             fullPath: '/',
@@ -121,7 +113,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
       await launchInstallProcess(wc, signal)
 
     if (hasInstalled)
-      await launchNuxtProcess(wc, signal)
+      await launchDevServerProcess(wc, signal)
 
     await launchInteractiveProcess(wc, signal)
   }
@@ -131,7 +123,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
       throw new Error('A process is already running')
     const process = await wc.spawn(command, args, {
       env: {
-        NUXT_PORT: NUXT_PORT.toString(),
+        DEV_SERVER_PORT: DEV_SERVER_PORT.toString(),
       },
     })
     currentProcess.value = process
@@ -164,11 +156,26 @@ export const usePlaygroundStore = defineStore('playground', () => {
     hasInstalled = true
   }
 
-  async function launchNuxtProcess(wc: WebContainer, signal: AbortSignal) {
+  async function launchDevServerProcess(wc: WebContainer, signal: AbortSignal) {
     if (signal.aborted)
       return
     status.value = 'start'
-    await spawn(wc, 'pnpm', ['run', 'dev', '--no-qr'])
+    
+    // Check if this is a Nuxt project by looking for nuxt.config.ts or .nuxt dir
+    const isNuxtProject = (() => {
+      for (const file of files.keys()) {
+        if (file === 'nuxt.config.ts' || file.startsWith('.nuxt/'))
+          return true
+      }
+      return false
+    })()
+    
+    const args = ['run', 'dev']
+    // Only pass --no-qr for Nuxt projects
+    if (isNuxtProject)
+      args.push('--no-qr')
+    
+    await spawn(wc, 'pnpm', args)
   }
 
   async function launchInteractiveProcess(wc: WebContainer, signal: AbortSignal) {

@@ -1,0 +1,21 @@
+{
+  "name": "vue-tutorial",
+  "type": "module",
+  "version": "0.0.1",
+  "packageManager": "pnpm@8.15.6",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "birpc": "^0.2.14",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/tsconfig": "^0.5.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  }
+}

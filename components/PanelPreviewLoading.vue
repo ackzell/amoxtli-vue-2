@@ -83,9 +83,9 @@ function getTextClass(status: PlaygroundStatus) {
         </button>
       </span>
       <div :class="getStatusIcon('start')" />
-      <span :class="getTextClass('start')">{{ $t('steps.starting-nuxt-server') }}</span>
+      <span :class="getTextClass('start')">{{ $t('steps.starting-dev-server') }}</span>
       <div :class="getStatusIcon('polling')" />
-      <span :class="getTextClass('polling')">{{ $t('steps.waiting-for-nuxt-to-ready') }}</span>
+      <span :class="getTextClass('polling')">{{ $t('steps.waiting-for-dev-server') }}</span>
     </div>
   </div>
 </template>

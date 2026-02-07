@@ -19,13 +19,12 @@ steps:
   initializing-webcontainer: Initializing WebContainer
   mounting-files: Mounting files
   installing-dependencies: Installing dependencies
-  starting-nuxt-server: Starting Nuxt server
-  waiting-for-nuxt-to-ready: Waiting for Nuxt to ready
+  starting-dev-server: Starting dev server
+  waiting-for-dev-server: Waiting for dev server
 restart-server: Restart the server
 interactive-terminal-mode: Interactive terminal mode
 files: Files
 preview: Preview
 built: Built
 vueVersion: Vue version
-nuxtVersion: Nuxt version
 editor: Editor

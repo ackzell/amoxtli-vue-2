@@ -7,7 +7,7 @@ const count = ref(0)
 <template>
   <div style="padding: 2rem; text-align: center;">
     <h1>Vue 3 Playground</h1>
-    <p>Count is: {{ count }}</p>
+    <p>Count: {{ count }}</p>
     <button @click="count++">
       Increment
     </button>
@@ -23,7 +23,6 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
 }
 
 button:hover {

@@ -1,4 +1,0 @@
-<!-- Challenge -->
-<template>
-  TODO
-</template>
