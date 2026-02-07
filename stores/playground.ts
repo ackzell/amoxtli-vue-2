@@ -35,6 +35,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
   let _promiseInit: Promise<void> | undefined
   let hasInstalled = false
+  let lastInstalledPackageJson = ''
 
   // Mount the playground on client side
   if (import.meta.client) {
@@ -121,17 +122,22 @@ export const usePlaygroundStore = defineStore('playground', () => {
     if (reinstall) {
       hasInstalled = false
     }
-    else if (!hasInstalled) {
-      // Check if node_modules already exists (smart install skip)
+    else if (!hasInstalled && !lastInstalledPackageJson) {
+      // Fresh boot / page refresh: check if node_modules already exists
+      // from a previous session so we can skip install entirely.
+      // When lastInstalledPackageJson is set it means mount() cleared
+      // hasInstalled due to a dep change — we must install in that case.
       try {
-        const files = await wc.fs.readdir('node_modules')
-        // If we can read at least a few files, node_modules is ready
-        if (files && files.length > 0) {
+        const nodeModEntries = await wc.fs.readdir('node_modules')
+        if (nodeModEntries && nodeModEntries.length > 0) {
           hasInstalled = true
+          const pkgFile = files.get('package.json')
+          if (pkgFile)
+            lastInstalledPackageJson = pkgFile.read()
           status.value = 'start'
         }
       }
-      catch (e) {
+      catch {
         // node_modules doesn't exist or error, need to install
         hasInstalled = false
       }
@@ -182,6 +188,10 @@ export const usePlaygroundStore = defineStore('playground', () => {
     }
 
     hasInstalled = true
+    // Track what was installed so we can detect dep changes later
+    const pkgFile = files.get('package.json')
+    if (pkgFile)
+      lastInstalledPackageJson = pkgFile.read()
   }
 
   async function launchDevServerProcess(wc: WebContainer, signal: AbortSignal) {
@@ -273,13 +283,30 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
   /**
    * Mount files to WebContainer.
-   * This will do a diff with the current files and only update the ones that changed
+   * This will do a diff with the current files and only update the ones that changed.
+   * If package.json changed, triggers a reinstall + server restart.
    */
   async function mount(map: Record<string, string>, templateName: 'vue' | 'html' = 'vue') {
     const templates = templatesMap[templateName] || templatesMap.vue || {}
     const objects = {
       ...templates,
       ...map,
+    }
+
+    // Check if package.json is changing BEFORE mounting files
+    const newPackageJson = objects['package.json'] || ''
+    const depsChanged = hasInstalled && newPackageJson !== lastInstalledPackageJson
+
+    // Kill the running server early so it doesn't try to serve
+    // incompatible files while we're updating
+    if (depsChanged) {
+      killPreviousProcess()
+      hasInstalled = false
+      // Clear the preview URL so the iframe unmounts entirely.
+      // Without this, the iframe keeps showing stale content from the
+      // old server until the new one fully loads.
+      preview.url = ''
+      status.value = 'mount'
     }
 
     await Promise.all([
@@ -297,6 +324,11 @@ export const usePlaygroundStore = defineStore('playground', () => {
           files.delete(filepath)
         }),
     ])
+
+    // Reinstall and restart the dev server
+    if (depsChanged) {
+      startServer()
+    }
   }
 
   return {
