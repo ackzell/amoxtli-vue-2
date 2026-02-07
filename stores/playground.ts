@@ -89,7 +89,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
         if (port === DEV_SERVER_PORT) {
           preview.location = {
             origin: url,
-            fullPath: '/',
+            fullPath: preview.pendingFullPath,
           }
           status.value = 'ready'
         }

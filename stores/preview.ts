@@ -7,9 +7,15 @@ export const usePreviewStore = defineStore('preview', () => {
   })
   const url = ref('')
   const clientInfo = ref<ClientInfo>()
+  const pendingFullPath = ref('/')
 
   function updateUrl() {
     url.value = location.value.origin + location.value.fullPath
+  }
+
+  function setFullPath(path: string) {
+    pendingFullPath.value = path
+    location.value.fullPath = path
   }
 
   return {
@@ -17,5 +23,7 @@ export const usePreviewStore = defineStore('preview', () => {
     location,
     url,
     updateUrl,
+    setFullPath,
+    pendingFullPath,
   }
 })

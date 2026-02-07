@@ -49,8 +49,7 @@ export const useGuideStore = defineStore('guide', () => {
     }, templateName)
 
     play.fileSelected = play.files.get(guide?.startingFile || 'app.vue')
-    preview.location.fullPath = guide?.startingUrl || '/'
-    preview.updateUrl()
+    preview.setFullPath(guide?.startingUrl || '/')
 
     features.value = {
       ...defaultFeatures,
