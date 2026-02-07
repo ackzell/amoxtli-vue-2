@@ -2,6 +2,7 @@ import type { WebContainer, WebContainerProcess } from '@webcontainer/api'
 import type { Raw } from 'vue'
 import { filesToWebContainerFs } from '~/templates/utils'
 import { VirtualFile } from '../structures/VirtualFile'
+import { CONSOLE_INTERCEPTOR_CODE } from '../templates/console-interceptor'
 
 export const PlaygroundStatusOrder = [
   'init',
@@ -49,6 +50,22 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
       filesTemplate = filesRaw
       webcontainer.value = wc
+
+      // Inject console interceptor into HTML files before creating VirtualFile objects
+      for (const [path, content] of Object.entries(filesRaw)) {
+        if (path.endsWith('.html') || path === 'index.html') {
+          // Inject console interceptor script before closing head tag
+          if (content.includes('</head>') && !content.includes('console-interceptor')) {
+            filesRaw[path] = content.replace(
+              '</head>',
+              `  <script type="module">
+                ${CONSOLE_INTERCEPTOR_CODE}
+                  </script>
+               </head>`,
+            )
+          }
+        }
+      }
 
       Object.entries(filesRaw)
         .forEach(([path, content]) => {
@@ -108,7 +125,8 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
     if (reinstall) {
       hasInstalled = false
-    } else if (!hasInstalled) {
+    }
+    else if (!hasInstalled) {
       // Check if node_modules already exists (smart install skip)
       try {
         const files = await wc.fs.readdir('node_modules')
@@ -117,7 +135,8 @@ export const usePlaygroundStore = defineStore('playground', () => {
           hasInstalled = true
           status.value = 'start'
         }
-      } catch (e) {
+      }
+      catch (e) {
         // node_modules doesn't exist or error, need to install
         hasInstalled = false
       }
@@ -174,7 +193,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
     if (signal.aborted)
       return
     status.value = 'start'
-    
+
     // Check if this is a Nuxt project by looking for nuxt.config.ts or .nuxt dir
     const isNuxtProject = (() => {
       for (const file of files.keys()) {
@@ -183,12 +202,12 @@ export const usePlaygroundStore = defineStore('playground', () => {
       }
       return false
     })()
-    
+
     const args = ['run', 'dev']
     // Only pass --no-qr for Nuxt projects
     if (isNuxtProject)
       args.push('--no-qr')
-    
+
     await spawn(wc, 'pnpm', args)
   }
 

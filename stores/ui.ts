@@ -7,10 +7,12 @@ export const useUiState = defineStore('ui', () => {
   function getLayoutDefaults() {
     return {
       panelDocs: 40,
-      panelEditor: 60,
-      panelPreview: 40,
+      panelEditor: 50,
+      panelPreview: 30,
+      panelConsole: 20,
       panelFileTree: 0,
       showTerminal: true,
+      showConsole: true,
     }
   }
 
@@ -30,7 +32,7 @@ export const useUiState = defineStore('ui', () => {
   })
 
   function toggleTerminal() {
-    const TERMINAL_HEIGHT = 30
+    const TERMINAL_HEIGHT = 20
     persistState.showTerminal = !persistState.showTerminal
     if (persistState.showTerminal) {
       persistState.panelEditor = persistState.panelEditor / 100 * (100 - TERMINAL_HEIGHT)
@@ -43,10 +45,25 @@ export const useUiState = defineStore('ui', () => {
     }
   }
 
+  function toggleConsole() {
+    const CONSOLE_HEIGHT = 20
+    persistState.showConsole = !persistState.showConsole
+    if (persistState.showConsole) {
+      persistState.panelEditor = persistState.panelEditor / 100 * (100 - CONSOLE_HEIGHT)
+      persistState.panelPreview = persistState.panelPreview / 100 * (100 - CONSOLE_HEIGHT)
+    }
+    else {
+      const remaining = persistState.panelEditor + persistState.panelPreview
+      persistState.panelEditor = persistState.panelEditor / remaining * 100
+      persistState.panelPreview = persistState.panelPreview / remaining * 100
+    }
+  }
+
   return {
     isPanelDragging,
     isContentDropdownShown,
     toggleTerminal,
+    toggleConsole,
     resetLayout,
     ...toRefs(persistState),
   }

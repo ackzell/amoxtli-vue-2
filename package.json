@@ -25,6 +25,8 @@
     "floating-vue": "catalog:frontend",
     "fuse.js": "catalog:frontend",
     "jszip": "catalog:frontend",
+    "licia": "catalog:",
+    "luna-console": "catalog:",
     "monaco-editor": "catalog:frontend",
     "monaco-editor-core": "catalog:frontend",
     "pathe": "catalog:frontend",

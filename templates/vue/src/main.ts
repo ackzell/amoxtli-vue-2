@@ -35,8 +35,8 @@ let vueVersion = 'unknown'
 try {
   const vuePackage = await fetch('/node_modules/vue/package.json').then(r => r.json())
   vueVersion = vuePackage.version
-} catch (e) {
-  // Fallback: try to read from window if available
+}
+catch (e) {
   vueVersion = (window as any).__vueVersion || 'unknown'
 }
 

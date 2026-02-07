@@ -44,6 +44,14 @@ addCommands(
     icon: 'i-ph-terminal-window-duotone',
   },
   {
+    id: 'toggle-console',
+    title: () => 'Toggle Console',
+    handler: () => {
+      ui.toggleConsole()
+    },
+    icon: 'i-ph-terminal-duotone',
+  },
+  {
     id: 'language-en',
     title: 'Change to English',
     handler: () => {
@@ -156,6 +164,15 @@ addCommands(
         @click="ui.toggleTerminal()"
       >
         <div i-ph-terminal-window-duotone text-2xl />
+      </button>
+      <button
+        rounded p2
+        title="Toggle Console"
+        hover="bg-active"
+        :class="ui.showConsole ? '' : 'op50'"
+        @click="ui.toggleConsole()"
+      >
+        <div i-ph-terminal-duotone text-2xl />
       </button>
       <ColorSchemeToggle />
       <NuxtLink

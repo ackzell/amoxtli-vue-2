@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { FrameFunctions, ParentFunctions } from '~/types/rpc'
+import type { LogPayload } from '~/types/console-output'
+import type { ClientInfo, FrameFunctions, ParentFunctions } from '~/types/rpc'
 import { createBirpc } from 'birpc'
 
 const ui = useUiState()
@@ -9,35 +10,63 @@ const preview = usePreviewStore()
 
 const iframe = ref<HTMLIFrameElement>()
 
-const rpc = createBirpc<FrameFunctions, ParentFunctions>({
-  onNavigate(path) {
-    preview.location.fullPath = path
-  },
-  async onReady(info) {
+// Set up birpc to communicate with iframe
+const functions: ParentFunctions = {
+  onReady(info: ClientInfo) {
     play.status = 'ready'
     preview.clientInfo = info
     syncColorMode()
   },
-}, {
-  post(payload) {
-    iframe?.value?.contentWindow?.postMessage({
-      source: 'nuxt-playground-parent',
-      payload,
-    }, '*')
+  onNavigate(path: string) {
+    preview.location.fullPath = path
   },
-  on(fn) {
-    window.addEventListener('message', (event) => {
-      if (typeof event.data !== 'object')
-        return
-      if (event.data.source !== 'nuxt-playground-frame')
-        return
-      fn(event.data.payload)
-    })
-  },
+}
+
+let rpc: any = null
+
+onMounted(() => {
+  rpc = createBirpc<FrameFunctions, ParentFunctions>(functions, {
+    post(payload) {
+      iframe.value?.contentWindow?.postMessage({
+        source: 'nuxt-playground-parent',
+        payload,
+      }, '*')
+    },
+    on(fn) {
+      window.addEventListener('message', (event) => {
+        if (typeof event.data !== 'object')
+          return
+        if (event.data.source !== 'nuxt-playground-frame')
+          return
+        fn(event.data.payload)
+      })
+    },
+  })
+
+  window.addEventListener('message', handleConsoleMessage)
 })
 
+onBeforeUnmount(() => {
+  window.removeEventListener('message', handleConsoleMessage)
+})
+
+function handleConsoleMessage(event: MessageEvent) {
+  if (typeof event.data !== 'object')
+    return
+  if (event.data.source !== 'nuxt-playground-frame')
+    return
+
+  const { method, args } = event.data.payload || {}
+  if (method === 'onConsoleLog' && args?.[0]) {
+    const payload = args[0] as LogPayload
+    if (typeof window !== 'undefined' && (window as any).executeLog) {
+      (window as any).executeLog(payload)
+    }
+  }
+}
+
 function syncColorMode() {
-  rpc.onColorModeChange.asEvent(colorMode.value)
+  rpc?.onColorModeChange(colorMode.value)
 }
 
 watch(

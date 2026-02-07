@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 const count = ref(0)
+console.log('hello hello hello')
 </script>
 
 <template>

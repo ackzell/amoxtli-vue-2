@@ -5,6 +5,7 @@ So that we can discuss about the directions and plans, to avoid wasted efforts. 
 
 <script setup lang="ts">
 import { Pane, Splitpanes } from 'splitpanes'
+import OutputConsole from './OutputConsole.client.vue'
 
 const ui = useUiState()
 const guide = useGuideStore()
@@ -38,7 +39,21 @@ function draggingEmbeddedDocs(e: { size: number }[]) {
 const terminalPaneProps = computed(() => {
   if (ui.showTerminal) {
     return {
-      size: 100 - ui.panelEditor - ui.panelPreview,
+      size: 100 - ui.panelEditor - ui.panelPreview - ui.panelConsole,
+    }
+  }
+  else {
+    return {
+      size: 0,
+      maxSize: 0,
+    }
+  }
+})
+
+const consolePaneProps = computed(() => {
+  if (ui.showConsole) {
+    return {
+      size: ui.panelConsole,
     }
   }
   else {
@@ -66,7 +81,10 @@ const panelInitPreview = computed(() => isMounted.value || {
   height: `${ui.panelPreview}%`,
 })
 const panelInitTerminal = computed(() => isMounted.value || {
-  height: `${100 - ui.panelEditor - ui.panelPreview}%`,
+  height: `${100 - ui.panelEditor - ui.panelPreview - ui.panelConsole}%`,
+})
+const panelInitConsole = computed(() => isMounted.value || {
+  height: `${ui.panelConsole}%`,
 })
 </script>
 
@@ -100,6 +118,14 @@ const panelInitTerminal = computed(() => isMounted.value || {
         <PaneSplitter />
         <Pane :size="ui.panelPreview" min-size="10" :style="panelInitPreview">
           <PanelPreview />
+        </Pane>
+        <PaneSplitter />
+        <Pane
+          v-bind="consolePaneProps"
+          :style="panelInitConsole"
+          :class="ui.showConsole ? '' : 'pane-hidden'"
+        >
+          <OutputConsole />
         </Pane>
         <PaneSplitter />
         <Pane

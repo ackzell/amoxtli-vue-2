@@ -28,3 +28,6 @@ preview: Preview
 built: Built
 vueVersion: Vue version
 editor: Editor
+console-output:
+  name: Console Output
+  clear: clear
