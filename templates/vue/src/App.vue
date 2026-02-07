@@ -1,13 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const count = ref(0)
 console.log('hello hello hello')
+
+console.table({
+  a: 1,
+  b: 2,
+})
+
+onMounted(() => {
+  console.log(document.getElementById('myEl'))
+})
 </script>
 
 <template>
   <div style="padding: 2rem; text-align: center;">
-    <h1>Vue 3 Playground</h1>
+    <h1 id="myEl">
+      Vue 3 Playground
+    </h1>
     <p>Count: {{ count }}</p>
     <button @click="count++">
       Increment

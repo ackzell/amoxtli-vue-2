@@ -13,10 +13,12 @@ syncRef(
   { direction: 'ltr' },
 )
 
-function refreshIframe() {
+function refreshIframe(force = false) {
   preview.updateUrl()
   if (preview.url && inner.value?.iframe) {
-    inner.value.iframe.src = preview.url
+    if (force || inner.value.iframe.src !== preview.url) {
+      inner.value.iframe.src = preview.url
+    }
     inputUrl.value = preview.location.fullPath
   }
 }
@@ -81,7 +83,7 @@ function navigate() {
         rounded p1
         hover="bg-active"
         title="Refresh Preview"
-        @click="refreshIframe"
+        @click="refreshIframe(true)"
       >
         <div i-ph-arrow-clockwise-duotone text-lg />
       </button>

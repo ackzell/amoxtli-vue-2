@@ -5,12 +5,18 @@ export const CONSOLE_INTERCEPTOR_CODE = `
 // Console interceptor - automatically injected by playground
 /* console-interceptor */
 (function() {
+  if (window.__consoleInterceptorInstalled)
+    return;
+  window.__consoleInterceptorInstalled = true;
+
   const originalConsole = {
     log: console.log,
     warn: console.warn,
     error: console.error,
     info: console.info,
     debug: console.debug,
+    table: console.table,
+    dir: console.dir,
   };
 
   function serializeArg(arg, seen = new WeakSet()) {
@@ -149,7 +155,7 @@ export const CONSOLE_INTERCEPTOR_CODE = `
   }
 
   // Intercept all console methods
-  ['log', 'warn', 'error', 'info', 'debug'].forEach(interceptConsole);
+  ['log', 'warn', 'error', 'info', 'debug', 'table', 'dir'].forEach(interceptConsole);
 
   // Handle unhandled errors
   window.addEventListener('error', (event) => {

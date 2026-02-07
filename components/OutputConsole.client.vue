@@ -10,6 +10,7 @@ const lunaRef = useTemplateRef('luna-ref')
 const lunaConsole = ref<any>()
 const colorMode = useColorMode()
 const theme = computed(() => colorMode.preference === 'dark' ? 'dark' : 'light')
+const hideViteLogs = ref(false)
 
 // Load dependencies asynchronously on mount
 const dependenciesReady = ref(false)
@@ -49,6 +50,9 @@ onMounted(async () => {
     (window as any).executeLog = ({ logLevel, data = [] }: LogPayload) => {
       const deserialized = data.map(deserializeMessage)
 
+      if (hideViteLogs.value && isViteLog(deserialized))
+        return
+
       // Log to LunaConsole
       if (lunaConsole.value && deserialized.length > 0) {
         const logMethod = lunaConsole.value[logLevel]
@@ -56,15 +60,14 @@ onMounted(async () => {
           logMethod.apply(lunaConsole.value, deserialized)
         }
       }
-
-      // Also log to browser console
-      const consoleMethod = console[logLevel as keyof typeof console]
-      if (typeof consoleMethod === 'function') {
-        consoleMethod.apply(console, deserialized)
-      }
     }
   }
 })
+
+function isViteLog(args: any[]) {
+  const first = args?.[0]
+  return typeof first === 'string' && first.startsWith('[vite]')
+}
 
 // Watch for theme changes and update LunaConsole theme reactively
 watch(
@@ -223,9 +226,14 @@ function deserializeMessage(arg: any): any {
   <div class="console-wrapper">
     <div class="console-title">
       <strong>{{ $t('console-output.name') }}</strong>
-      <button class="clear-btn" @click="clearLunaConsole">
-        {{ $t('console-output.clear') }}
-      </button>
+      <div class="console-actions">
+        <button class="filter-btn" @click="hideViteLogs = !hideViteLogs">
+          {{ hideViteLogs ? $t('console-output.show-vite') : $t('console-output.hide-vite') }}
+        </button>
+        <button class="clear-btn" @click="clearLunaConsole">
+          {{ $t('console-output.clear') }}
+        </button>
+      </div>
     </div>
     <div class="luna-container">
       <div ref="luna-ref" />
@@ -237,10 +245,14 @@ function deserializeMessage(arg: any): any {
 .console-wrapper {
   height: 100%;
   border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .luna-container {
-  height: calc(100% - var(--header-height));
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   overflow: auto;
 }
@@ -262,6 +274,12 @@ function deserializeMessage(arg: any): any {
   align-items: center;
 }
 
+.console-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
 .clear-btn {
   font-size: 0.85rem;
   font-family: var(--font-code);
@@ -273,7 +291,22 @@ function deserializeMessage(arg: any): any {
   border: 1px solid var(--border);
 }
 
+.filter-btn {
+  font-size: 0.85rem;
+  font-family: var(--font-code);
+  color: var(--text-light);
+  padding: 0.3rem;
+  margin: 0.2rem;
+  background-color: var(--bg);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
 .clear-btn:hover {
+  color: var(--color-branding);
+}
+
+.filter-btn:hover {
   color: var(--color-branding);
 }
 </style>

@@ -31,3 +31,5 @@ editor: Editor
 console-output:
   name: Console Output
   clear: clear
+  hide-vite: hide [vite] logs
+  show-vite: show [vite] logs
