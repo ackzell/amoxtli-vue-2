@@ -43,6 +43,7 @@
     "@iconify-json/carbon": "catalog:icons",
     "@iconify-json/catppuccin": "catalog:icons",
     "@iconify-json/logos": "catalog:icons",
+    "@iconify-json/mynaui": "catalog:",
     "@iconify-json/ph": "catalog:icons",
     "@iconify-json/svg-spinners": "catalog:icons",
     "@intlify/eslint-plugin-vue-i18n": "catalog:dev",
