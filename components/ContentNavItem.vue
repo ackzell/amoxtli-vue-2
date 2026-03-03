@@ -31,7 +31,7 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
         <summary>
           <div
             flex="~ gap-1 items-center" cursor-pointer select-none px1 py0.5
-            hover="text-primary bg-active"
+            hover="text-primary dark:text-primary-dark bg-active"
             :style="{ paddingLeft }"
           >
             <div class="caret" i-ph-caret-right-duotone flex-none text-sm op50 transition duration-400 />
@@ -57,9 +57,9 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
       :to="resolved.path"
       px1 py0.5
       :style="{ paddingLeft }"
-      :class="{ 'text-primary bg-active': resolved.path === route.path }"
+      :class="{ 'text-primary dark:text-primary-dark bg-active': resolved.path === route.path }"
       flex="~ gap-1 items-center"
-      hover="text-primary bg-active "
+      hover="text-primary dark:text-primary-dark bg-active "
       @click="ui.isContentDropdownShown = false"
     >
       <div class="caret" i-ph-caret-right-duotone flex-none text-sm op0 />

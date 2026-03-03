@@ -12,10 +12,11 @@ defineProps<{
   <div
     flex="~ col"
     class="flex-1 p4"
-    border="~ base rounded-lg hover:primary"
+    bg="bgr dark:bgr-dark"
+    border="~ base rounded-lg hover:primary dark:hover:primary-dark"
     relative block h-full
   >
-    <span class="pointer-events-none mb4 h-7 w-7 inline-flex flex-none items-center text-lg text-primary" :class="icon" />
+    <span class="pointer-events-none mb4 h-7 w-7 inline-flex flex-none items-center text-lg text-primary dark:text-primary-dark" :class="icon" />
     <div class="my-0 text-lg font-semibold">
       {{ title }}
     </div>

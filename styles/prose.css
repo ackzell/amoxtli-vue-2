@@ -1,13 +1,28 @@
 :root {
-  --un-prose-links: #00dc82;
+  --un-prose-links: var(--amv-links);
+}
+
+.prose {
+  & h1, 
+  & h2, 
+  & h3,
+  & h4, 
+  & h5,
+  & h6 {
+   --uno: font-mono;
+  }
 }
 
 .prose :where(p, ul, ol, pre):not(:where(.not-prose, .not-prose *)) {
   line-height: 2rem;
 }
 
+.prose :where(code):not(:where(.not-prose,.not-prose *)) {
+  font-weight: 500;
+}
+
 .prose a {
-  text-decoration: none;
+  text-decoration: underline dotted;
 }
 
 .prose a:hover {
@@ -41,11 +56,11 @@
 }
 
 .prose :where(a > code):not(:where(.not-prose, .not-prose *)) {
-  --uno: border-dashed important-text-emerald;
+  --uno: border-dashed important-text-primary;
 }
 
 .prose :where(a > code):hover:not(:where(.not-prose, .not-prose *)) {
-  --uno: important-border-emerald/50;
+  --uno: important-border-primary/50;
 }
 
 .prose :where(a:has(> code)):not(:where(.not-prose, .not-prose *)) {
@@ -55,4 +70,12 @@
 .prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::before,
 .prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::after {
   content: '';
+}
+
+.dark .prose :where(a > code):not(:where(.not-prose, .not-prose *)) {
+  --uno: border-dashed important-text-primary-dark-200;
+}
+
+.dark .prose :where(a > code):hover:not(:where(.not-prose, .not-prose *)) {
+  --uno: important-border-primary-dark-200/50;
 }

@@ -2,7 +2,7 @@ html,
 body {
   height: 100vh;
   overflow: hidden;
-  --uno: bg-base font-sans;
+  --uno: font-sans;
 }
 
 .dark {
@@ -11,4 +11,113 @@ body {
 
 * {
   min-width: 0;
+}
+
+@property --hdr-color-1 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: oklch(0 0 0);
+}
+@property --hdr-color-2 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: oklch(0 0 0);
+}
+@property --hdr-color-3 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: oklch(0 0 0);
+}
+@property --hdr-x {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+@property --hdr-y {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+
+:root {
+  transition: --hdr-color-1 1s ease, --hdr-color-2 1s ease,
+    --hdr-color-3 1s ease, --hdr-x 1s ease, --hdr-y 1s ease;
+
+  /* Intermediate animatable version */
+  background: radial-gradient(
+    farthest-corner circle at var(--hdr-x) var(--hdr-y) in oklch,
+    var(--hdr-color-1) 12%,
+    var(--hdr-color-2) 14%,
+    var(--hdr-color-3) 51%
+  );
+  position: relative;
+  overflow: hidden;
+
+}
+
+/* These pseudo-elements hold your “true” gradients */
+:root::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  background: var(--hdr-gradient-final);
+}
+
+/* --- LIGHT THEME --- */
+:root.light {
+  --amv-highlight: oklch(0.77 0.14 70.23);
+  --av-text-primary: oklch(40% 0.05 249);
+
+  --amv-links: oklch(from var(--amv-highlight) calc(l - 0.20)  c h);
+
+  --hdr-color-1: var(--amv-highlight);
+  --hdr-color-2: oklch(0.9702 0 0);
+  --hdr-color-3: oklch(0.9702 0 0);
+  --hdr-x: 50%;
+  --hdr-y: -15%;
+
+  /* Your true gradient */
+  --hdr-gradient-final: radial-gradient(
+    farthest-corner circle at 50% -19% in oklch decreasing hue,
+    var(--amv-highlight) 12%,
+    14%,
+    oklch(0.9702 0 0) 30%
+  );
+}
+
+/* --- DARK THEME --- */
+:root.dark {
+  --amv-highlight: oklch(0.5962 0.2423 358.92);
+  --av-text-primary: oklch(0.8385 0.0263 248.14);
+
+  --amv-links: oklch(from var(--amv-highlight) calc(l + 0.20)  c h);
+
+  --hdr-color-1: oklch(60% 0.224 354);
+  --hdr-color-2: oklch(60% 0.224 354);
+  --hdr-color-3: oklch(15% 0.1 110);
+  --hdr-x: 0%;
+  --hdr-y: 140%;
+
+  /* Your true gradient */
+  --hdr-gradient-final: radial-gradient(
+    farthest-corner circle at 0% 140% in oklch increasing hue,
+    oklch(60% 0.224 354) 12%,
+    14%,
+    oklch(15% 0.1 110) 51%
+  );
+}
+
+/* --- When animation finishes, fade in the real gradient --- */
+:root.dark.theme-ready::after,
+:root.light.theme-ready::after {
+  opacity: 1;
+}
+
+body {
+  color: var(--av-text-primary);
+  transition: color 0.4s ease;
 }

@@ -104,7 +104,7 @@ router.beforeEach(() => {
       <div i-ph-book-duotone flex-none />
       <template v-for="bc, idx of breadcrumbs" :key="bc.path">
         <div v-if="idx !== 0" i-ph-caret-right mx--1 text-sm op50 />
-        <NuxtLink :to="bc.path" text-sm hover="text-primary">
+        <NuxtLink :to="bc.path" text-sm hover="text-primary dark:text-primary-dark">
           {{ bc.title }}
         </NuxtLink>
       </template>
@@ -150,7 +150,7 @@ router.beforeEach(() => {
             :to="sourceUrl" target="_blank"
             flex="~ items-center gap-2"
             text-inherit op75
-            hover="text-primary op100"
+            hover="text-primary dark:text-primary-dark op100"
           >
             <div i-ph-note-pencil-duotone />
             {{ $t('edit-this-page') }}
