@@ -44,8 +44,8 @@ const language = computed(() => {
   }
 })
 const theme = computed(() => colorMode.value === 'dark'
-  ? 'vitesse-dark'
-  : 'vitesse-light',
+  ? 'vesper'
+  : 'amoxtli-light',
 )
 
 function getModel(filepath: string) {

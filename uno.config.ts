@@ -192,6 +192,10 @@ export default defineConfig({
           name: 'Space Mono',
           weights: [200, 400, 500, 600, 700],
         },
+        code: {
+          name: 'Ubuntu Mono',
+          weights: [400, 700],
+        },
 
         // sans: 'Work Sans:400,500,600,700',
         // mono: 'Space Mono:400,500,600,700',

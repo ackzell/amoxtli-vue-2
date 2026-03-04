@@ -1,4 +1,5 @@
 import { execaSync } from 'execa'
+import amoxtliLight from './themes/amoxtli-light'
 
 export default defineNuxtConfig({
   modules: [
@@ -47,8 +48,8 @@ export default defineNuxtConfig({
         },
         highlight: {
           theme: {
-            default: 'vitesse-light',
-            dark: 'vitesse-dark',
+            default: amoxtliLight,
+            dark: 'vesper',
           },
         },
       },
