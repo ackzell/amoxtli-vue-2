@@ -104,7 +104,7 @@ body {
 
   /* Your true gradient */
   --hdr-gradient-final: radial-gradient(
-    farthest-corner circle at 0% 140% in oklch increasing hue,
+    farthest-corner circle at -5% 122% in oklch increasing hue,
     oklch(60% 0.224 354) 12%,
     14%,
     oklch(15% 0.1 110) 51%

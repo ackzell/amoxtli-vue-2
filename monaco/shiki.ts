@@ -13,7 +13,8 @@ export async function getShiki() {
 
   const darkColors = (themeDark as any).colors as Record<string, string>
   darkColors['editor.background'] = '#00000000'
-  darkColors['editor.lineHighlightBackground'] = '#00000000'
+  darkColors.focusBorder = '#00000000'
+  darkColors['editorCursor.foreground'] = '#ffc799'
 
   highlighter = createHighlighterCore({
     langs: [
