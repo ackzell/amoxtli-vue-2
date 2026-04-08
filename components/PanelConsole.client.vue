@@ -18,7 +18,7 @@ const dependenciesReady = ref(false)
 onMounted(async () => {
   // Load Luna Console and styles dynamically
   if (!LunaConsole) {
-    const [lunaModule, styleObj, styleDom, styleGrid] = await Promise.all([
+    const [lunaModule] = await Promise.all([
       import('luna-console'),
       import('luna-object-viewer/luna-object-viewer.css'),
       import('luna-dom-viewer/luna-dom-viewer.css'),
@@ -134,10 +134,23 @@ function deserializeMessage(arg: any): any {
       return undefined
 
     case 'function': {
-      // Approximated with a Function constructor (non-invocable stub)
-      const fn = new Function(`/* [Function ${arg.name}] */`)
-        ; (fn as any).__isStub = true
-      ; (fn as any).__preview = `[Function ${arg.name}]${arg.isNative ? ' [native]' : ''}`
+      // Use a regular function stub to avoid dynamic code evaluation.
+      const fn = function () {}
+      const functionName = arg.name || 'anonymous'
+      const preview = arg.isNative
+        ? `function ${functionName}() { [native code] }`
+        : `function ${functionName}() { /* source unavailable */ }`
+
+      // Prefer readable display in object/console viewers that stringify functions.
+      Object.defineProperty(fn, 'toString', {
+        value: () => preview,
+        enumerable: false,
+        configurable: true,
+      })
+
+      // Keep metadata for viewers that support custom previews.
+      ; (fn as any).__isStub = true
+      ; (fn as any).__preview = preview
       return fn
     }
 
@@ -223,17 +236,29 @@ function deserializeMessage(arg: any): any {
 </script>
 
 <template>
-  <div class="console-wrapper">
-    <div class="console-title">
-      <strong>{{ $t('console-output.name') }}</strong>
-      <div class="console-actions">
-        <button class="filter-btn" @click="hideViteLogs = !hideViteLogs">
-          {{ hideViteLogs ? $t('console-output.show-vite') : $t('console-output.hide-vite') }}
-        </button>
-        <button class="clear-btn" @click="clearLunaConsole">
-          {{ $t('console-output.clear') }}
-        </button>
-      </div>
+  <div class="console-wrapper" h-full grid="~ rows-[min-content_1fr]">
+    <div
+      flex="~ gap-2 items-center"
+      border="b base dashed"
+      bg-faded p2 pl4
+    >
+      <div i-ph-terminal-window-duotone />
+      <span text-sm>{{ $t('console-output.name') }}</span>
+      <div flex-auto />
+      <button
+        hover="bg-active" rounded p1
+        :title="hideViteLogs ? $t('console-output.show-vite') : $t('console-output.hide-vite')"
+        @click="hideViteLogs = !hideViteLogs"
+      >
+        <div :class="hideViteLogs ? 'i-ph-funnel-x-duotone' : 'i-ph-funnel-duotone'" />
+      </button>
+      <button
+        hover="bg-active" rounded p1
+        :title="$t('console-output.clear')"
+        @click="clearLunaConsole"
+      >
+        <div i-ph-broom-duotone />
+      </button>
     </div>
     <div class="luna-container">
       <div ref="luna-ref" />
@@ -245,8 +270,6 @@ function deserializeMessage(arg: any): any {
 .console-wrapper {
   height: 100%;
   border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
   min-height: 0;
 }
 
@@ -259,54 +282,5 @@ function deserializeMessage(arg: any): any {
 
 .luna-console-theme-dark {
   background-color: var(--bg) !important;
-}
-
-.console-title {
-  height: var(--header-height);
-  position: sticky;
-  top: 0;
-  border-bottom: 1px solid var(--border);
-  background-color: var(--bg);
-  padding-left: 10px;
-  color: var(--text-light);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.console-actions {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.clear-btn {
-  font-size: 0.85rem;
-  font-family: var(--font-code);
-  color: var(--text-light);
-  padding: 0.3rem;
-  margin: 0.2rem;
-  background-color: var(--bg);
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-
-.filter-btn {
-  font-size: 0.85rem;
-  font-family: var(--font-code);
-  color: var(--text-light);
-  padding: 0.3rem;
-  margin: 0.2rem;
-  background-color: var(--bg);
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-
-.clear-btn:hover {
-  color: var(--color-branding);
-}
-
-.filter-btn:hover {
-  color: var(--color-branding);
 }
 </style>

@@ -5,7 +5,7 @@ So that we can discuss about the directions and plans, to avoid wasted efforts. 
 
 <script setup lang="ts">
 import { Pane, Splitpanes } from 'splitpanes'
-import OutputConsole from './OutputConsole.client.vue'
+import PanelConsole from './PanelConsole.client.vue'
 
 const ui = useUiState()
 const guide = useGuideStore()
@@ -125,7 +125,7 @@ const panelInitConsole = computed(() => isMounted.value || {
           :style="panelInitConsole"
           :class="ui.showConsole ? '' : 'pane-hidden'"
         >
-          <OutputConsole />
+          <PanelConsole />
         </Pane>
         <PaneSplitter />
         <Pane
