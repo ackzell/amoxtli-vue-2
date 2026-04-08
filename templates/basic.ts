@@ -1,5 +1,5 @@
-import template from '#build/templates/vue'
 import type { TemplateOptions } from './types'
+import template from '#build/templates/vue'
 
 export default function load(options: TemplateOptions = {}) {
   if (import.meta.server)

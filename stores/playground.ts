@@ -61,10 +61,13 @@ export const usePlaygroundStore = defineStore('playground', () => {
       }
       webcontainer.value = wc
 
-      // Create VirtualFile objects with clean content (no injection)
+      // Create VirtualFile objects from the default (vue) template
       Object.entries(vueTemplate)
         .forEach(([path, content]) => {
-          files.set(path, new VirtualFile(path, content, wc))
+          const file = new VirtualFile(path, content, wc)
+          if (path.endsWith('.html'))
+            file.fsTransform = injectHtmlScripts
+          files.set(path, file)
         })
 
       wc.on('server-ready', async (port, url) => {

@@ -1,4 +1,4 @@
-declare module '#build/templates/basic' {
+declare module '#build/templates/vue' {
   const files: Record<string, string>
   export default files
 }
