@@ -30,11 +30,11 @@ export default defineConfig({
   },
   theme: {
     colors: {
-      text: {
+      foreground: {
         DEFAULT: 'oklch(40% 0.05 249)',
 
         dark: {
-          DEFAULT: 'whitesmoke',
+          DEFAULT: '#f5f5f5', // whitesmoke
         },
       },
 

@@ -96,7 +96,7 @@ const panelInitConsole = computed(() => isMounted.value || {
     @resized="endDraggingVertical"
   >
     <Pane
-      :size="ui.panelDocs" min-size="10"
+      :size="ui.panelDocs" min-size="35"
       :style="panelInitDocs"
     >
       <PanelDocs :key="route.path" />

@@ -18,7 +18,7 @@ export default defineConfig({
               injectTo: 'head',
               children: `
                 html:not(.dark) body { background: #ffffff; color: #2c3e50; }
-                html.dark body { background: #1a1a2e; color: #e5e7eb; }
+                html.dark body { background: #101010; color: #e5e7eb; }
                 body { transition: background-color 0.15s, color 0.15s; }
               `,
             },

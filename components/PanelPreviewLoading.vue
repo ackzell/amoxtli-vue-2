@@ -22,7 +22,7 @@ function getStatusIcon(status: PlaygroundStatus) {
     case 'current':
       return 'i-svg-spinners-90-ring-with-bg scale-95 text-xl'
     case 'done':
-      return 'i-ph-check-circle-duotone text-primary dark:text-primary-dark text-xl'
+      return 'i-ph-check-circle-duotone text-positive dark:text-positive-200 text-xl'
     case 'todo':
       return 'i-ph-dot-duotone text-xl'
   }
@@ -36,7 +36,7 @@ function getTextClass(status: PlaygroundStatus) {
     case 'current':
       return 'animate-pulse'
     case 'done':
-      return 'text-primary dark:text-primary-dark'
+      return 'text-positive dark:text-positive-200'
     case 'todo':
       return 'op50'
   }

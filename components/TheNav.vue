@@ -80,8 +80,13 @@ addCommands(
   <nav
     px4 py3 text-lg border="b base" flex="~ gap-1 items-center"
   >
-    <div>
-      Amoxtli Vue
+    <div class="ml-2 flex-1">
+      <div text-xl text-primary font-bold font-mono dark:text-primary-dark>
+        Amoxtli Vue
+      </div>
+      <div class="text-foreground/50 dark:text-foreground-dark/50 text-xs">
+        A book about Vue
+      </div>
     </div>
     <div flex-auto />
     <div
