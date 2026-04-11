@@ -2,11 +2,11 @@
 const ui = useUiState()
 const play = usePlaygroundStore()
 const guide = useGuideStore()
-const runtime = useRuntimeConfig()
-const commands = useCommandsStore()
 
-const buildTime = new Date(runtime.public.buildTime)
-const timeAgo = useTimeAgo(buildTime)
+// const runtime = useRuntimeConfig()
+
+// const buildTime = new Date(runtime.public.buildTime)
+// const timeAgo = useTimeAgo(buildTime)
 
 function downloadCurrentGuide() {
   if (!play.webcontainer)
@@ -78,17 +78,20 @@ addCommands(
 
 <template>
   <nav
-    px4 py3 text-lg border="b base" flex="~ gap-1 items-center"
+    relative
+    px4 py2 text-lg border="b base" flex="~ gap-1 items-center justify-between"
   >
-    <div class="ml-2 flex-1">
+    <div px4>
       <div text-xl text-primary font-bold font-mono dark:text-primary-dark>
-        Amoxtli Vue
+        {{ $t('amoxtli-vue') }}
       </div>
-      <div class="text-foreground/50 dark:text-foreground-dark/50 text-xs">
-        A book about Vue
+      <div class="text-xs text-foreground/50 dark:text-foreground-dark/50">
+        {{ $t('a-book-about-vue') }}
       </div>
     </div>
-    <div flex-auto />
+    <div class="mx-2 hidden max-w-2xl md:flex md:flex-1">
+      <DocsNavigation class="min-w-0 w-full" />
+    </div>
     <div
       flex="~ gap-1 items-center"
       :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
@@ -115,15 +118,15 @@ addCommands(
           </div>
         </template>
       </VDropdown>
-      <button
+      <!-- <button
         rounded p2
         hover="bg-active"
         :title="$t('search')"
         @click="commands.isShown = true"
       >
         <div i-ph-magnifying-glass-duotone text-2xl />
-      </button>
-      <button
+      </button> -->
+      <!-- <button
         v-if="play.status === 'ready' && !!guide.features.download"
         rounded p2
         hover="bg-active"
@@ -131,8 +134,8 @@ addCommands(
         @click="downloadCurrentGuide()"
       >
         <div i-ph-download-duotone text-2xl />
-      </button>
-      <VDropdown :distance="6">
+      </button> -->
+      <!-- <VDropdown :distance="6">
         <button
           rounded p2
           hover="bg-active"
@@ -145,13 +148,13 @@ addCommands(
             <div i-ph-package-duotone text-xl />
             <NuxtLink :to="`${runtime.public.repoUrl}/commit/${runtime.public.gitSha}`" target="_blank" title="View on GitHub">
               <time :datetime="buildTime.toISOString()" :title="buildTime.toLocaleString()">
-                <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+                <!- eslint-disable-next-line @intlify/vue-i18n/no-raw-text --
                 {{ $t('built') }} {{ timeAgo }} (<code>{{ runtime.public.gitSha.slice(0, 5) }}</code>)
               </time>
             </NuxtLink>
           </div>
         </template>
-      </VDropdown>
+      </VDropdown> -->
       <button
         rounded p2
         :title="$t('terminal.toggle')"
@@ -171,15 +174,9 @@ addCommands(
         <div i-ph-terminal-duotone text-2xl />
       </button>
       <ColorSchemeToggle />
-      <NuxtLink
-        rounded p2
-        title="GitHub"
-        hover="bg-active"
-        :href="runtime.public.repoUrl"
-        target="_blank"
-      >
-        <div i-carbon-logo-github text-2xl />
-      </NuxtLink>
     </div>
   </nav>
+  <div class="mb6 mt2 block md:hidden">
+    <DocsNavigation />
+  </div>
 </template>

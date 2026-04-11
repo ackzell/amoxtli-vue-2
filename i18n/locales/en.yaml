@@ -33,3 +33,5 @@ console-output:
   clear: clear
   hide-vite: hide [vite] logs
   show-vite: show [vite] logs
+a-book-about-vue: A book about Vue
+amoxtli-vue: Amoxtli Vue

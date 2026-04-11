@@ -55,11 +55,10 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
     <NuxtLink
       v-else
       :to="resolved.path"
-      px1 py0.5
       :style="{ paddingLeft }"
-      :class="{ 'text-primary dark:text-primary-dark bg-active': resolved.path === route.path }"
+      :class="{ 'text-primary dark:text-primary-dark bg-bgr-50 dark:bg-bgr-900': resolved.path === route.path }"
       flex="~ gap-1 items-center"
-      hover="text-primary dark:text-primary-dark bg-active "
+      hover="text-primary dark:text-primary-dark bg-active" px1 py0.5
       @click="ui.isContentDropdownShown = false"
     >
       <div class="caret" i-ph-caret-right-duotone flex-none text-sm op0 />
