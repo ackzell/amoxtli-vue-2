@@ -30,3 +30,8 @@
 ## Integration points
 - `@webcontainer/api` is central to the playground runtime (boot, mount, spawn). 
 - Monaco/Volar integration lives in `monaco/` and is wired into the editor panels; prefer existing helpers there when changing editor behavior.
+
+## UnoCSS and styling
+- UnoCSS is used for utility-first styling; see `uno.config.ts` for custom rules and presets.
+- When authoring, don't fix the sorting of classes; the linter will handle it. Focus on semantics and readability.
+- The project uses a custom color palette defined in `uno.config.ts` (e.g. `text-primary`, `bg-foreground/50`); use these for consistency rather than raw colors

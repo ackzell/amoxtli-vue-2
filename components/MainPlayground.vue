@@ -1,8 +1,3 @@
-<!--
-Please create an issue first before submiting PRs.
-So that we can discuss about the directions and plans, to avoid wasted efforts. Thank you!
--->
-
 <script setup lang="ts">
 import { Pane, Splitpanes } from 'splitpanes'
 import PanelConsole from './PanelConsole.client.vue'
