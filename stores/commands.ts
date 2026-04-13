@@ -13,10 +13,10 @@ export interface Command {
 export const useCommandsStore = defineStore('commands', () => {
   const search = ref('')
   const isShown = ref(false)
-  const commandsAll = reactive<Set<Command>>(new Set())
+  const commandsAll = ref<Command[]>([])
   const guidesResult = ref<Command[]>([])
 
-  const fuse = computed(() => new Fuse(Array.from(commandsAll), {
+  const fuse = computed(() => new Fuse(commandsAll.value, {
     keys: ['title', 'description'],
     threshold: 0.3,
   }))
@@ -50,7 +50,7 @@ export const useCommandsStore = defineStore('commands', () => {
 
   const commandsResult = computed(() => {
     let result = !search.value
-      ? Array.from(commandsAll)
+      ? commandsAll.value
       : [
           ...fuse.value.search(search.value).map(i => i.item),
           ...guidesResult.value,
@@ -74,13 +74,14 @@ export function addCommands(...inputs: Command[]) {
   const commands = useCommandsStore()
 
   onMounted(() => {
-    for (const command of inputs)
-      commands.commandsAll.add(command)
+    for (const command of inputs) {
+      if (!commands.commandsAll.includes(command))
+        commands.commandsAll.push(command)
+    }
   })
 
   onUnmounted(() => {
-    for (const command of inputs)
-      commands.commandsAll.delete(command)
+    commands.commandsAll = commands.commandsAll.filter(command => !inputs.includes(command))
   })
 }
 

@@ -18,6 +18,7 @@ catalogs:
     typescript: ^5.9.3
     vue-tsc: ^3.2.6
   frontend:
+    '@ark-ui/vue': ^5.36.0
     '@shikijs/core': ^3.23.0
     '@shikijs/monaco': ^3.23.0
     '@volar/monaco': ~2.4.28
@@ -33,7 +34,6 @@ catalogs:
     monaco-editor-core: ^0.52.2
     pathe: ^2.0.3
     shiki: ^3.23.0
-    splitpanes: 3.1.5
     strip-json-comments: ^5.0.3
     theme-vitesse: ^1.0.0
     vscode-uri: ^3.1.0
@@ -61,6 +61,7 @@ catalogs:
     '@vueuse/nuxt': ^13.9.0
     nuxi: ^3.34.0
     nuxt: ^4.4.2
+    pinia: ^3.0.4
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
@@ -68,8 +69,5 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
-
-patchedDependencies:
-  splitpanes@3.1.5: patches/splitpanes@3.1.5.patch
 
 shamefullyHoist: true

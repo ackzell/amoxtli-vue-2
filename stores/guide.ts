@@ -8,6 +8,12 @@ const defaultFeatures = Object.freeze(<PlaygroundFeatures>{
   download: true,
 })
 
+function toPlain<T>(value: T): T {
+  if (value == null)
+    return value
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
 export const useGuideStore = defineStore('guide', () => {
   const play = usePlaygroundStore()
   const ui = useUiState()
@@ -51,11 +57,13 @@ export const useGuideStore = defineStore('guide', () => {
     play.fileSelected = play.files.get(guide?.startingFile || 'app.vue')
     preview.setFullPath(guide?.startingUrl || '/')
 
+    const safeGuide = toPlain(guide)
+
     features.value = {
       ...defaultFeatures,
-      ...guide?.features,
+      ...safeGuide?.features,
     }
-    currentGuide.value = guide
+    currentGuide.value = safeGuide
     showingSolution.value = withSolution
 
     return undefined

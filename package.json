@@ -14,6 +14,7 @@
     "format": "eslint . --fix"
   },
   "dependencies": {
+    "@ark-ui/vue": "catalog:frontend",
     "@shikijs/core": "catalog:frontend",
     "@shikijs/monaco": "catalog:frontend",
     "@volar/monaco": "catalog:frontend",
@@ -31,7 +32,6 @@
     "monaco-editor-core": "catalog:frontend",
     "pathe": "catalog:frontend",
     "shiki": "catalog:frontend",
-    "splitpanes": "catalog:frontend",
     "strip-json-comments": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
     "vscode-uri": "catalog:frontend",
@@ -67,6 +67,7 @@
     "fast-glob": "catalog:dev",
     "nuxi": "catalog:nuxt",
     "nuxt": "catalog:nuxt",
+    "pinia": "catalog:nuxt",
     "rehype-external-links": "catalog:dev",
     "typescript": "catalog:dev",
     "vue-tsc": "catalog:dev"

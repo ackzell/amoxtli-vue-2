@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Pane, Splitpanes } from 'splitpanes'
+import { Splitter } from '@ark-ui/vue'
 import { filesToVirtualFsTree } from '~/templates/utils'
 
 const play = usePlaygroundStore()
@@ -32,32 +32,43 @@ function startDragging() {
   ui.isPanelDragging = true
 }
 
-function endDragging(e: { size: number }[]) {
-  ui.isPanelDragging = false
-  ui.panelFileTree = e[0]?.size || 0
+function onResize(e: { size: number[] }) {
+  ui.panelFileTree = e.size[0] ?? 0
 }
 
-// For panes size initialization on SSR
-const isMounted = useMounted()
-const panelInitFileTree = computed(() => isMounted.value || {
-  width: `${ui.panelFileTree}%`,
-})
-const panelInitEditor = computed(() => isMounted.value || {
-  width: `${100 - ui.panelFileTree}%`,
+function endDragging(e: { size: number[] }) {
+  ui.isPanelDragging = false
+  ui.panelFileTree = e.size[0] ?? 0
+}
+
+const panels = [
+  { id: 'file-tree-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 },
+  { id: 'editor-pane', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 },
+]
+
+const sizes = computed<number[]>({
+  get() {
+    const fileTree = guide.features.fileTree === false ? 0 : ui.panelFileTree
+    return [fileTree, Math.max(0, 100 - fileTree)]
+  },
+  set(value) {
+    ui.panelFileTree = value[0] ?? 0
+  },
 })
 </script>
 
 <template>
-  <Splitpanes
+  <Splitter.Root
+    :panels="panels"
+    :size="sizes"
     of-hidden
-    :class="guide.features.fileTree === false ? 'disabled' : ''"
-    @resize="startDragging"
-    @resized="endDragging"
+    @resize-start="startDragging"
+    @resize="onResize"
+    @resize-end="endDragging"
   >
-    <Pane
+    <Splitter.Panel
+      id="file-tree-panel"
       flex="~ col" h-full of-auto
-      :size="ui.panelFileTree"
-      :style="panelInitFileTree"
     >
       <div
         h-full
@@ -79,12 +90,14 @@ const panelInitEditor = computed(() => isMounted.value || {
           />
         </div>
       </div>
-    </Pane>
-    <PaneSplitter />
-    <Pane
-      :size="100 - ui.panelFileTree"
-      :style="panelInitEditor"
-    >
+    </Splitter.Panel>
+
+    <Splitter.ResizeTrigger
+      v-if="guide.features.fileTree !== false"
+      id="file-tree-panel:editor-pane"
+    />
+
+    <Splitter.Panel id="editor-pane">
       <div
         h-full
         grid="~ rows-[min-content_1fr]"
@@ -109,6 +122,6 @@ const panelInitEditor = computed(() => isMounted.value || {
           @change="onTextInput"
         />
       </div>
-    </Pane>
-  </Splitpanes>
+    </Splitter.Panel>
+  </Splitter.Root>
 </template>

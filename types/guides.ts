@@ -4,6 +4,7 @@ export interface GuideIgnoredFiles { overwrite: boolean, patterns: StringOrRegEx
 
 export interface GuideMeta {
   features?: PlaygroundFeatures
+  layout?: GuideLayoutPolicy
   startingFile?: string
   startingUrl?: string
   /**
@@ -40,4 +41,8 @@ export interface PlaygroundFeatures {
   fileTree?: boolean
   download?: boolean
   navigation?: boolean
+}
+
+export interface GuideLayoutPolicy {
+  docsOnly?: boolean
 }

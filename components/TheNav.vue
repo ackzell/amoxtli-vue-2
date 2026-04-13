@@ -3,6 +3,29 @@ const ui = useUiState()
 const play = usePlaygroundStore()
 const guide = useGuideStore()
 
+const lessonForcesDocsOnly = computed(() => guide.currentGuide?.layout?.docsOnly === true)
+const effectiveMainViewMode = computed(() => {
+  if (lessonForcesDocsOnly.value)
+    return 'docs'
+  return ui.mainViewMode
+})
+
+function setMainViewMode(mode: 'split' | 'code' | 'docs') {
+  if (lessonForcesDocsOnly.value && mode !== 'docs')
+    return
+  ui.setMainViewMode(mode)
+}
+
+function toggleCodeOnly() {
+  if (lessonForcesDocsOnly.value)
+    return
+  setMainViewMode(effectiveMainViewMode.value === 'code' ? 'split' : 'code')
+}
+
+function toggleDocsOnly() {
+  setMainViewMode(effectiveMainViewMode.value === 'docs' ? 'split' : 'docs')
+}
+
 // const runtime = useRuntimeConfig()
 
 // const buildTime = new Date(runtime.public.buildTime)
@@ -36,6 +59,47 @@ addCommands(
     icon: 'i-ph-download-duotone',
   },
   {
+    id: 'layout-main-view-split',
+    title: 'Layout: Split View',
+    handler: () => {
+      setMainViewMode('split')
+    },
+    icon: 'i-ph-columns-duotone',
+  },
+  {
+    id: 'layout-main-view-code',
+    title: 'Layout: Code Focus',
+    handler: () => {
+      setMainViewMode('code')
+    },
+    icon: 'i-ph-code-duotone',
+    visible: () => !lessonForcesDocsOnly.value,
+  },
+  {
+    id: 'layout-main-view-docs',
+    title: 'Layout: Docs Focus',
+    handler: () => {
+      setMainViewMode('docs')
+    },
+    icon: 'i-ph-book-open-text-duotone',
+  },
+  {
+    id: 'layout-main-orientation',
+    title: () => `Layout: Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'}`,
+    handler: () => {
+      ui.toggleMainLayoutOrientation()
+    },
+    icon: 'i-ph-layout-duotone',
+  },
+  {
+    id: 'layout-main-reverse',
+    title: () => `Layout: ${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} Order`,
+    handler: () => {
+      ui.toggleMainLayoutReverse()
+    },
+    icon: 'i-ph-arrows-left-right-duotone',
+  },
+  {
     id: 'toggle-terminal',
     title: () => $t('terminal.toggle'),
     handler: () => {
@@ -50,6 +114,14 @@ addCommands(
       ui.toggleConsole()
     },
     icon: 'i-ph-terminal-duotone',
+  },
+  {
+    id: 'toggle-preview',
+    title: () => `${ui.showPreview ? 'Hide' : 'Show'} Preview`,
+    handler: () => {
+      ui.togglePreview()
+    },
+    icon: 'i-ph-monitor-play-duotone',
   },
   {
     id: 'language-en',
@@ -156,22 +228,52 @@ addCommands(
         </template>
       </VDropdown> -->
       <button
+        v-if="!lessonForcesDocsOnly"
         rounded p2
-        :title="$t('terminal.toggle')"
+        title="Code Focus"
         hover="bg-active"
-        :class="ui.showTerminal ? '' : 'op50'"
-        @click="ui.toggleTerminal()"
+        :class="effectiveMainViewMode === 'code' ? '' : 'op50'"
+        @click="toggleCodeOnly"
       >
-        <div i-ph-terminal-window-duotone text-2xl />
+        <div i-ph-code-duotone text-2xl />
       </button>
       <button
         rounded p2
-        title="Toggle Console"
+        title="Docs Focus"
         hover="bg-active"
-        :class="ui.showConsole ? '' : 'op50'"
-        @click="ui.toggleConsole()"
+        :class="effectiveMainViewMode === 'docs' ? '' : 'op50'"
+        @click="toggleDocsOnly"
       >
-        <div i-ph-terminal-duotone text-2xl />
+        <div i-ph-book-open-text-duotone text-2xl />
+      </button>
+      <button
+        rounded p2
+        :title="`Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'} layout`"
+        hover="bg-active"
+        @click="ui.toggleMainLayoutOrientation()"
+      >
+        <div
+          class="transition-transform duration-200"
+          text-2xl
+          :class="ui.mainLayoutOrientation === 'horizontal'
+            ? 'i-ph-columns-duotone rotate-0'
+            : 'i-ph-columns-duotone rotate-90'"
+        />
+      </button>
+      <button
+        rounded p2
+        :title="`${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} ${ui.mainLayoutOrientation === 'horizontal' ? 'left/right' : 'top/bottom'} order`"
+        hover="bg-active"
+        :class="ui.mainLayoutReverse ? '' : 'op70'"
+        @click="ui.toggleMainLayoutReverse()"
+      >
+        <div
+          class="transition-transform duration-200"
+          text-2xl
+          :class="ui.mainLayoutOrientation === 'horizontal'
+            ? 'i-ph-arrows-left-right-duotone rotate-0'
+            : 'i-ph-arrows-left-right-duotone rotate-90'"
+        />
       </button>
       <ColorSchemeToggle />
     </div>
