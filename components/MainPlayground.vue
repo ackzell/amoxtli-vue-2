@@ -266,40 +266,61 @@ function collectPanels(node: LayoutNode, out = new Set<CodePanelId>()) {
   return out
 }
 
-function syncLayoutForVisibility() {
-  const visibleIds = new Set<CodePanelId>(['editor'])
-  if (ui.showPreview)
-    visibleIds.add('preview')
-  if (ui.showConsole)
-    visibleIds.add('console')
-  if (ui.showTerminal)
-    visibleIds.add('terminal')
+function ensureAllPanelsExist() {
+  const required: CodePanelId[] = ['editor', 'preview', 'console', 'terminal']
+  const existing = collectPanels(ui.layoutTree)
+  if (required.every(id => existing.has(id)))
+    return
 
-  const filtered = filterVisible(ui.layoutTree, visibleIds)
-  let root = ensureRootSplit(filtered ?? {
-    type: 'split',
-    id: nextSplitId(),
-    direction: 'vertical',
-    children: [],
-  })
-
-  const existing = collectPanels(root)
-  for (const id of visibleIds) {
+  const nextRoot = ensureRootSplit(ui.layoutTree)
+  for (const id of required) {
     if (!existing.has(id))
-      root.children.push({ type: 'panel', id })
+      nextRoot.children.push({ type: 'panel', id })
   }
 
-  root = ensureRootSplit(cleanupTree(root))
-  ui.layoutTree = root
-  pruneSizesMap(root)
+  ui.layoutTree = ensureRootSplit(cleanupTree(nextRoot))
 }
 
+const visiblePanelIds = computed(() => {
+  const ids = new Set<CodePanelId>(['editor'])
+  if (ui.showPreview)
+    ids.add('preview')
+  if (ui.showConsole)
+    ids.add('console')
+  if (ui.showTerminal)
+    ids.add('terminal')
+  return ids
+})
+
+const visibleLayout = computed<LayoutSplit>(() => {
+  const filtered = filterVisible(ui.layoutTree, visiblePanelIds.value)
+  if (!filtered) {
+    return {
+      type: 'split',
+      id: 'split-visible-fallback',
+      direction: 'vertical',
+      children: [{ type: 'panel', id: 'editor' }],
+    }
+  }
+
+  const cleaned = cleanupTree(filtered)
+  if (cleaned.type === 'split')
+    return cleaned
+
+  return {
+    type: 'split',
+    id: 'split-visible-wrapper',
+    direction: 'vertical',
+    children: [cleaned],
+  }
+})
+
 watch(
-  () => [ui.showPreview, ui.showConsole, ui.showTerminal],
+  () => ui.layoutTree,
   () => {
-    syncLayoutForVisibility()
+    ensureAllPanelsExist()
   },
-  { immediate: true },
+  { deep: true, immediate: true },
 )
 
 watch(
@@ -386,7 +407,7 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
           :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
         >
           <PlaygroundCodeDockNode
-            :node="ui.layoutTree"
+            :node="visibleLayout"
             :dragged-panel-id="draggedPanelId"
             :active-drop-zone="activeDropZone"
             :sizes-map="codeSizesMap"

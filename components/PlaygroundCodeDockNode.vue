@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DropZone } from '~/types/dnd-spike'
-import type { CodePanelId, LayoutNode, LayoutSplit } from '~/types/layout'
+import type { CodePanelId, LayoutNode } from '~/types/layout'
 import { Splitter } from '@ark-ui/vue'
 import PanelConsole from './PanelConsole.client.vue'
 
@@ -296,7 +296,7 @@ function splitChildrenWithIndex(node: LayoutNode) {
     <div
       class="dock-header"
       draggable="true"
-      @dragstart="(e: DragEvent) => handleDragStart(e, node.id)"
+      @dragstart="(e: DragEvent) => handleDragStart(e, node.id as CodePanelId)"
       @dragend="emit('dragEnd')"
     >
       <span>{{ panelLabels[node.id] }}</span>
