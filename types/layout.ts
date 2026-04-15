@@ -1,4 +1,4 @@
-export type CodePanelId = 'editor' | 'output' | 'terminal'
+export type CodePanelId = 'editor' | 'preview' | 'console' | 'terminal'
 export type SplitDirection = 'horizontal' | 'vertical'
 
 export interface LayoutLeaf {
@@ -8,6 +8,7 @@ export interface LayoutLeaf {
 
 export interface LayoutSplit {
   type: 'split'
+  id: string
   direction: SplitDirection
   children: LayoutNode[]
 }

@@ -1,14 +1,16 @@
-import type { CodePanelId, LayoutSplit, LayoutNode, LayoutLeaf } from '~/types/layout'
+import type { CodePanelId, LayoutSplit, LayoutNode } from '~/types/layout'
 
 export type MainViewMode = 'split' | 'code' | 'docs'
 export type MainLayoutOrientation = 'horizontal' | 'vertical'
 
 const DEFAULT_LAYOUT_TREE: LayoutSplit = {
   type: 'split',
+  id: 'split-1',
   direction: 'vertical',
   children: [
     { type: 'panel', id: 'editor' },
-    { type: 'panel', id: 'output' },
+    { type: 'panel', id: 'preview' },
+    { type: 'panel', id: 'console' },
     { type: 'panel', id: 'terminal' },
   ],
 }
@@ -23,28 +25,69 @@ function getDefaultLayoutTree(): LayoutSplit {
 
 function normalizeLayoutTree(tree: unknown): LayoutSplit {
   const fresh = () => getDefaultLayoutTree()
-  if (!tree || typeof tree !== 'object') return fresh()
-  const t = tree as Record<string, unknown>
-  if (t.type !== 'split') return fresh()
-  if (!['horizontal', 'vertical'].includes(t.direction as string)) return fresh()
-  if (!Array.isArray(t.children)) return fresh()
-
-  const validIds = new Set<CodePanelId>(['editor', 'output', 'terminal'])
+  const validIds = new Set<CodePanelId>(['editor', 'preview', 'console', 'terminal'])
   const seen = new Set<CodePanelId>()
-  const children: LayoutNode[] = []
+  let splitCount = 0
 
-  for (const child of t.children) {
-    if (child?.type === 'panel' && validIds.has(child.id) && !seen.has(child.id)) {
-      children.push({ type: 'panel', id: child.id as CodePanelId })
-      seen.add(child.id as CodePanelId)
-    }
+  function nextSplitId() {
+    splitCount += 1
+    return `split-${splitCount}`
   }
+
+  function normalizeNode(node: unknown): LayoutNode | null {
+    if (!node || typeof node !== 'object')
+      return null
+
+    const n = node as Record<string, unknown>
+
+    if (n.type === 'panel') {
+      const id = n.id as CodePanelId
+      if (!validIds.has(id) || seen.has(id))
+        return null
+      seen.add(id)
+      return { type: 'panel', id }
+    }
+
+    if (n.type === 'split') {
+      const direction = n.direction
+      if (direction !== 'horizontal' && direction !== 'vertical')
+        return null
+
+      const childrenRaw = Array.isArray(n.children) ? n.children : []
+      const children = childrenRaw
+        .map(normalizeNode)
+        .filter((child): child is LayoutNode => child !== null)
+
+      if (children.length === 0)
+        return null
+      if (children.length === 1)
+        return children[0]
+
+      const id = typeof n.id === 'string' && n.id.length > 0 ? n.id : nextSplitId()
+      return {
+        type: 'split',
+        id,
+        direction,
+        children,
+      }
+    }
+
+    return null
+  }
+
+  const rootNode = normalizeNode(tree)
+  const root = rootNode?.type === 'split' ? rootNode : fresh()
+
   for (const id of validIds) {
     if (!seen.has(id))
-      children.push({ type: 'panel', id })
+      root.children.push({ type: 'panel', id })
   }
 
-  return { type: 'split', direction: t.direction as 'horizontal' | 'vertical', children }
+  if (root.children.length === 1) {
+    root.children.push({ type: 'panel', id: 'editor' })
+  }
+
+  return root
 }
 
 export const useUiState = defineStore('ui', () => {
@@ -56,9 +99,6 @@ export const useUiState = defineStore('ui', () => {
   function getLayoutDefaults() {
     return {
       panelDocs: 40,
-      panelEditor: 50,
-      panelOutput: 30,
-      panelPreview: 60,
       panelFileTree: 0,
       showTerminal: true,
       showConsole: true,
@@ -87,112 +127,16 @@ export const useUiState = defineStore('ui', () => {
     stateCookie.value = toPlain({ ...persistState })
   })
 
-  function getCodeSizes() {
-    const editor = persistState.panelEditor
-    const output = persistState.showPreview || persistState.showConsole
-      ? persistState.panelOutput
-      : 0
-    const terminal = persistState.showTerminal
-      ? Math.max(0, 100 - editor - output)
-      : 0
-
-    return {
-      editor,
-      output,
-      terminal,
-    }
-  }
-
-  function setCodeSizes(sizes: Record<CodePanelId, number>) {
-    persistState.panelEditor = sizes.editor
-    persistState.panelOutput = sizes.output
-  }
-
-  function rebalanceCodePanels(nextVisible: Record<CodePanelId, boolean>) {
-    const currentVisible: Record<CodePanelId, boolean> = {
-      editor: true,
-      output: persistState.showPreview || persistState.showConsole,
-      terminal: persistState.showTerminal,
-    }
-
-    const currentSizes = getCodeSizes()
-    const defaultSizes: Record<CodePanelId, number> = {
-      editor: 100,
-      output: 30,
-      terminal: 20,
-    }
-
-    const result: Record<CodePanelId, number> = {
-      editor: 0,
-      output: 0,
-      terminal: 0,
-    }
-
-    const keptVisible = (Object.keys(nextVisible) as CodePanelId[])
-      .filter(id => nextVisible[id] && currentVisible[id])
-    const newlyVisible = (Object.keys(nextVisible) as CodePanelId[])
-      .filter(id => nextVisible[id] && !currentVisible[id])
-
-    const newPanelsTarget = newlyVisible.reduce((sum, id) => sum + defaultSizes[id], 0)
-    const availableForKept = Math.max(0, 100 - newPanelsTarget)
-
-    if (keptVisible.length > 0) {
-      const keptCurrentTotal = keptVisible.reduce((sum, id) => sum + currentSizes[id], 0)
-      for (const id of keptVisible) {
-        result[id] = keptCurrentTotal > 0
-          ? (currentSizes[id] / keptCurrentTotal) * availableForKept
-          : availableForKept / keptVisible.length
-      }
-    }
-
-    if (newlyVisible.length > 0) {
-      const newlyDefaultTotal = newlyVisible.reduce((sum, id) => sum + defaultSizes[id], 0)
-      const targetForNewPanels = keptVisible.length > 0 ? newPanelsTarget : 100
-      for (const id of newlyVisible) {
-        result[id] = newlyDefaultTotal > 0
-          ? (defaultSizes[id] / newlyDefaultTotal) * targetForNewPanels
-          : targetForNewPanels / newlyVisible.length
-      }
-    }
-
-    const visibleIds = (Object.keys(nextVisible) as CodePanelId[]).filter(id => nextVisible[id])
-    const total = visibleIds.reduce((sum, id) => sum + result[id], 0)
-    if (visibleIds.length > 0 && total !== 100)
-      result[visibleIds[visibleIds.length - 1]] += 100 - total
-
-    setCodeSizes(result)
-  }
-
   function toggleTerminal() {
-    const next = !persistState.showTerminal
-    rebalanceCodePanels({
-      editor: true,
-      output: persistState.showPreview || persistState.showConsole,
-      terminal: next,
-    })
-    persistState.showTerminal = next
+    persistState.showTerminal = !persistState.showTerminal
   }
 
   function toggleConsole() {
-    const next = !persistState.showConsole
-    const nextOutputVisible = persistState.showPreview || next
-    rebalanceCodePanels({
-      editor: true,
-      output: nextOutputVisible,
-      terminal: persistState.showTerminal,
-    })
-    persistState.showConsole = next
+    persistState.showConsole = !persistState.showConsole
   }
 
   function togglePreview() {
-    const next = !persistState.showPreview
-    const nextOutputVisible = next || persistState.showConsole
-    rebalanceCodePanels({
-      editor: true,
-      output: nextOutputVisible,
-      terminal: persistState.showTerminal,
-    })
-    persistState.showPreview = next
+    persistState.showPreview = !persistState.showPreview
   }
 
   function setMainViewMode(mode: MainViewMode) {
@@ -213,26 +157,6 @@ export const useUiState = defineStore('ui', () => {
     persistState.mainLayoutReverse = !persistState.mainLayoutReverse
   }
 
-  function movePanel(dragged: CodePanelId, insertBefore: CodePanelId | null) {
-    const current = [...persistState.layoutTree.children] as LayoutLeaf[]
-    const fromIdx = current.findIndex(c => c.id === dragged)
-    if (fromIdx === -1) return
-    const [item] = current.splice(fromIdx, 1)
-    if (insertBefore === null) {
-      current.push(item)
-    }
-    else {
-      const toIdx = current.findIndex(c => c.id === insertBefore)
-      if (toIdx === -1) current.push(item)
-      else current.splice(toIdx, 0, item)
-    }
-    persistState.layoutTree = { ...persistState.layoutTree, children: current }
-  }
-
-  function setSplitDirection(direction: 'horizontal' | 'vertical') {
-    persistState.layoutTree = { ...persistState.layoutTree, direction }
-  }
-
   return {
     isPanelDragging,
     isContentDropdownShown,
@@ -243,8 +167,6 @@ export const useUiState = defineStore('ui', () => {
     setMainLayoutOrientation,
     toggleMainLayoutOrientation,
     toggleMainLayoutReverse,
-    movePanel,
-    setSplitDirection,
     resetLayout,
     ...toRefs(persistState),
   }

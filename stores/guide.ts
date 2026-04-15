@@ -34,11 +34,6 @@ export const useGuideStore = defineStore('guide', () => {
     else if (features.value.fileTree === false) {
       ui.panelFileTree = 0
     }
-
-    if (features.value.terminal === true)
-      ui.showTerminal = true
-    else if (features.value.terminal === false)
-      ui.showTerminal = false
   })
 
   async function mount(guide?: GuideMeta, withSolution = false) {
