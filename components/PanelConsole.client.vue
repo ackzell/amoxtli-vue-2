@@ -238,6 +238,8 @@ function deserializeMessage(arg: any): any {
 <template>
   <div class="console-wrapper" h-full grid="~ rows-[min-content_1fr]">
     <div
+      data-dock-drag-handle="true"
+      draggable="true"
       flex="~ gap-2 items-center"
       border="b base dashed"
       bg-faded p2 pl4

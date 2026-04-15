@@ -45,6 +45,8 @@ function navigate() {
   <div h-full :class="play.status === 'ready' ? ' grid grid-rows-[min-content_1fr]' : 'flex'">
     <div
       v-if="play.status === 'ready'"
+      data-dock-drag-handle="true"
+      draggable="true"
       flex="~ items-center gap-2"
       border="b base dashed" bg-faded pl1 pr2
     >

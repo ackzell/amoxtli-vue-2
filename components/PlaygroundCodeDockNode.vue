@@ -30,13 +30,6 @@ const emit = defineEmits<{
 
 const ZONES: DropZone[] = ['top', 'bottom', 'left', 'right']
 
-const panelLabels: Record<CodePanelId, string> = {
-  editor: 'Editor',
-  preview: 'Preview',
-  console: 'Console',
-  terminal: 'Terminal',
-}
-
 const splitWrapper = ref<HTMLElement | null>(null)
 const splitExtent = ref(0)
 
@@ -143,6 +136,33 @@ function handleDrop(e: DragEvent, targetId: string, zone: DropZone) {
   if (!draggedId)
     return
   emit('zoneDrop', draggedId, targetId, zone)
+}
+
+function isFromDragHandle(e: DragEvent) {
+  const target = e.target
+  let element: Element | null = null
+
+  if (target instanceof Element)
+    element = target
+  else if (target instanceof Node)
+    element = target.parentElement
+
+  if (!element)
+    return false
+
+  return Boolean(element.closest('[data-dock-drag-handle="true"]'))
+}
+
+function onPanelBodyDragStart(e: DragEvent, panelId: CodePanelId) {
+  if (!isFromDragHandle(e))
+    return
+  handleDragStart(e, panelId)
+}
+
+function onPanelBodyDragEnd(e: DragEvent) {
+  if (!isFromDragHandle(e))
+    return
+  emit('dragEnd')
 }
 
 function laneStyle(index: number, total: number, side: 'top' | 'bottom' | 'left' | 'right') {
@@ -294,15 +314,10 @@ function splitChildrenWithIndex(node: LayoutNode) {
     @drop.prevent
   >
     <div
-      class="dock-header"
-      draggable="true"
-      @dragstart="(e: DragEvent) => handleDragStart(e, node.id as CodePanelId)"
-      @dragend="emit('dragEnd')"
+      class="dock-body"
+      @dragstart.capture="(e: DragEvent) => onPanelBodyDragStart(e, node.id as CodePanelId)"
+      @dragend.capture="(e: DragEvent) => onPanelBodyDragEnd(e)"
     >
-      <span>{{ panelLabels[node.id] }}</span>
-    </div>
-
-    <div class="dock-body">
       <PanelEditor v-if="node.id === 'editor'" />
       <PanelPreview v-else-if="node.id === 'preview' && showPreview" />
       <PanelConsole v-else-if="node.id === 'console' && showConsole" />
@@ -382,31 +397,11 @@ function splitChildrenWithIndex(node: LayoutNode) {
   min-height: 0;
   border: 1px solid rgba(100, 116, 139, 0.45);
   border-radius: 0;
-  display: grid;
-  grid-template-rows: auto 1fr;
   overflow: hidden;
 }
 
-.dock-header {
-  position: relative;
-  z-index: 25;
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px dashed rgba(100, 116, 139, 0.45);
-  font-size: 0.75rem;
-  background: rgba(15, 23, 42, 0.06);
-  cursor: grab;
-  user-select: none;
-  white-space: nowrap;
-  -webkit-user-drag: element;
-}
-
-.dock-header:active {
-  cursor: grabbing;
-}
-
 .dock-body {
+  height: 100%;
   min-height: 0;
 }
 
@@ -432,22 +427,20 @@ function splitChildrenWithIndex(node: LayoutNode) {
 .zone {
   position: absolute;
   pointer-events: auto;
-  border: 2px dashed rgba(56, 189, 248, 0.2);
-  border-radius: 0.25rem;
+  border: 1px dashed rgba(56, 189, 248, 0.15);
   transition: all 100ms ease;
 }
 
 .zone-active {
   background: rgba(56, 189, 248, 0.15);
   border-color: rgba(14, 165, 233, 0.6);
-  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
 }
 
 .lane-zone {
   position: absolute;
   pointer-events: auto;
-  border: 1px dashed rgba(56, 189, 248, 0.35);
-  border-radius: 0.25rem;
+  border: 1px solid rgba(165, 248, 56, 0.35);
   transition: all 100ms ease;
 }
 
@@ -473,30 +466,27 @@ function splitChildrenWithIndex(node: LayoutNode) {
 
 .panel-zones-overlay .zone-top {
   top: 0;
-  left: 10%;
-  width: 80%;
+  width: 100%;
   height: 25%;
 }
 
 .panel-zones-overlay .zone-bottom {
   bottom: 0;
-  left: 10%;
-  width: 80%;
+  width: 100%;
   height: 25%;
 }
 
 .panel-zones-overlay .zone-left {
-  top: 10%;
   left: 0;
   width: 25%;
-  height: 80%;
+  height: 100%;
 }
 
 .panel-zones-overlay .zone-right {
-  top: 10%;
+  top: 0;
   right: 0;
   width: 25%;
-  height: 80%;
+  height: 100%;
 }
 
 .split-zones-overlay .zone-top {
