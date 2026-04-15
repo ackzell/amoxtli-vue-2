@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Splitter } from '@ark-ui/vue'
 import type { DropZone, SpikeLayoutNode, SpikePanelId } from '~/types/dnd-spike'
+import { Splitter } from '@ark-ui/vue'
 
 defineOptions({
   name: 'LayoutDockNode',
@@ -8,22 +8,22 @@ defineOptions({
 
 const props = defineProps<{
   node: SpikeLayoutNode
-  draggedPanel: SpikePanelId | null
-  hoverKey: string | null
+  draggedPanelId: SpikePanelId | null
+  activeDropZone: string | null
   path?: string
   sizesMap?: Record<string, number[]>
 }>()
 
 const emit = defineEmits<{
-  (e: 'drag-start', id: SpikePanelId, event: DragEvent): void
-  (e: 'drag-end'): void
-  (e: 'zone-enter', target: string, zone: DropZone): void
-  (e: 'zone-leave'): void
-  (e: 'zone-drop', target: string, zone: DropZone, event: DragEvent): void
-  (e: 'split-resize', splitId: string, sizes: number[]): void
+  dragStart: [id: SpikePanelId]
+  dragEnd: []
+  dropZoneEnter: [zoneId: string]
+  dropZoneLeave: []
+  zoneDrop: [draggedId: SpikePanelId, targetId: string, zone: DropZone]
+  splitResize: [splitId: string, sizes: number[]]
 }>()
 
-const panelLabels: Record<SpikePanelId, string> = {
+const PANEL_LABELS: Record<SpikePanelId, string> = {
   editor: 'Editor',
   preview: 'Preview',
   console: 'Console',
@@ -32,17 +32,30 @@ const panelLabels: Record<SpikePanelId, string> = {
 
 const ZONES: DropZone[] = ['top', 'bottom', 'left', 'right']
 
-const TITLE_BAR_BLOCK_PX = 36
-const TITLE_BAR_INLINE_PX = 96
-const SPLITTER_GUTTER_PX = 12
-
 const splitWrapper = ref<HTMLElement | null>(null)
 const splitExtent = ref(0)
-let splitResizeObserver: ResizeObserver | null = null
 
-function zoneKey(target: string, zone: DropZone) {
-  return `${target}:${zone}`
-}
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  if (!splitWrapper.value || props.node.type !== 'split')
+    return
+
+  const updateExtent = () => {
+    if (!splitWrapper.value || props.node.type !== 'split')
+      return
+    const rect = splitWrapper.value.getBoundingClientRect()
+    splitExtent.value = props.node.direction === 'vertical' ? rect.height : rect.width
+  }
+
+  updateExtent()
+  resizeObserver = new ResizeObserver(updateExtent)
+  resizeObserver.observe(splitWrapper.value)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+})
 
 function panelId(path: string, index: number) {
   return `${path}-panel-${index}`
@@ -56,61 +69,29 @@ function triggerId(path: string, index: number): `${string}:${string}` {
   return `${panelId(path, index)}:${panelId(path, index + 1)}`
 }
 
-function onZoneHover(target: string, zone: DropZone) {
-  emit('zone-enter', target, zone)
-}
-
-function onZoneDragLeave(event: DragEvent) {
-  const zone = event.currentTarget as HTMLElement | null
-  if (!zone)
-    return
-
-  const rect = zone.getBoundingClientRect()
-  const hasLeftZone = event.clientX < rect.left
-    || event.clientX > rect.right
-    || event.clientY < rect.top
-    || event.clientY > rect.bottom
-
-  if (hasLeftZone)
-    emit('zone-leave')
-}
-
-function zoneClass(target: string, zone: DropZone) {
-  return props.hoverKey === zoneKey(target, zone) ? 'zone-active' : ''
-}
-
-function headerStackSize(node: SpikeLayoutNode, axis: 'horizontal' | 'vertical'): number {
-  if (node.type === 'panel')
-    return axis === 'vertical' ? TITLE_BAR_BLOCK_PX : TITLE_BAR_INLINE_PX
-
-  const childSizes = node.children.map(child => headerStackSize(child, axis))
-  if (childSizes.length === 0)
-    return 0
-
-  if (node.direction === axis)
-    return childSizes.reduce((sum, size) => sum + size, 0) + SPLITTER_GUTTER_PX * (childSizes.length - 1)
-
-  return Math.max(...childSizes)
+function zoneClassname(zoneId: string) {
+  return props.activeDropZone === zoneId ? 'zone-active' : ''
 }
 
 function panelMinimums(node: SpikeLayoutNode): number[] {
   if (node.type !== 'split' || node.children.length === 0)
     return []
 
-  const axis = node.direction === 'vertical' ? 'vertical' : 'horizontal'
-  const minimumPixels = node.children.map(child => headerStackSize(child, axis))
-  const totalMinimumPixels = minimumPixels.reduce((sum, size) => sum + size, 0)
-  const fallbackExtent = totalMinimumPixels * 2
-  const extent = Math.max(splitExtent.value, fallbackExtent)
-  const mins = minimumPixels.map((pixels) => {
-    return Math.min((pixels / extent) * 100, 100)
+  const minPixels = node.children.map((child) => {
+    if (child.type === 'panel')
+      return node.direction === 'vertical' ? 36 : 96
+    return 96
   })
-  const total = mins.reduce((sum, size) => sum + size, 0)
+
+  const totalPixels = minPixels.reduce((sum, value) => sum + value, 0)
+  const usableExtent = Math.max(splitExtent.value, totalPixels * 2, 1)
+  const mins = minPixels.map(pixels => Math.min((pixels / usableExtent) * 100, 100))
+  const total = mins.reduce((sum, value) => sum + value, 0)
 
   if (total <= 100)
     return mins
 
-  return mins.map(size => (size / total) * 100)
+  return mins.map(value => (value / total) * 100)
 }
 
 function splitPanels(node: SpikeLayoutNode, path: string) {
@@ -130,35 +111,66 @@ function splitPanels(node: SpikeLayoutNode, path: string) {
 function currentSizes(node: SpikeLayoutNode) {
   if (node.type !== 'split' || node.children.length === 0)
     return []
+
   const cached = props.sizesMap?.[node.id]
   if (cached && cached.length === node.children.length)
     return cached
+
   const each = 100 / node.children.length
   return node.children.map((_, idx) =>
     idx === node.children.length - 1 ? 100 - each * (node.children.length - 1) : each,
   )
 }
 
-onMounted(() => {
-  if (!splitWrapper.value)
+function handleDragStart(e: DragEvent, panelId: SpikePanelId) {
+  console.warn('[DnD] dragstart', panelId)
+  if (e.dataTransfer) {
+    e.dataTransfer.setData('text/x-panel-id', panelId)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+  // Defer so the browser finishes drag init before Vue re-renders overlays
+  requestAnimationFrame(() => {
+    emit('dragStart', panelId)
+  })
+}
+
+function handleDragEnd() {
+  console.warn('[DnD] dragend')
+  emit('dragEnd')
+}
+
+function handleDrop(e: DragEvent, targetId: string, zone: DropZone) {
+  const draggedId = e.dataTransfer?.getData('text/x-panel-id') as SpikePanelId | undefined
+  console.warn('[DnD] drop', { draggedId, targetId, zone })
+  if (!draggedId)
     return
+  emit('zoneDrop', draggedId, targetId, zone)
+}
 
-  const updateExtent = () => {
-    if (!splitWrapper.value || props.node.type !== 'split')
-      return
-
-    const rect = splitWrapper.value.getBoundingClientRect()
-    splitExtent.value = props.node.direction === 'vertical' ? rect.height : rect.width
+function laneStyle(index: number, total: number, side: 'top' | 'bottom' | 'left' | 'right') {
+  const step = 100 / Math.max(total, 1)
+  if (side === 'top' || side === 'bottom') {
+    return {
+      left: `${index * step}%`,
+      width: `${step}%`,
+    }
   }
 
-  updateExtent()
-  splitResizeObserver = new ResizeObserver(() => updateExtent())
-  splitResizeObserver.observe(splitWrapper.value)
-})
+  return {
+    top: `${index * step}%`,
+    height: `${step}%`,
+  }
+}
 
-onBeforeUnmount(() => {
-  splitResizeObserver?.disconnect()
-})
+// Lane zones only make sense for children that are splits.
+// Panel children already have their own panel-level zones.
+function splitChildrenWithIndex(node: SpikeLayoutNode) {
+  if (node.type !== 'split')
+    return []
+  return node.children
+    .map((child, idx) => ({ child, idx }))
+    .filter(({ child }) => child.type === 'split')
+}
 </script>
 
 <template>
@@ -172,102 +184,162 @@ onBeforeUnmount(() => {
       :orientation="node.direction"
       :panels="splitPanels(node, path || 'root')"
       :size="currentSizes(node)"
-      @resize="(d: { size: number[] }) => emit('split-resize', node.id, d.size)"
+      @resize="(d: { size: number[] }) => emit('splitResize', node.id, d.size)"
     >
-    <template v-for="(child, idx) in node.children" :key="`${path || 'root'}-${idx}`">
-      <Splitter.Panel :id="panelId(path || 'root', idx)">
-        <div class="dock-child-fill">
-          <LayoutDockNode
-            :node="child"
-            :path="childPath(path || 'root', idx)"
-            :dragged-panel="draggedPanel"
-            :hover-key="hoverKey"
-            :sizes-map="sizesMap"
-            @drag-start="(id, event) => emit('drag-start', id, event)"
-            @drag-end="emit('drag-end')"
-            @zone-enter="(target, zone) => emit('zone-enter', target, zone)"
-            @zone-leave="emit('zone-leave')"
-            @zone-drop="(target, zone, event) => emit('zone-drop', target, zone, event)"
-            @split-resize="(splitId, sizes) => emit('split-resize', splitId, sizes)"
-          />
-        </div>
-      </Splitter.Panel>
+      <template v-for="(child, idx) in node.children" :key="`${path || 'root'}-${idx}`">
+        <Splitter.Panel :id="panelId(path || 'root', idx)">
+          <div class="dock-child-fill">
+            <LayoutDockNode
+              :node="child"
+              :path="childPath(path || 'root', idx)"
+              :dragged-panel-id="draggedPanelId"
+              :active-drop-zone="activeDropZone"
+              :sizes-map="sizesMap"
+              @drag-start="(id) => emit('dragStart', id)"
+              @drag-end="emit('dragEnd')"
+              @drop-zone-enter="(zoneId) => emit('dropZoneEnter', zoneId)"
+              @drop-zone-leave="emit('dropZoneLeave')"
+              @zone-drop="(draggedId, targetId, zone) => emit('zoneDrop', draggedId, targetId, zone)"
+              @split-resize="(splitId, sizes) => emit('splitResize', splitId, sizes)"
+            />
+          </div>
+        </Splitter.Panel>
 
-      <Splitter.ResizeTrigger
-        v-if="idx < node.children.length - 1"
-        :id="triggerId(path || 'root', idx)"
-        class="dock-resize-trigger"
-      >
-        <Splitter.ResizeTriggerIndicator class="dock-resize-indicator" />
-      </Splitter.ResizeTrigger>
-    </template>
+        <Splitter.ResizeTrigger
+          v-if="idx < node.children.length - 1"
+          :id="triggerId(path || 'root', idx)"
+          class="dock-resize-trigger"
+        >
+          <Splitter.ResizeTriggerIndicator class="dock-resize-indicator" />
+        </Splitter.ResizeTrigger>
+      </template>
     </Splitter.Root>
 
     <div
-      v-if="draggedPanel"
-      class="split-drop-zones"
+      v-if="draggedPanelId"
+      class="split-zones-overlay"
     >
       <div
         v-for="zone in ZONES"
         :key="`split-${node.id}-${zone}`"
         class="zone"
-        :class="[`zone-${zone}`, zoneClass(node.id, zone)]"
-        @dragenter.prevent="onZoneHover(node.id, zone)"
-        @dragleave="onZoneDragLeave"
-        @dragover.prevent="onZoneHover(node.id, zone)"
-        @drop.prevent="emit('zone-drop', node.id, zone, $event)"
+        :class="[`zone-${zone}`, zoneClassname(`split:${node.id}:${zone}`)]"
+        @dragenter.prevent="emit('dropZoneEnter', `split:${node.id}:${zone}`)"
+        @dragover.prevent="emit('dropZoneEnter', `split:${node.id}:${zone}`)"
+        @dragleave.prevent="emit('dropZoneLeave')"
+        @drop.prevent="(e: DragEvent) => handleDrop(e, node.id, zone)"
       />
+    </div>
+
+    <div
+      v-if="draggedPanelId"
+      class="split-lane-zones"
+    >
+      <template v-if="node.direction === 'horizontal'">
+        <div
+          v-for="{ child, idx } in splitChildrenWithIndex(node)"
+          :key="`lane-${node.id}-top-${child.id}`"
+          class="lane-zone lane-zone-top"
+          :class="zoneClassname(`lane:${child.id}:top`)"
+          :style="laneStyle(idx, node.children.length, 'top')"
+          @dragenter.prevent="emit('dropZoneEnter', `lane:${child.id}:top`)"
+          @dragover.prevent="emit('dropZoneEnter', `lane:${child.id}:top`)"
+          @dragleave.prevent="emit('dropZoneLeave')"
+          @drop.prevent="(e: DragEvent) => handleDrop(e, child.id, 'top')"
+        />
+        <div
+          v-for="{ child, idx } in splitChildrenWithIndex(node)"
+          :key="`lane-${node.id}-bottom-${child.id}`"
+          class="lane-zone lane-zone-bottom"
+          :class="zoneClassname(`lane:${child.id}:bottom`)"
+          :style="laneStyle(idx, node.children.length, 'bottom')"
+          @dragenter.prevent="emit('dropZoneEnter', `lane:${child.id}:bottom`)"
+          @dragover.prevent="emit('dropZoneEnter', `lane:${child.id}:bottom`)"
+          @dragleave.prevent="emit('dropZoneLeave')"
+          @drop.prevent="(e: DragEvent) => handleDrop(e, child.id, 'bottom')"
+        />
+      </template>
+
+      <template v-else>
+        <div
+          v-for="{ child, idx } in splitChildrenWithIndex(node)"
+          :key="`lane-${node.id}-left-${child.id}`"
+          class="lane-zone lane-zone-left"
+          :class="zoneClassname(`lane:${child.id}:left`)"
+          :style="laneStyle(idx, node.children.length, 'left')"
+          @dragenter.prevent="emit('dropZoneEnter', `lane:${child.id}:left`)"
+          @dragover.prevent="emit('dropZoneEnter', `lane:${child.id}:left`)"
+          @dragleave.prevent="emit('dropZoneLeave')"
+          @drop.prevent="(e: DragEvent) => handleDrop(e, child.id, 'left')"
+        />
+        <div
+          v-for="{ child, idx } in splitChildrenWithIndex(node)"
+          :key="`lane-${node.id}-right-${child.id}`"
+          class="lane-zone lane-zone-right"
+          :class="zoneClassname(`lane:${child.id}:right`)"
+          :style="laneStyle(idx, node.children.length, 'right')"
+          @dragenter.prevent="emit('dropZoneEnter', `lane:${child.id}:right`)"
+          @dragover.prevent="emit('dropZoneEnter', `lane:${child.id}:right`)"
+          @dragleave.prevent="emit('dropZoneLeave')"
+          @drop.prevent="(e: DragEvent) => handleDrop(e, child.id, 'right')"
+        />
+      </template>
     </div>
   </div>
 
-  <div v-else class="dock-panel">
+  <div
+    v-else
+    class="dock-panel"
+    @dragover.prevent
+    @drop.prevent
+  >
     <div
       class="dock-header"
       draggable="true"
-      @dragstart="emit('drag-start', node.id, $event)"
-      @dragend="emit('drag-end')"
+      @dragstart="(e: DragEvent) => handleDragStart(e, node.id as SpikePanelId)"
+      @dragend="handleDragEnd()"
     >
-      <span>{{ panelLabels[node.id] }}</span>
+      <span>{{ PANEL_LABELS[node.id as SpikePanelId] }}</span>
     </div>
 
     <div class="dock-body">
-      {{ panelLabels[node.id] }} panel
+      {{ PANEL_LABELS[node.id] }}
     </div>
 
     <div
-      v-if="draggedPanel && draggedPanel !== node.id"
-      class="drop-zones"
+      v-if="draggedPanelId && draggedPanelId !== node.id"
+      class="panel-zones-overlay"
     >
       <div
         v-for="zone in ZONES"
         :key="`panel-${node.id}-${zone}`"
         class="zone"
-        :class="[`zone-${zone}`, zoneClass(node.id, zone)]"
-        @dragenter.prevent="onZoneHover(node.id, zone)"
-        @dragleave="onZoneDragLeave"
-        @dragover.prevent="onZoneHover(node.id, zone)"
-        @drop.prevent="emit('zone-drop', node.id, zone, $event)"
+        :class="[`zone-${zone}`, zoneClassname(`panel:${node.id}:${zone}`)]"
+        @dragenter.prevent="emit('dropZoneEnter', `panel:${node.id}:${zone}`)"
+        @dragover.prevent="emit('dropZoneEnter', `panel:${node.id}:${zone}`)"
+        @dragleave.prevent="emit('dropZoneLeave')"
+        @drop.prevent="(e: DragEvent) => handleDrop(e, node.id, zone)"
       />
     </div>
   </div>
 </template>
 
 <style scoped>
-.dock-split-root {
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  min-height: 0;
-  border-radius: 0.6rem;
-  overflow: hidden;
-}
-
 .dock-split-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
   min-width: 0;
   min-height: 0;
+}
+
+.dock-split-root {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 .dock-child-fill {
@@ -283,19 +355,10 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
-.dock-resize-indicator {
-  position: absolute;
-  inset: 0;
-}
-
 .dock-resize-trigger[data-orientation='horizontal'] {
   width: 12px;
   margin: 0 -6px;
   cursor: col-resize;
-}
-
-.dock-resize-trigger[data-orientation='horizontal'] .dock-resize-indicator {
-  border-left: 1px dashed rgba(100, 116, 139, 0.7);
 }
 
 .dock-resize-trigger[data-orientation='vertical'] {
@@ -304,35 +367,37 @@ onBeforeUnmount(() => {
   cursor: row-resize;
 }
 
-.dock-resize-trigger[data-orientation='vertical'] .dock-resize-indicator {
-  border-top: 1px dashed rgba(100, 116, 139, 0.7);
+.dock-resize-indicator {
+  background: rgba(148, 163, 184, 0.55);
 }
 
 .dock-panel {
   position: relative;
-  min-width: 0;
-  min-height: 0;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
   border: 1px solid rgba(100, 116, 139, 0.5);
   background: rgba(15, 23, 42, 0.04);
   border-radius: 0.5rem;
   display: grid;
-  grid-template-rows: min-content 1fr;
+  grid-template-rows: auto 1fr;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .dock-header {
+  position: relative;
+  z-index: 25;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px dashed rgba(100, 116, 139, 0.55);
+  border-bottom: 1px dashed rgba(100, 116, 139, 0.5);
   font-size: 0.875rem;
   background: rgba(15, 23, 42, 0.07);
   cursor: grab;
   user-select: none;
+  white-space: nowrap;
+  -webkit-user-drag: element;
 }
 
 .dock-header:active {
@@ -343,67 +408,124 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   font-size: 0.875rem;
-  opacity: 0.8;
+  opacity: 0.7;
   min-height: 0;
-  height: 100%;
 }
 
-.drop-zones {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 30;
-}
-
-.split-drop-zones {
+.split-zones-overlay,
+.panel-zones-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 40;
 }
 
-.split-drop-zones .zone-top,
-.split-drop-zones .zone-bottom {
-  left: 0;
-  width: 100%;
-  height: 18px;
+.split-zones-overlay {
+  z-index: 50;
 }
 
-.split-drop-zones .zone-left,
-.split-drop-zones .zone-right {
-  top: 0;
-  height: 100%;
-  width: 18px;
+.split-lane-zones {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 52;
 }
 
 .zone {
   position: absolute;
   pointer-events: auto;
-  transition: background 120ms ease, box-shadow 120ms ease;
-  border: 1px dashed rgba(56, 189, 248, 0.2);
+  border: 2px dashed rgba(56, 189, 248, 0.2);
+  border-radius: 0.25rem;
+  transition: all 100ms ease;
 }
-
-.zone-top,
-.zone-bottom {
-  left: 12%;
-  width: 76%;
-  height: 28%;
-}
-
-.zone-left,
-.zone-right {
-  top: 12%;
-  height: 76%;
-  width: 28%;
-}
-
-.zone-top { top: 0; }
-.zone-bottom { bottom: 0; }
-.zone-left { left: 0; }
-.zone-right { right: 0; }
 
 .zone-active {
-  background: rgba(56, 189, 248, 0.22);
-  box-shadow: inset 0 0 0 2px rgba(14, 165, 233, 0.6);
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(14, 165, 233, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.4);
+}
+
+.lane-zone {
+  position: absolute;
+  pointer-events: auto;
+  border: 1px dashed rgba(56, 189, 248, 0.35);
+  border-radius: 0.25rem;
+  transition: all 100ms ease;
+}
+
+.lane-zone-top {
+  top: 0;
+  height: 32px;
+}
+
+.lane-zone-bottom {
+  bottom: 0;
+  height: 32px;
+}
+
+.lane-zone-left {
+  left: 0;
+  width: 32px;
+}
+
+.lane-zone-right {
+  right: 0;
+  width: 32px;
+}
+
+.panel-zones-overlay .zone-top {
+  top: 0;
+  left: 10%;
+  width: 80%;
+  height: 25%;
+}
+
+.panel-zones-overlay .zone-bottom {
+  bottom: 0;
+  left: 10%;
+  width: 80%;
+  height: 25%;
+}
+
+.panel-zones-overlay .zone-left {
+  top: 10%;
+  left: 0;
+  width: 25%;
+  height: 80%;
+}
+
+.panel-zones-overlay .zone-right {
+  top: 10%;
+  right: 0;
+  width: 25%;
+  height: 80%;
+}
+
+.split-zones-overlay .zone-top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 28px;
+}
+
+.split-zones-overlay .zone-bottom {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 28px;
+}
+
+.split-zones-overlay .zone-left {
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 100%;
+}
+
+.split-zones-overlay .zone-right {
+  top: 0;
+  right: 0;
+  width: 28px;
+  height: 100%;
 }
 </style>

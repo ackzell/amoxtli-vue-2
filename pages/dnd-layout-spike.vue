@@ -1,300 +1,299 @@
 <script setup lang="ts">
-import type { DropZone, SpikeLayoutNode, SpikePanelId, SpikePanelNode } from '~/types/dnd-spike'
+import type { DropZone, SpikeLayoutNode, SpikePanelId, SpikePanelNode, SpikeSplitNode } from '~/types/dnd-spike'
 import LayoutDockNode from '~/components/spike/LayoutDockNode.vue'
 
-const INITIAL_PANELS: SpikePanelId[] = ['editor', 'preview', 'console', 'terminal']
+const splitIdCounter = ref(3)
 
-let splitIdCounter = 0
+const layout = ref<SpikeLayoutNode>({
+  type: 'split',
+  id: 'split-1',
+  direction: 'horizontal',
+  children: [
+    { type: 'panel', id: 'editor' },
+    {
+      type: 'split',
+      id: 'split-2',
+      direction: 'vertical',
+      children: [
+        { type: 'panel', id: 'preview' },
+        {
+          type: 'split',
+          id: 'split-3',
+          direction: 'horizontal',
+          children: [
+            { type: 'panel', id: 'console' },
+            { type: 'panel', id: 'terminal' },
+          ],
+        },
+      ],
+    },
+  ],
+})
 
-function nextSplitId() {
-  splitIdCounter += 1
-  return `split-${splitIdCounter}`
-}
-
-function createInitialLayout(): SpikeLayoutNode {
-  return {
-    type: 'split',
-    id: 'split-root',
-    direction: 'horizontal',
-    children: INITIAL_PANELS.map(id => ({ type: 'panel', id })),
-  }
-}
-
-const layout = ref<SpikeLayoutNode>(createInitialLayout())
-const draggedPanel = ref<SpikePanelId | null>(null)
-const hoverKey = ref<string | null>(null)
+const draggedPanelId = ref<SpikePanelId | null>(null)
+const activeDropZone = ref<string | null>(null)
 const sizesMap = ref<Record<string, number[]>>({})
 
-function onSplitResize(splitId: string, sizes: number[]) {
-  if (!sizes.length)
+function nextSplitId() {
+  splitIdCounter.value += 1
+  return `split-${splitIdCounter.value}`
+}
+
+function onDragStart(panelId: SpikePanelId) {
+  console.warn('[Page] onDragStart', panelId)
+  draggedPanelId.value = panelId
+}
+
+function onDragEnd() {
+  console.warn('[Page] onDragEnd')
+  draggedPanelId.value = null
+  activeDropZone.value = null
+}
+
+function onDropZoneEnter(zoneId: string) {
+  if (!draggedPanelId.value)
     return
-
-  sizesMap.value = { ...sizesMap.value, [splitId]: [...sizes] }
+  console.warn('[Page] zoneEnter', zoneId)
+  activeDropZone.value = zoneId
 }
 
-function collectSplitIds(node: SpikeLayoutNode, ids = new Set<string>()) {
-  if (node.type === 'panel')
-    return ids
-
-  ids.add(node.id)
-  for (const child of node.children)
-    collectSplitIds(child, ids)
-  return ids
+function onDropZoneLeave() {
+  activeDropZone.value = null
 }
 
-function pruneSizesMap(layoutNode: SpikeLayoutNode) {
-  const splitIds = collectSplitIds(layoutNode)
-  const next: Record<string, number[]> = {}
-
-  for (const [splitId, sizes] of Object.entries(sizesMap.value)) {
-    if (splitIds.has(splitId))
-      next[splitId] = sizes
+function onSplitResize(splitId: string, sizes: number[]) {
+  sizesMap.value = {
+    ...sizesMap.value,
+    [splitId]: [...sizes],
   }
-
-  sizesMap.value = next
 }
 
-function cloneNode<T>(node: T): T {
-  return JSON.parse(JSON.stringify(node)) as T
+function isAxisAlignedDrop(direction: SpikeSplitNode['direction'], zone: DropZone) {
+  return (direction === 'horizontal' && (zone === 'left' || zone === 'right'))
+    || (direction === 'vertical' && (zone === 'top' || zone === 'bottom'))
 }
 
-// Removes empty/null children but does NOT collapse single-child splits,
-// keeping the tree structure stable so split IDs survive removePanel.
-function filterEmpty(node: SpikeLayoutNode | null): SpikeLayoutNode | null {
-  if (!node)
-    return null
-
-  if (node.type === 'panel')
-    return node
-
-  const children = node.children
-    .map(child => filterEmpty(child))
-    .filter(Boolean) as SpikeLayoutNode[]
-
-  if (children.length === 0)
-    return null
-
-  return { ...node, children }
-}
-
-function cleanupTree(node: SpikeLayoutNode | null): SpikeLayoutNode | null {
-  if (!node)
-    return null
-
-  if (node.type === 'panel')
-    return node
-
-  const children = node.children
-    .map(child => cleanupTree(child))
-    .filter(Boolean) as SpikeLayoutNode[]
-
-  if (children.length === 0)
-    return null
-
-  if (children.length === 1)
-    return children[0] ?? null
-
-  // Flatten nested splits with the same direction
-  const flatChildren: SpikeLayoutNode[] = []
-  for (const child of children) {
-    if (child.type === 'split' && child.direction === node.direction) {
-      flatChildren.push(...child.children)
-    }
-    else {
-      flatChildren.push(child)
-    }
-  }
-
+function splitForZone(target: SpikeLayoutNode, dragged: SpikePanelNode, zone: DropZone): SpikeSplitNode {
+  const direction = zone === 'left' || zone === 'right' ? 'horizontal' : 'vertical'
+  const before = zone === 'left' || zone === 'top'
   return {
-    ...node,
-    children: flatChildren,
+    type: 'split',
+    id: nextSplitId(),
+    direction,
+    children: before ? [dragged, target] : [target, dragged],
   }
 }
 
-function removePanel(node: SpikeLayoutNode, panelId: SpikePanelId): {
-  node: SpikeLayoutNode | null
-  removed: SpikePanelNode | null
-} {
+function removePanel(node: SpikeLayoutNode, panelId: SpikePanelId): { node: SpikeLayoutNode | null, removed: SpikePanelNode | null } {
   if (node.type === 'panel') {
     if (node.id === panelId)
       return { node: null, removed: node }
     return { node, removed: null }
   }
 
-  const nextChildren: SpikeLayoutNode[] = []
   let removed: SpikePanelNode | null = null
+  const children: SpikeLayoutNode[] = []
 
   for (const child of node.children) {
-    if (removed) {
-      nextChildren.push(child)
-      continue
-    }
-
     const result = removePanel(child, panelId)
-    removed = result.removed
-
+    if (result.removed)
+      removed = result.removed
     if (result.node)
-      nextChildren.push(result.node)
+      children.push(result.node)
   }
 
-  // Use filterEmpty (not cleanupTree) to preserve the split structure
-  // so paths remain stable for the subsequent insertAtTarget call
-  return {
-    node: filterEmpty({ ...node, children: nextChildren }),
-    removed,
-  }
-}
-
-function splitForZone(target: SpikeLayoutNode, dragged: SpikePanelNode, zone: DropZone): SpikeLayoutNode {
-  if (zone === 'left') {
-    return {
-      type: 'split',
-      id: nextSplitId(),
-      direction: 'horizontal',
-      children: [dragged, target],
-    }
-  }
-
-  if (zone === 'right') {
-    return {
-      type: 'split',
-      id: nextSplitId(),
-      direction: 'horizontal',
-      children: [target, dragged],
-    }
-  }
-
-  if (zone === 'top') {
-    return {
-      type: 'split',
-      id: nextSplitId(),
-      direction: 'vertical',
-      children: [dragged, target],
-    }
-  }
-
-  return {
-    type: 'split',
-    id: nextSplitId(),
-    direction: 'vertical',
-    children: [target, dragged],
-  }
-}
-
-function insertAtTarget(node: SpikeLayoutNode, targetId: string, dragged: SpikePanelNode, zone: DropZone): {
-  node: SpikeLayoutNode
-  inserted: boolean
-} {
-  // Match by id — works for both panel nodes (SpikePanelId) and split nodes (generated id)
-  if (node.id === targetId) {
-    return {
-      node: splitForZone(node, dragged, zone),
-      inserted: true,
-    }
-  }
-
-  if (node.type === 'panel') {
-    return { node, inserted: false }
-  }
-
-  const nextChildren: SpikeLayoutNode[] = []
-  let inserted = false
-
-  for (const child of node.children) {
-    if (inserted) {
-      nextChildren.push(child)
-      continue
-    }
-
-    const result = insertAtTarget(child, targetId, dragged, zone)
-    nextChildren.push(result.node)
-    inserted = result.inserted
-  }
+  if (children.length === 0)
+    return { node: null, removed }
+  if (children.length === 1)
+    return { node: { ...node, children }, removed }
 
   return {
     node: {
       ...node,
-      children: nextChildren,
+      children,
     },
-    inserted,
+    removed,
   }
 }
 
-function onDragStart(panelId: SpikePanelId, event: DragEvent) {
-  draggedPanel.value = panelId
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('text/plain', panelId)
+function insertAtTarget(
+  node: SpikeLayoutNode,
+  targetId: string,
+  dragged: SpikePanelNode,
+  zone: DropZone,
+): SpikeLayoutNode {
+  if (node.type === 'panel') {
+    if (node.id !== targetId)
+      return node
+    return splitForZone(node, dragged, zone)
+  }
+
+  if (node.id === targetId) {
+    if (isAxisAlignedDrop(node.direction, zone)) {
+      const insertAtStart = zone === 'left' || zone === 'top'
+      return {
+        ...node,
+        children: insertAtStart
+          ? [dragged, ...node.children]
+          : [...node.children, dragged],
+      }
+    }
+
+    return splitForZone(node, dragged, zone)
+  }
+
+  return {
+    ...node,
+    children: node.children.map(child => insertAtTarget(child, targetId, dragged, zone)),
   }
 }
 
-function onDragEnd() {
-  draggedPanel.value = null
-  hoverKey.value = null
+function cleanupTree(node: SpikeLayoutNode): SpikeLayoutNode {
+  if (node.type === 'panel')
+    return node
+
+  const cleanedChildren = node.children.map(cleanupTree)
+
+  if (cleanedChildren.length === 1)
+    return cleanedChildren[0]!
+
+  const flattenedChildren: SpikeLayoutNode[] = []
+  for (const child of cleanedChildren) {
+    if (child.type === 'split' && child.direction === node.direction)
+      flattenedChildren.push(...child.children)
+    else
+      flattenedChildren.push(child)
+  }
+
+  if (flattenedChildren.length === 1)
+    return flattenedChildren[0]!
+
+  return {
+    ...node,
+    children: flattenedChildren,
+  }
 }
 
-function onZoneEnter(target: string, zone: DropZone) {
-  hoverKey.value = `${target}:${zone}`
+function hasPanel(node: SpikeLayoutNode, panelId: SpikePanelId): boolean {
+  if (node.type === 'panel')
+    return node.id === panelId
+
+  return node.children.some(child => hasPanel(child, panelId))
 }
 
-function onZoneLeave() {
-  hoverKey.value = null
+function collectSplitIds(node: SpikeLayoutNode, ids = new Set<string>()) {
+  if (node.type === 'split') {
+    ids.add(node.id)
+    for (const child of node.children)
+      collectSplitIds(child, ids)
+  }
+  return ids
 }
 
-function onZoneDrop(target: string, zone: DropZone) {
-  if (!draggedPanel.value || draggedPanel.value === target) {
+function pruneSizesMap(node: SpikeLayoutNode) {
+  const existingSplitIds = collectSplitIds(node)
+  const next: Record<string, number[]> = {}
+
+  for (const [key, value] of Object.entries(sizesMap.value)) {
+    if (existingSplitIds.has(key))
+      next[key] = value
+  }
+
+  sizesMap.value = next
+}
+
+function onZoneDrop(draggedId: SpikePanelId, targetId: string, zone: DropZone) {
+  const previousLayout = layout.value
+  const removal = removePanel(layout.value, draggedId)
+
+  if (!removal.removed || !removal.node) {
     onDragEnd()
     return
   }
 
-  const current = cloneNode(layout.value)
-  const { node: withoutDragged, removed } = removePanel(current, draggedPanel.value)
-
-  if (!withoutDragged || !removed) {
+  const inserted = insertAtTarget(removal.node, targetId, removal.removed, zone)
+  if (!hasPanel(inserted, draggedId)) {
+    layout.value = previousLayout
     onDragEnd()
     return
   }
 
-  const inserted = insertAtTarget(withoutDragged, target, removed, zone)
-  const nextLayout = cleanupTree(inserted.node) || createInitialLayout()
-  layout.value = nextLayout
-  pruneSizesMap(nextLayout)
+  const cleaned = cleanupTree(inserted)
+  if (!hasPanel(cleaned, draggedId)) {
+    layout.value = previousLayout
+    onDragEnd()
+    return
+  }
+
+  layout.value = cleaned
+  pruneSizesMap(cleaned)
   onDragEnd()
 }
 
 function resetLayout() {
-  splitIdCounter = 0
-  layout.value = createInitialLayout()
+  splitIdCounter.value = 3
+  layout.value = {
+    type: 'split',
+    id: 'split-1',
+    direction: 'horizontal',
+    children: [
+      { type: 'panel', id: 'editor' },
+      {
+        type: 'split',
+        id: 'split-2',
+        direction: 'vertical',
+        children: [
+          { type: 'panel', id: 'preview' },
+          {
+            type: 'split',
+            id: 'split-3',
+            direction: 'horizontal',
+            children: [
+              { type: 'panel', id: 'console' },
+              { type: 'panel', id: 'terminal' },
+            ],
+          },
+        ],
+      },
+    ],
+  }
   sizesMap.value = {}
   onDragEnd()
 }
 </script>
 
 <template>
-  <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
-  <main class="h-screen w-screen overflow-hidden bg-base p4" grid="~ rows-[min-content_1fr] gap-3">
-    <div flex="~ items-center gap-2 wrap">
-      <strong>Docking DnD Spike</strong>
-      <button rounded border="~ base" px3 py1 text-sm hover:bg-active @click="resetLayout()">
-        Reset
-      </button>
-      <span text-sm op70>Drag a panel and drop on left/right/top/bottom of another panel.</span>
-    </div>
+  <!-- eslint-disable @intlify/vue-i18n/no-raw-text, unocss/order, unocss/order-attributify -->
+  <main class="h-screen w-screen overflow-hidden bg-base p4">
+    <div class="mx-auto h-full w-full max-w-[1400px] flex flex-col gap-3">
+      <header class="flex items-center gap-2 border border-base rounded bg-foreground/40 p2">
+        <strong class="text-sm">DnD Layout Spike</strong>
+        <button
+          class="border border-base rounded px3 py1 text-xs hover:bg-active"
+          @click="resetLayout"
+        >
+          Reset
+        </button>
+        <div class="ml-auto text-xs op70">
+          drag panel headers, then drop on edge zones
+        </div>
+      </header>
 
-    <div class="h-full min-h-0">
-      <LayoutDockNode
-        :node="layout"
-        :dragged-panel="draggedPanel"
-        :hover-key="hoverKey"
-        :sizes-map="sizesMap"
-        @drag-start="onDragStart"
-        @drag-end="onDragEnd"
-        @zone-enter="onZoneEnter"
-        @zone-leave="onZoneLeave"
-        @zone-drop="onZoneDrop"
-        @split-resize="onSplitResize"
-      />
+      <section class="min-h-0 flex-1 border border-base rounded bg-foreground/20 p2">
+        <LayoutDockNode
+          :node="layout"
+          :dragged-panel-id="draggedPanelId"
+          :active-drop-zone="activeDropZone"
+          :sizes-map="sizesMap"
+          @drag-start="onDragStart"
+          @drag-end="onDragEnd"
+          @drop-zone-enter="onDropZoneEnter"
+          @drop-zone-leave="onDropZoneLeave"
+          @zone-drop="onZoneDrop"
+          @split-resize="onSplitResize"
+        />
+      </section>
     </div>
   </main>
-  <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
+  <!-- eslint-enable @intlify/vue-i18n/no-raw-text, unocss/order, unocss/order-attributify -->
 </template>
