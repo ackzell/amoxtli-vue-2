@@ -7,100 +7,9 @@ const props = defineProps<{
 }>()
 
 const attrs = useAttrs()
-const copied = ref(false)
 const preEl = ref<HTMLElement>()
-const { copy } = useClipboard()
-const appConfig = useAppConfig()
-
-const annotationPosition = computed<'row' | 'inline'>(() =>
-  appConfig.codeSnippets?.annotation?.position === 'inline' ? 'inline' : 'row',
-)
-
-const annotationRowPlacement = computed<'before' | 'after' | 'top' | 'bottom'>(() => {
-  const value = appConfig.codeSnippets?.annotation?.rowPlacement
-  if (value === 'before' || value === 'after' || value === 'top' || value === 'bottom')
-    return value
-  return 'after'
-})
-
-const isCollapseToggleable = computed(() =>
-  appConfig.codeSnippets?.collapse?.toggleable !== false,
-)
 
 const ecInfo = computed(() => `${props.language || ''} ${props.meta || ''}`.trim())
-
-function parseRanges(input: string): number[] {
-  const values = new Set<number>()
-  for (const part of input.split(',').map(i => i.trim()).filter(Boolean)) {
-    const [startRaw, endRaw] = part.split('-').map(i => i.trim())
-    const start = Number(startRaw)
-    const end = endRaw ? Number(endRaw) : start
-    if (!Number.isFinite(start) || !Number.isFinite(end))
-      continue
-    const from = Math.min(start, end)
-    const to = Math.max(start, end)
-    for (let i = from; i <= to; i++)
-      values.add(i)
-  }
-  return [...values]
-}
-
-interface Annotation {
-  text: string
-  lines: number[]
-}
-
-interface CollapseRange {
-  start: number
-  end: number
-}
-
-function parseCollapseRanges(input: string): CollapseRange[] {
-  const ranges: CollapseRange[] = []
-  for (const part of input.split(',').map(i => i.trim()).filter(Boolean)) {
-    const [startRaw, endRaw] = part.split('-').map(i => i.trim())
-    const start = Number(startRaw)
-    const end = endRaw ? Number(endRaw) : start
-    if (!Number.isFinite(start) || !Number.isFinite(end))
-      continue
-    ranges.push({
-      start: Math.min(start, end),
-      end: Math.max(start, end),
-    })
-  }
-  return ranges.sort((a, b) => a.start - b.start)
-}
-
-function parseEcInfo(input: string) {
-  const file = input.match(/(?:^|\s)file:(\S+)/)?.[1] || ''
-  const title = input.match(/(?:^|\s)title="([^"]+)"/)?.[1] || ''
-  const collapseRaw = input.match(/(?:^|\s)collapse=\{([^}]+)\}/)?.[1] || ''
-  const collapseRanges = collapseRaw ? parseCollapseRanges(collapseRaw) : []
-  const collapseLines = collapseRaw ? parseRanges(collapseRaw) : []
-
-  const annotations: Annotation[] = []
-  const annotationRegex = /\{"([^"]+)":([0-9,\- ]+)\}/g
-  let match: RegExpExecArray | null = annotationRegex.exec(input)
-  while (match) {
-    const text = match[1]?.trim()
-    const ranges = match[2]?.trim()
-    if (text && ranges) {
-      annotations.push({
-        text,
-        lines: parseRanges(ranges),
-      })
-    }
-    match = annotationRegex.exec(input)
-  }
-
-  return {
-    file,
-    title,
-    collapseRanges,
-    collapseLines,
-    annotations,
-  }
-}
 
 const parsedEc = computed(() => parseEcInfo(ecInfo.value))
 
@@ -142,18 +51,18 @@ const inferredFilename = computed(() => {
 
 const iconClass = computed(() => {
   if (language.value === 'vue')
-    return 'i-carbon-logo-vue'
+    return 'i-logos-vue'
   if (language.value === 'ts' || language.value === 'typescript')
-    return 'i-carbon-logo-typescript'
+    return 'i-logos-typescript-icon'
   if (language.value === 'js' || language.value === 'javascript')
-    return 'i-carbon-logo-javascript'
+    return 'i-logos-javascript'
   if (language.value === 'html')
-    return 'i-carbon-html5'
+    return 'i-logos-html-5'
   if (language.value === 'css')
-    return 'i-carbon-css3'
+    return 'i-nonicons-css-16 text-purple'
   if (language.value === 'json')
-    return 'i-carbon-json'
-  return 'i-carbon-code'
+    return 'i-logos-json'
+  return 'i-logos-code'
 })
 
 const preAttrs = computed(() => {
@@ -162,201 +71,12 @@ const preAttrs = computed(() => {
 })
 
 const preClass = computed(() => (attrs as Record<string, unknown>).class)
-const expandedCollapseRanges = ref(new Set<string>())
 
-function rangeKey(start: number, end: number) {
-  return `${start}-${end}`
-}
+const { applyEcDecorations, resetDecorations } = useEcDecorations(preEl, parsedEc)
+const { copied, copyCode } = useCodeCopy()
 
-function toggleCollapseRange(key: string) {
-  if (expandedCollapseRanges.value.has(key))
-    expandedCollapseRanges.value.delete(key)
-  else
-    expandedCollapseRanges.value.add(key)
-
-  applyEcDecorations()
-}
-
-function applyEcDecorations() {
-  const pre = preEl.value
-  if (!pre)
-    return
-
-  const code = pre.querySelector('code')
-  if (!code)
-    return
-  const codeEl = code as HTMLElement
-
-  const lines = code.querySelectorAll<HTMLElement>('.line')
-  if (!lines.length)
-    return
-
-  code.querySelectorAll('.ec-collapse-placeholder, .ec-collapse-expanded').forEach(node => node.remove())
-  code.querySelectorAll('.ec-annotation-row').forEach(node => node.remove())
-
-  lines.forEach((line) => {
-    line.classList.remove('ec-collapsed', 'ec-annotated', 'ec-annotation-inline')
-    line.removeAttribute('data-ec-note')
-    line.removeAttribute('title')
-  })
-
-  const lineMap = new Map<number, HTMLElement>()
-  lines.forEach((line) => {
-    const lineNo = Number(line.getAttribute('line'))
-    if (Number.isFinite(lineNo))
-      lineMap.set(lineNo, line)
-  })
-
-  const placeholders: HTMLElement[] = []
-  for (const range of parsedEc.value.collapseRanges) {
-    const key = rangeKey(range.start, range.end)
-    const isExpanded = expandedCollapseRanges.value.has(key)
-    const firstLine = lineMap.get(range.start)
-    if (!firstLine)
-      continue
-
-    const placeholder = document.createElement('span')
-    placeholder.className = `line ${isExpanded ? 'ec-collapse-expanded' : 'ec-collapse-placeholder'}`
-    placeholder.setAttribute('line', '…')
-    placeholder.setAttribute('data-start-line', String(range.start))
-    placeholder.setAttribute('data-end-line', String(range.end))
-    placeholder.setAttribute('data-range-key', key)
-
-    const lineCount = range.end - range.start + 1
-    placeholder.textContent = isExpanded
-      ? `⌃ hide ${lineCount} line${lineCount > 1 ? 's' : ''}`
-      : `⋯ ${lineCount} line${lineCount > 1 ? 's' : ''} collapsed`
-
-    if (isCollapseToggleable.value) {
-      placeholder.setAttribute('role', 'button')
-      placeholder.setAttribute('tabindex', '0')
-      placeholder.setAttribute('aria-expanded', String(isExpanded))
-
-      const onToggle = () => toggleCollapseRange(key)
-      placeholder.addEventListener('click', onToggle)
-      placeholder.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          onToggle()
-        }
-      })
-    }
-
-    codeEl.insertBefore(placeholder, firstLine)
-    placeholders.push(placeholder)
-
-    if (!isExpanded) {
-      for (let lineNo = range.start; lineNo <= range.end; lineNo++) {
-        const line = lineMap.get(lineNo)
-        if (line)
-          line.classList.add('ec-collapsed')
-      }
-    }
-  }
-
-  const insertAfterMap = new Map<HTMLElement, HTMLElement>()
-  const insertBeforeMap = new Map<HTMLElement, HTMLElement>()
-
-  function findPlaceholderForAnnotation(annotationLines: number[]) {
-    if (!annotationLines.length)
-      return undefined
-
-    const lineSet = new Set(annotationLines)
-    return placeholders.find((placeholder) => {
-      const start = Number(placeholder.getAttribute('data-start-line'))
-      const end = Number(placeholder.getAttribute('data-end-line'))
-      if (!Number.isFinite(start) || !Number.isFinite(end))
-        return false
-
-      for (let lineNo = start; lineNo <= end; lineNo++) {
-        if (lineSet.has(lineNo))
-          return true
-      }
-      return false
-    })
-  }
-
-  function findPlaceholderForLine(lineNo: number) {
-    return placeholders.find((placeholder) => {
-      const start = Number(placeholder.getAttribute('data-start-line'))
-      const end = Number(placeholder.getAttribute('data-end-line'))
-      if (!Number.isFinite(start) || !Number.isFinite(end))
-        return false
-      return lineNo >= start && lineNo <= end
-    })
-  }
-
-  function insertAnnotationRow(anchor: HTMLElement, text: string) {
-    const note = document.createElement('span')
-    note.className = 'line ec-annotation-row'
-    note.setAttribute('line', '')
-    note.textContent = text
-
-    if (annotationRowPlacement.value === 'top') {
-      codeEl.insertBefore(note, codeEl.firstChild)
-      return
-    }
-
-    if (annotationRowPlacement.value === 'bottom') {
-      codeEl.appendChild(note)
-      return
-    }
-
-    if (annotationRowPlacement.value === 'before') {
-      const previousInserted = insertBeforeMap.get(anchor)
-      if (previousInserted) {
-        previousInserted.insertAdjacentElement('afterend', note)
-        insertBeforeMap.set(anchor, note)
-        return
-      }
-
-      anchor.insertAdjacentElement('beforebegin', note)
-      insertBeforeMap.set(anchor, note)
-      return
-    }
-
-    const previousInserted = insertAfterMap.get(anchor)
-    if (previousInserted) {
-      previousInserted.insertAdjacentElement('afterend', note)
-      insertAfterMap.set(anchor, note)
-      return
-    }
-
-    anchor.insertAdjacentElement('afterend', note)
-    insertAfterMap.set(anchor, note)
-  }
-
-  for (const annotation of parsedEc.value.annotations) {
-    const lineSet = new Set(annotation.lines)
-    const startLineNo = Math.min(...annotation.lines)
-    let startLine: HTMLElement | undefined
-    lines.forEach((line) => {
-      const lineNo = Number(line.getAttribute('line'))
-      if (!lineSet.has(lineNo))
-        return
-      line.classList.add('ec-annotated')
-
-      if (!startLine && lineNo === startLineNo)
-        startLine = line
-    })
-
-    const startCollapsed = startLine?.classList.contains('ec-collapsed')
-
-    const anchor = (startLine && !startCollapsed)
-      ? startLine
-      : findPlaceholderForLine(startLineNo) || findPlaceholderForAnnotation(annotation.lines)
-    if (!anchor)
-      continue
-
-    if (annotationPosition.value === 'inline') {
-      anchor.classList.add('ec-annotation-inline')
-      anchor.setAttribute('data-ec-note', annotation.text)
-      anchor.setAttribute('title', annotation.text)
-      continue
-    }
-
-    insertAnnotationRow(anchor, annotation.text)
-  }
+function handleCopy() {
+  copyCode(props.code || preEl.value?.textContent || '')
 }
 
 onMounted(() => {
@@ -365,66 +85,60 @@ onMounted(() => {
   })
 })
 
-watch(() => [props.code, props.meta, props.language], () => {
-  expandedCollapseRanges.value = new Set<string>()
-  nextTick(() => {
-    applyEcDecorations()
-  })
-})
-
-async function copyCode() {
-  const content = props.code || preEl.value?.textContent || ''
-  if (!content)
-    return
-
-  await copy(content)
-  copied.value = true
-  setTimeout(() => {
-    copied.value = false
-  }, 1200)
-}
+watch(() => [props.code, props.meta, props.language], resetDecorations)
 </script>
 
 <template>
-  <div class="group relative my-5">
-    <div
+  <div class="group relative my-5 max-w-4xl">
+    <ProsePreHeader
       v-if="inferredFilename"
-      class="ec-header"
-    >
-      <div class="size-4 shrink-0" :class="iconClass" />
-      <span class="text-sm/6 op80">{{ inferredFilename }}</span>
-    </div>
+      :filename="inferredFilename"
+      :icon-class="iconClass"
+    />
 
-    <IconButton
-      unstyled
-      tooltip="Copy code to clipboard"
-      tooltip-placement="left"
-      class="ec-copy-button"
-      aria-label="Copy code to clipboard"
-      @click="copyCode"
-    >
-      <span :class="copied ? 'i-carbon-checkmark size-3.5' : 'i-carbon-copy size-3.5'" />
-    </IconButton>
+    <ProsePreCopyButton
+      :copied="copied"
+      @copy="handleCopy"
+    />
 
-    <pre
-      ref="preEl"
-      v-bind="preAttrs"
-      :class="[
-        preClass,
-        inferredFilename ? 'rounded-t-none! mt-0!' : '',
-      ]"
-    >
+    <div w-full flex justify-center bg-base dark:bg-bgr-dark>
+      <pre
+        ref="preEl"
+        w-full
+        v-bind="preAttrs"
+        :class="[
+          preClass,
+          inferredFilename ? 'rounded-t-none! mt-0!' : '',
+        ]"
+      >
       <slot />
     </pre>
+    </div>
   </div>
 </template>
 
 <style scoped>
+pre {
+  white-space: pre-wrap;
+}
+
+:deep(.prose pre) {
+  --uno: p0;
+  white-space: pre-wrap;
+}
+
+:deep(code) {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
 :deep(code .line) {
   display: block;
   min-height: 1.5rem;
   padding-left: 2.5rem;
   position: relative;
+  overflow-wrap: break-word;
 }
 
 :deep(code .line::before) {
@@ -440,34 +154,24 @@ async function copyCode() {
   display: none;
 }
 
-:deep(code .line.ec-collapse-placeholder) {
+:deep(code .ec-collapse-range) {
+  margin: 0.2rem 0.25rem;
+  border-radius: 0.375rem;
+  border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+  background: color-mix(in oklab, currentColor 5%, transparent);
+}
+
+:deep(code .ec-collapse-range.is-collapsed) {
+  background: color-mix(in oklab, currentColor 8%, transparent);
+}
+
+:deep(code .ec-collapse-range > .line.ec-collapse-widget) {
   margin: 0.2rem 0;
-  padding: 0.2rem 0.5rem 0.2rem 2.5rem;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  opacity: 0.75;
-  border-radius: 0.25rem;
-  background: color-mix(in oklab, currentColor 10%, transparent);
-  cursor: default;
+  padding-right: 0.5rem;
 }
 
-:deep(code .line.ec-collapse-placeholder[role='button']) {
-  cursor: pointer;
-}
-
-:deep(code .line.ec-collapse-expanded) {
-  margin: 0.2rem 0;
-  padding: 0.2rem 0.5rem 0.2rem 2.5rem;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  opacity: 0.7;
-  border-radius: 0.25rem;
-  background: color-mix(in oklab, currentColor 7%, transparent);
-  cursor: default;
-}
-
-:deep(code .line.ec-collapse-expanded[role='button']) {
-  cursor: pointer;
+:deep(code .ec-collapse-range > .line.ec-collapse-widget::before) {
+  opacity: 0.4;
 }
 
 :deep(code .line.ec-annotated) {
@@ -509,36 +213,5 @@ async function copyCode() {
   white-space: normal;
   opacity: 0.75;
   background: color-mix(in oklab, currentColor 14%, transparent);
-}
-
-.ec-header {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem 0.375rem 0 0;
-  background: var(--bg);
-}
-
-.ec-copy-button {
-  position: absolute;
-  top: 11px;
-  right: 11px;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  background: var(--bg);
-  opacity: 0.75;
-  transition: opacity 0.2s ease;
-}
-
-.ec-copy-button:hover {
-  opacity: 1;
 }
 </style>

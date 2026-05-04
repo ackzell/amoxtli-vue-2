@@ -42,12 +42,9 @@
   font-weight: 600;
 }
 
-.prose pre[class*='language-'] {
-  padding: 1.5rem;
-  border-radius: 0;
-  overflow-x: auto;
-  margin: 0 -1.5rem;
-  --uno: bg-code;
+.prose pre[class*='language-'],
+.prose pre.shiki {
+  --uno: line-height-snug p0 mb0;
 }
 
 .prose pre.shiki,

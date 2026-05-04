@@ -6,6 +6,9 @@ export default defineAppConfig({
     },
     collapse: {
       toggleable: true,
+      collapsedIconClass: 'i-mynaui-chevron-right',
+      expandedIconClass: 'i-mynaui-chevron-down',
+      widgetClass: '',
     },
   },
 })
