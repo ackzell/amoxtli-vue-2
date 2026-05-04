@@ -13,18 +13,18 @@ addCommands(
       : $t('color-mode.to-light'),
     handler: toggleMode,
     icon: colorMode.value === 'light'
-      ? 'i-ph-moon-stars-duotone'
-      : 'i-ph-sun-dim-duotone',
+      ? 'i-mynaui-moon-solid'
+      : 'i-mynaui-sun-solid',
   },
 )
 </script>
 
 <template>
-  <button
-    rounded p-2
-    hover="bg-active"
+  <IconButton
+    :tooltip="colorMode.value === 'light' ? $t('color-mode.to-dark') : $t('color-mode.to-light')"
+    tooltip-placement="bottom"
     @click="toggleMode"
   >
-    <div i-ph-sun-dim-duotone dark:i-ph-moon-stars-duotone text-2xl />
-  </button>
+    <div i-mynaui-sun-solid text-xl dark:i-mynaui-moon-solid />
+  </IconButton>
 </template>

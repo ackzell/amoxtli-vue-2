@@ -56,7 +56,7 @@ function navigate() {
         border="~ base"
         m1.5 rounded bg-faded px2 py0.5 tracking-wide
       >
-        <div i-ph-globe-duotone />
+        <div i-carbon-wikis />
         <span text-sm op50>{{ $t('preview') }}</span>
         <div
           text-sm
@@ -77,26 +77,25 @@ function navigate() {
         v-else
         flex="~ gap-2 auto items-center" px2 py2
       >
-        <div i-ph-globe-duotone />
+        <div i-carbon-wikis />
         <span text-sm>{{ $t('preview') }}</span>
       </div>
-      <button
-
-        rounded p1
-        hover="bg-active"
-        title="Refresh Preview"
+      <IconButton
+        tooltip="Refresh Preview"
+        tooltip-placement="bottom"
+        padding="sm"
         @click="refreshIframe(true)"
       >
-        <div i-ph-arrow-clockwise-duotone text-lg />
-      </button>
+        <div i-carbon-rotate-360 text-sm />
+      </IconButton>
       <VDropdown :distance="6">
-        <button
-          rounded p1
-          hover="bg-active"
-          title="Playground Information"
+        <IconButton
+          tooltip="Playground Information"
+          tooltip-placement="bottom"
+          padding="sm"
         >
-          <div i-ph-info-duotone text-lg />
-        </button>
+          <div i-carbon-information text-sm />
+        </IconButton>
         <template #popper>
           <div px5 py4 grid="~ gap-y-3 gap-x-2 cols-[max-content_1fr] items-center">
             <div i-uim-vuejs text-xl />

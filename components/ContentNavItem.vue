@@ -35,7 +35,7 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
             :style="{ paddingLeft }"
           >
             <div class="caret" i-ph-caret-right-duotone flex-none text-sm op50 transition duration-400 />
-            <div i-ph-folder-simple-duotone flex-none />
+            <div i-mynaui-folder-solid flex-none opacity-50 />
             <div ml1>
               {{ resolved.title }}
             </div>
@@ -62,7 +62,7 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
       @click="ui.isContentDropdownShown = false"
     >
       <div class="caret" i-ph-caret-right-duotone flex-none text-sm op0 />
-      <div i-ph-file-duotone flex-none />
+      <div i-mynaui-file flex-none />
       <div ml1>
         {{ resolved.title }}
       </div>

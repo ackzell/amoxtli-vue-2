@@ -122,7 +122,7 @@ onKeyStroke('Escape', () => {
 </script>
 
 <template>
-  <div flex items-center justify-around gap-2 px2>
+  <div mt4 flex items-center justify-around gap-2 px2 sm:mt0>
     <NuxtLink
       v-if="prev"
       :to="prev.path"
@@ -130,7 +130,7 @@ onKeyStroke('Escape', () => {
       hover="bg-active text-primary dark:text-primary-dark op100"
       z-110 h10 w10 flex items-center justify-center rounded-md text-sm op70
     >
-      <div i-ph-arrow-left-duotone />
+      <div i-carbon-arrow-left />
     </NuxtLink>
     <!-- flex-grow spacer so the absolute child can anchor to the bar position -->
     <div ref="navRoot" class="nav-bar-anchor group relative min-w-0 flex-grow">
@@ -149,7 +149,7 @@ onKeyStroke('Escape', () => {
           @keydown.enter.prevent="ui.isContentDropdownShown = !ui.isContentDropdownShown"
           @keydown.space.prevent="ui.isContentDropdownShown = !ui.isContentDropdownShown"
         >
-          <div i-ph-book-duotone flex-none />
+          <div i-mynaui-book flex-none />
           <template v-for="bc, idx of breadcrumbs" :key="bc.path">
             <div v-if="idx !== 0" i-ph-caret-right mx--1 text-sm op50 />
             <NuxtLink :to="bc.path" text-sm hover="text-primary dark:text-primary-dark" @click.stop>
@@ -194,7 +194,7 @@ onKeyStroke('Escape', () => {
       hover="bg-active text-primary dark:text-primary-dark op100"
       z-110 h10 w10 flex items-center justify-center rounded-md text-sm op70
     >
-      <div i-ph-arrow-right-duotone />
+      <div i-carbon-arrow-right />
     </NuxtLink>
   </div>
 </template>

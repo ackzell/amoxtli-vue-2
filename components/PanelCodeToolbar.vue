@@ -3,35 +3,32 @@ const ui = useUiState()
 </script>
 
 <template>
-  <div border="b base dashed" bg-faded px2 py1.5 flex="~ wrap items-center gap-1.5">
-    <button
-      rounded p2
-      :title="`${ui.showPreview ? 'Hide' : 'Show'} preview`"
-      hover="bg-active"
+  <div border="b t base solid" bg-faded px2 py1.5 flex="~ wrap items-center justify-end gap-1.5">
+    <IconButton
+      :tooltip="`${ui.showPreview ? 'Hide' : 'Show'} preview`"
+      tooltip-placement="bottom"
       :class="ui.showPreview ? '' : 'op50'"
       @click="ui.togglePreview()"
     >
-      <div i-ph-monitor-play-duotone text-xl />
-    </button>
+      <div text-md i-carbon-wikis />
+    </IconButton>
 
-    <button
-      rounded p2
-      title="Toggle Console"
-      hover="bg-active"
+    <IconButton
+      tooltip="Toggle Console"
+      tooltip-placement="bottom"
       :class="ui.showConsole ? '' : 'op50'"
       @click="ui.toggleConsole()"
     >
-      <div i-ph-terminal-duotone text-xl />
-    </button>
+      <div text-md i-carbon-cics-program />
+    </IconButton>
 
-    <button
-      rounded p2
-      :title="$t('terminal.toggle')"
-      hover="bg-active"
+    <IconButton
+      :tooltip="$t('terminal.toggle')"
+      tooltip-placement="bottom"
       :class="ui.showTerminal ? '' : 'op50'"
       @click="ui.toggleTerminal()"
     >
-      <div i-ph-terminal-window-duotone text-xl />
-    </button>
+      <div text-md i-carbon-terminal />
+    </IconButton>
   </div>
 </template>

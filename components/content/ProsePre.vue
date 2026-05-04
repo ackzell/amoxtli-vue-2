@@ -395,14 +395,16 @@ async function copyCode() {
       <span class="text-sm/6 op80">{{ inferredFilename }}</span>
     </div>
 
-    <button
-      type="button"
+    <IconButton
+      unstyled
+      tooltip="Copy code to clipboard"
+      tooltip-placement="left"
       class="ec-copy-button"
       aria-label="Copy code to clipboard"
       @click="copyCode"
     >
       <span :class="copied ? 'i-carbon-checkmark size-3.5' : 'i-carbon-copy size-3.5'" />
-    </button>
+    </IconButton>
 
     <pre
       ref="preEl"

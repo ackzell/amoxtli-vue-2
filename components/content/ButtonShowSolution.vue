@@ -8,8 +8,8 @@ const guide = useGuideStore()
     flex="~ gap-2 items-center"
     @click="guide.toggleSolutions()"
   >
-    <div v-if="!guide.showingSolution " i-ph-lightbulb-filament-duotone />
-    <div v-else i-ph-arrow-counter-clockwise-duotone />
+    <div v-if="!guide.showingSolution " i-carbon-idea />
+    <div v-else i-carbon-rotate-360 />
     {{ guide.showingSolution ? $t('reset-challenge') : $t('show-solution') }}
   </button>
 </template>

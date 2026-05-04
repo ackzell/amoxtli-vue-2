@@ -12,24 +12,26 @@ const play = usePlaygroundStore()
       border="b base dashed"
       bg-faded p2 pl4
     >
-      <div i-ph-terminal-window-duotone />
+      <div i-carbon-terminal />
       <span text-sm>{{ $t('terminal.name') }}</span>
       <div flex-auto />
-      <button
+      <IconButton
         v-if="play.status !== 'init' && play.status !== 'mount'"
-        hover="bg-active" rounded p1
-        :title="$t('terminal.restart')"
+        :tooltip="$t('terminal.restart')"
+        tooltip-placement="bottom"
+        padding="sm"
         @click="play.restartServer()"
       >
-        <div i-ph-arrow-clockwise-duotone />
-      </button>
-      <button
-        hover="bg-active" rounded p1
-        :title="$t('terminal.hide')"
+        <div i-carbon-rotate-360 />
+      </IconButton>
+      <IconButton
+        :tooltip="$t('terminal.hide')"
+        tooltip-placement="bottom"
+        padding="sm"
         @click="ui.toggleTerminal()"
       >
-        <div i-ph-x-bold />
-      </button>
+        <div i-carbon-close />
+      </IconButton>
     </div>
     <PanelTerminalClient />
   </div>

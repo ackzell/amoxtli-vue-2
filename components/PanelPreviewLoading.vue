@@ -73,14 +73,16 @@ function getTextClass(status: PlaygroundStatus) {
       <div :class="getStatusIcon('install')" />
       <span :class="getTextClass('install')" flex="~ gap-1 items-center">
         {{ $t('steps.installing-dependencies') }}
-        <button
+        <IconButton
           :class="getStep('install') === 'current' ? '' : 'op0 pointer-events-none'"
-          hover="bg-active" my--1 rounded p1
-          :title="$t('terminal.toggle')"
+          my--1
+          :tooltip="$t('terminal.toggle')"
+          tooltip-placement="top"
+          padding="sm"
           @click="ui.toggleTerminal()"
         >
           <div i-ph-terminal-window-duotone text-xl />
-        </button>
+        </IconButton>
       </span>
       <div :class="getStatusIcon('start')" />
       <span :class="getTextClass('start')">{{ $t('steps.starting-dev-server') }}</span>

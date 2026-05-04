@@ -458,14 +458,15 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
           border="~ base"
           absolute left--4 top-4 z-embedded-docs-close h-8 w-8 of-hidden rounded-full bg-base
         >
-          <button
-            flex="~ items-center justify-center"
-            h-full w-full hover:bg-active
-            title="Close embedded docs"
+          <IconButton
+            tooltip="Close embedded docs"
+            tooltip-placement="left"
+            padding="sm"
+            class="h-full w-full flex items-center justify-center"
             @click="guide.embeddedDocs = ''"
           >
             <div i-ph-caret-left-bold h-4 w-4 />
-          </button>
+          </IconButton>
         </div>
       </Splitter.Panel>
     </Splitter.Root>

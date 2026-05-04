@@ -9,6 +9,15 @@ const effectiveMainViewMode = computed(() => {
     return 'docs'
   return ui.mainViewMode
 })
+const isCodeFocusApplied = computed(() => effectiveMainViewMode.value === 'code')
+const isDocsFocusApplied = computed(() => effectiveMainViewMode.value === 'docs')
+const isVerticalLayoutApplied = computed(() => ui.mainLayoutOrientation === 'vertical')
+const isReverseLayoutApplied = computed(() => ui.mainLayoutReverse)
+const hasCustomLayoutApplied = computed(() => {
+  return effectiveMainViewMode.value !== 'split'
+    || isVerticalLayoutApplied.value
+    || isReverseLayoutApplied.value
+})
 
 function setMainViewMode(mode: 'split' | 'code' | 'docs') {
   if (lessonForcesDocsOnly.value && mode !== 'docs')
@@ -64,7 +73,7 @@ addCommands(
     handler: () => {
       setMainViewMode('split')
     },
-    icon: 'i-ph-columns-duotone',
+    icon: 'i-mynaui:layout',
   },
   {
     id: 'layout-main-view-code',
@@ -72,7 +81,7 @@ addCommands(
     handler: () => {
       setMainViewMode('code')
     },
-    icon: 'i-ph-code-duotone',
+    icon: 'i-mynaui:code',
     visible: () => !lessonForcesDocsOnly.value,
   },
   {
@@ -81,7 +90,7 @@ addCommands(
     handler: () => {
       setMainViewMode('docs')
     },
-    icon: 'i-ph-book-open-text-duotone',
+    icon: 'i-mynaui:book-open',
   },
   {
     id: 'layout-main-orientation',
@@ -89,7 +98,7 @@ addCommands(
     handler: () => {
       ui.toggleMainLayoutOrientation()
     },
-    icon: 'i-ph-layout-duotone',
+    icon: 'i-mynaui:rectangle',
   },
   {
     id: 'layout-main-reverse',
@@ -97,7 +106,7 @@ addCommands(
     handler: () => {
       ui.toggleMainLayoutReverse()
     },
-    icon: 'i-ph-arrows-left-right-duotone',
+    icon: 'i-mynaui:arrow-left-right',
   },
   {
     id: 'toggle-terminal',
@@ -105,7 +114,7 @@ addCommands(
     handler: () => {
       ui.toggleTerminal()
     },
-    icon: 'i-ph-terminal-window-duotone',
+    icon: 'i-carbon-terminal',
   },
   {
     id: 'toggle-console',
@@ -113,7 +122,7 @@ addCommands(
     handler: () => {
       ui.toggleConsole()
     },
-    icon: 'i-ph-terminal-duotone',
+    icon: 'i-carbon-cics-program',
   },
   {
     id: 'toggle-preview',
@@ -121,7 +130,7 @@ addCommands(
     handler: () => {
       ui.togglePreview()
     },
-    icon: 'i-ph-monitor-play-duotone',
+    icon: 'i-carbon-wikis',
   },
   {
     id: 'language-en',
@@ -129,7 +138,7 @@ addCommands(
     handler: () => {
       i18n.setLocale('en')
     },
-    icon: 'i-ph-globe-duotone',
+    icon: 'i-ph-translate-duotone',
     visible: () => {
       return i18n.locale.value !== 'en'
     },
@@ -140,7 +149,7 @@ addCommands(
     handler: () => {
       i18n.setLocale('ja')
     },
-    icon: 'i-ph-globe-duotone',
+    icon: 'i-ph-translate-duotone',
     visible: () => {
       return i18n.locale.value !== 'ja'
     },
@@ -169,13 +178,12 @@ addCommands(
       :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
     >
       <VDropdown :distance="6">
-        <button
-          rounded p2
-          hover="bg-active"
-          title="Languages"
+        <IconButton
+          tooltip="Languages"
+          tooltip-placement="bottom"
         >
-          <div i-ph-translate-duotone text-2xl />
-        </button>
+          <div i-ph-translate-duotone text-xl />
+        </IconButton>
         <template #popper>
           <div flex="~ col gap-y-1" p2>
             <button
@@ -196,7 +204,7 @@ addCommands(
         :title="$t('search')"
         @click="commands.isShown = true"
       >
-        <div i-ph-magnifying-glass-duotone text-2xl />
+        <div i-ph-magnifying-glass-duotone text-xl />
       </button> -->
       <!-- <button
         v-if="play.status === 'ready' && !!guide.features.download"
@@ -205,7 +213,7 @@ addCommands(
         :title="$t('download-zip')"
         @click="downloadCurrentGuide()"
       >
-        <div i-ph-download-duotone text-2xl />
+        <div i-ph-download-duotone text-xl />
       </button> -->
       <!-- <VDropdown :distance="6">
         <button
@@ -213,7 +221,7 @@ addCommands(
           hover="bg-active"
           title="Playground Information"
         >
-          <div i-ph-info-duotone text-2xl />
+          <div i-ph-info-duotone text-xl />
         </button>
         <template #popper>
           <div px5 py4 grid="~ gap-y-3 gap-x-2 cols-[max-content_1fr] items-center">
@@ -227,58 +235,79 @@ addCommands(
           </div>
         </template>
       </VDropdown> -->
-      <button
-        v-if="!lessonForcesDocsOnly"
-        rounded p2
-        title="Code Focus"
-        hover="bg-active"
-        :class="effectiveMainViewMode === 'code' ? '' : 'op50'"
-        @click="toggleCodeOnly"
-      >
-        <div i-ph-code-duotone text-2xl />
-      </button>
-      <button
-        rounded p2
-        title="Docs Focus"
-        hover="bg-active"
-        :class="effectiveMainViewMode === 'docs' ? '' : 'op50'"
-        @click="toggleDocsOnly"
-      >
-        <div i-ph-book-open-text-duotone text-2xl />
-      </button>
-      <button
-        rounded p2
-        :title="`Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'} layout`"
-        hover="bg-active"
-        @click="ui.toggleMainLayoutOrientation()"
-      >
-        <div
-          class="transition-transform duration-200"
-          text-2xl
-          :class="ui.mainLayoutOrientation === 'horizontal'
-            ? 'i-ph-columns-duotone rotate-0'
-            : 'i-ph-columns-duotone rotate-90'"
-        />
-      </button>
-      <button
-        rounded p2
-        :title="`${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} ${ui.mainLayoutOrientation === 'horizontal' ? 'left/right' : 'top/bottom'} order`"
-        hover="bg-active"
-        :class="ui.mainLayoutReverse ? '' : 'op70'"
-        @click="ui.toggleMainLayoutReverse()"
-      >
-        <div
-          class="transition-transform duration-200"
-          text-2xl
-          :class="ui.mainLayoutOrientation === 'horizontal'
-            ? 'i-ph-arrows-left-right-duotone rotate-0'
-            : 'i-ph-arrows-left-right-duotone rotate-90'"
-        />
-      </button>
+      <VDropdown :distance="6">
+        <IconButton
+          tooltip="Layout Options"
+          tooltip-placement="bottom"
+          :active="hasCustomLayoutApplied"
+        >
+          <div
+            class="transition-all duration-200"
+            text-xl
+            :class="hasCustomLayoutApplied
+              ? 'i-mynaui:layout-solid'
+              : 'i-mynaui:layout hover:i-mynaui:layout-solid'"
+          />
+        </IconButton>
+        <template #popper>
+          <div class="layout-menu-panel" p2>
+            <div class="layout-menu-list" flex="~ col gap-1">
+              <IconButton
+                v-if="!lessonForcesDocsOnly"
+                class="layout-menu-item"
+                tooltip="Code Focus"
+                tooltip-placement="left"
+                :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
+                @click="toggleCodeOnly"
+              >
+                <div i-mynaui-code text-xl />
+              </IconButton>
+              <IconButton
+                class="layout-menu-item"
+                tooltip="Docs Focus"
+                tooltip-placement="left"
+                :class="isDocsFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
+                @click="toggleDocsOnly"
+              >
+                <div i-mynaui-book-open text-xl hover:i-mynaui-book-open-solid />
+              </IconButton>
+              <IconButton
+                class="layout-menu-item op70"
+                :tooltip="`Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'} layout`"
+                tooltip-placement="left"
+                @click="ui.toggleMainLayoutOrientation()"
+              >
+                <div
+                  class="transition-transform duration-200"
+                  text-xl
+                  :class="ui.mainLayoutOrientation === 'horizontal'
+                    ? 'i-mynaui:rectangle hover:i-mynaui:rectangle-solid'
+                    : 'i-mynaui:rectangle-vertical hover:i-mynaui:rectangle-vertical-solid'"
+                />
+              </IconButton>
+              <IconButton
+                class="layout-menu-item"
+                :tooltip="`${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} ${ui.mainLayoutOrientation === 'horizontal' ? 'left/right' : 'top/bottom'} order`"
+                tooltip-placement="left"
+                :class="isReverseLayoutApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op70'"
+                @click="ui.toggleMainLayoutReverse()"
+              >
+                <div
+                  class="transition-transform duration-200"
+                  text-xl
+                  :class="ui.mainLayoutOrientation === 'horizontal'
+                    ? 'i-mynaui:arrow-left-right hover:i-mynaui:arrow-left-right-solid'
+                    : 'i-mynaui:arrow-up-down hover:i-mynaui:arrow-up-down-solid'"
+                />
+              </IconButton>
+            </div>
+          </div>
+        </template>
+      </VDropdown>
       <ColorSchemeToggle />
     </div>
   </nav>
-  <div class="mb6 mt2 block md:hidden">
+  <div class="relative mt1 block h-10 md:hidden">
     <DocsNavigation />
   </div>
 </template>

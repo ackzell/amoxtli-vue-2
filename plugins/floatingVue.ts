@@ -5,4 +5,10 @@ export default defineNuxtPlugin(() => {
     $extend: 'tooltip',
     $resetCss: true,
   }
+
+  options.themes['icon-button-tooltip'] = {
+    $extend: 'tooltip',
+    $resetCss: true,
+    distance: 2,
+  }
 })

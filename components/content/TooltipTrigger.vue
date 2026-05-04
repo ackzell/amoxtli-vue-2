@@ -21,8 +21,8 @@ function contentFn() {
 }
 
 const tooltipStyle = computed(() => ({
-  left: `${tooltipPosition.x - TOOLTIP_POINTER_X}px`,
-  top: `${tooltipPosition.y + TOOLTIP_OFFSET_Y}px`,
+  'left': `${tooltipPosition.x - TOOLTIP_POINTER_X}px`,
+  'top': `${tooltipPosition.y + TOOLTIP_OFFSET_Y}px`,
   '--tooltip-pointer-x': `${TOOLTIP_POINTER_X}px`,
 }))
 
@@ -114,7 +114,7 @@ onUnmounted(() => {
     @mouseleave="scheduleHide"
     @mousemove="updateMousePosition"
   >
-    <slot />
+    <slot /><span i-mynaui-star-solid ml-0.5 inline-block h2 w2 text-xs text-primary dark:text-primary-dark />
   </span>
 
   <Teleport to="body">
@@ -139,9 +139,8 @@ onUnmounted(() => {
   border-radius: 6px;
   padding: 12px;
   border: 1px solid var(--amv-highlight);
-  background: rgba(0, 0, 0, 0.85);
-  color: white;
   pointer-events: auto;
+  --uno: 'bg-bgr-50/10 dark:bg-bgr-600/10  backdrop-blur-sm p2 shadow-md';
 }
 
 .guide-tooltip-popper::before {
@@ -152,14 +151,9 @@ onUnmounted(() => {
   width: 10px;
   height: 10px;
   transform: rotate(45deg);
-  background: rgba(0, 0, 0, 0.85);
   border-left: 1px solid var(--amv-highlight);
   border-top: 1px solid var(--amv-highlight);
-}
-
-.dark .guide-tooltip-popper {
-  border: 1px solid var(--amv-highlight);
-  background: rgba(0, 0, 0, 0.85);
+  --uno: 'bg-bgr-50/80  dark:bg-bgr-800/50 backdrop-blur-sm';
 }
 
 .guide-tooltip-popper p {
@@ -182,7 +176,7 @@ onUnmounted(() => {
 
 .tooltip-content {
   a {
-    color: white;
+    color: var(--amv-highlight);
     text-decoration: underline;
 
     &:hover {
@@ -193,7 +187,7 @@ onUnmounted(() => {
   blockquote {
     margin: 0.5em 0;
     padding-left: 3em;
-    border-left: 3px solid rgba(255, 255, 255, 0.3);
+    border-left: 3px solid var(--amv-highlight);
   }
 }
 </style>

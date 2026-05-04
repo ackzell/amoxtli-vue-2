@@ -244,23 +244,25 @@ function deserializeMessage(arg: any): any {
       border="b base dashed"
       bg-faded p2 pl4
     >
-      <div i-ph-terminal-window-duotone />
+      <div i-carbon-cics-program />
       <span text-sm>{{ $t('console-output.name') }}</span>
       <div flex-auto />
-      <button
-        hover="bg-active" rounded p1
-        :title="hideViteLogs ? $t('console-output.show-vite') : $t('console-output.hide-vite')"
+      <IconButton
+        :tooltip="hideViteLogs ? $t('console-output.show-vite') : $t('console-output.hide-vite')"
+        tooltip-placement="bottom"
+        padding="sm"
         @click="hideViteLogs = !hideViteLogs"
       >
-        <div :class="hideViteLogs ? 'i-ph-funnel-x-duotone' : 'i-ph-funnel-duotone'" />
-      </button>
-      <button
-        hover="bg-active" rounded p1
-        :title="$t('console-output.clear')"
+        <div :class="hideViteLogs ? 'i-carbon-filter' : 'i-carbon-filter-remove'" />
+      </IconButton>
+      <IconButton
+        :tooltip="$t('console-output.clear')"
+        tooltip-placement="bottom"
+        padding="sm"
         @click="clearLunaConsole"
       >
-        <div i-ph-broom-duotone />
-      </button>
+        <div i-carbon-clean />
+      </IconButton>
     </div>
     <div class="luna-container">
       <div ref="luna-ref" />
