@@ -128,7 +128,7 @@ onKeyStroke('Escape', () => {
       :to="prev.path"
       :title="`Previous: ${prev.title}`"
       hover="bg-active text-primary dark:text-primary-dark op100"
-      z-110 h10 w10 flex items-center justify-center rounded-md text-sm op70
+      z-110 h-full w10 flex items-center justify-center rounded-md text-sm op70
     >
       <div i-carbon-arrow-left />
     </NuxtLink>
@@ -192,7 +192,7 @@ onKeyStroke('Escape', () => {
       :to="next.path"
       :title="`Next: ${next.title}`"
       hover="bg-active text-primary dark:text-primary-dark op100"
-      z-110 h10 w10 flex items-center justify-center rounded-md text-sm op70
+      z-110 h-full h10 w10 flex items-center justify-center rounded-md text-sm op70
     >
       <div i-carbon-arrow-right />
     </NuxtLink>

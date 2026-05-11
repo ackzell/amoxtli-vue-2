@@ -86,6 +86,13 @@ export function useEcDecorations(
       line.classList.remove('ec-collapsed', 'ec-annotated', 'ec-annotation-inline')
       line.removeAttribute('data-ec-note')
       line.removeAttribute('title')
+
+      const content = line.querySelector<HTMLElement>(':scope > .ec-annotated-content')
+      if (content) {
+        while (content.firstChild)
+          line.insertBefore(content.firstChild, content)
+        content.remove()
+      }
     })
 
     const lineMap = new Map<number, HTMLElement>()
@@ -94,6 +101,22 @@ export function useEcDecorations(
       if (Number.isFinite(lineNo))
         lineMap.set(lineNo, line)
     })
+
+    // Validate collapse ranges against actual line count
+    for (const range of parsedEc.value.collapseRanges) {
+      const declaredCount = range.end - range.start + 1
+      let actualCount = 0
+      for (let lineNo = range.start; lineNo <= range.end; lineNo++) {
+        if (lineMap.has(lineNo))
+          actualCount++
+      }
+      if (actualCount !== declaredCount) {
+        console.warn(
+          `[ProsePre] Collapse range ${range.start}-${range.end} declares ${declaredCount} line${declaredCount > 1 ? 's' : ''} but only ${actualCount} line${actualCount > 1 ? 's' : ''} exist${actualCount === 1 ? 's' : ''}. `
+          + `Consider updating collapse={${range.start}-${range.start + actualCount - 1}}.`,
+        )
+      }
+    }
 
     const placeholders: HTMLElement[] = []
     for (const range of parsedEc.value.collapseRanges) {
@@ -180,9 +203,8 @@ export function useEcDecorations(
     }
 
     function insertAnnotationRow(anchor: HTMLElement, text: string) {
-      const note = document.createElement('span')
-      note.className = 'line ec-annotation-row'
-      note.setAttribute('line', '')
+      const note = document.createElement('div')
+      note.className = 'ec-annotation-row'
       note.textContent = text
 
       if (annotationRowPlacement.value === 'top') {
@@ -219,6 +241,19 @@ export function useEcDecorations(
       insertAfterMap.set(anchor, note)
     }
 
+    function ensureAnnotatedContent(line: HTMLElement) {
+      const existing = line.querySelector<HTMLElement>(':scope > .ec-annotated-content')
+      if (existing)
+        return existing
+
+      const content = document.createElement('span')
+      content.className = 'ec-annotated-content'
+      while (line.firstChild)
+        content.appendChild(line.firstChild)
+      line.appendChild(content)
+      return content
+    }
+
     for (const annotation of parsedEc.value.annotations) {
       const lineSet = new Set(annotation.lines)
       const startLineNo = Math.min(...annotation.lines)
@@ -228,6 +263,7 @@ export function useEcDecorations(
         if (!lineSet.has(lineNo))
           return
         line.classList.add('ec-annotated')
+        ensureAnnotatedContent(line)
 
         if (!startLine && lineNo === startLineNo)
           startLine = line
@@ -257,10 +293,26 @@ export function useEcDecorations(
     nextTick(() => applyEcDecorations())
   }
 
+  function expandAll() {
+    for (const range of parsedEc.value.collapseRanges) {
+      const key = rangeKey(range.start, range.end)
+      expandedCollapseRanges.value.add(key)
+    }
+    applyEcDecorations()
+  }
+
+  function collapseAll() {
+    expandedCollapseRanges.value = new Set<string>()
+    applyEcDecorations()
+  }
+
   return {
     expandedCollapseRanges,
+    collapseRanges: computed(() => parsedEc.value.collapseRanges),
     applyEcDecorations,
     toggleCollapseRange,
     resetDecorations,
+    expandAll,
+    collapseAll,
   }
 }

@@ -1,22 +1,18 @@
 <script setup lang="ts">
-defineProps<{
-  copied: boolean
-}>()
-
-const emit = defineEmits<{
-  copy: []
+defineEmits<{
+  increaseFontSize: []
 }>()
 </script>
 
 <template>
   <IconButton
     unstyled
-    tooltip="Copy code to clipboard"
+    tooltip="Increase font size"
     tooltip-placement="top"
     class="pointer-events-none z-1 size-7 inline-flex items-center justify-center border border-base rounded-md bg-base op0 transition-opacity duration-200 group-focus-within:pointer-events-auto group-hover:pointer-events-auto group-focus-within:op75 group-hover:op75 hover:op100"
-    aria-label="Copy code to clipboard"
-    @click="emit('copy')"
+    aria-label="Increase font size"
+    @click="$emit('increaseFontSize')"
   >
-    <div :class="copied ? 'i-mynaui-check size-3.5' : 'i-mynaui-copy '" h4 w4 text-bgr-dark dark:text-bgr-50 />
+    <div i-mynaui-a-arrow-up-solid h4 w4 text-bgr-dark dark:text-bgr-50 />
   </IconButton>
 </template>

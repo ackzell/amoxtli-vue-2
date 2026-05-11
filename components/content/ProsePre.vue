@@ -12,6 +12,7 @@ const preEl = ref<HTMLElement>()
 const ecInfo = computed(() => `${props.language || ''} ${props.meta || ''}`.trim())
 
 const parsedEc = computed(() => parseEcInfo(ecInfo.value))
+const showLineNumbers = computed(() => parsedEc.value.showLineNumbers)
 
 const language = computed(() => {
   const value = (props.language || '').toLowerCase()
@@ -72,11 +73,25 @@ const preAttrs = computed(() => {
 
 const preClass = computed(() => (attrs as Record<string, unknown>).class)
 
-const { applyEcDecorations, resetDecorations } = useEcDecorations(preEl, parsedEc)
+const { applyEcDecorations, resetDecorations, collapseRanges, expandAll, collapseAll } = useEcDecorations(preEl, parsedEc)
 const { copied, copyCode } = useCodeCopy()
 
 function handleCopy() {
   copyCode(props.code || preEl.value?.textContent || '')
+}
+
+function handleIncreaseFontSize() {
+  if (!preEl.value)
+    return
+  const currentSize = Number.parseFloat(getComputedStyle(preEl.value).fontSize)
+  preEl.value.style.fontSize = `${currentSize + 2}px`
+}
+
+function handleDecreaseFontSize() {
+  if (!preEl.value)
+    return
+  const currentSize = Number.parseFloat(getComputedStyle(preEl.value).fontSize)
+  preEl.value.style.fontSize = `${currentSize - 2}px`
 }
 
 onMounted(() => {
@@ -89,25 +104,45 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
 </script>
 
 <template>
-  <div class="group relative my-5 max-w-4xl">
+  <div class="group" relative my-5 max-w-4xl>
     <ProsePreHeader
       v-if="inferredFilename"
       :filename="inferredFilename"
       :icon-class="iconClass"
     />
 
-    <ProsePreCopyButton
-      :copied="copied"
-      @copy="handleCopy"
-    />
+    <div flex="~ justify-around gap-2" absolute right-4 top-4 z-1>
+      <ProsePreCollapseAllButton
+        :has-ranges="collapseRanges.length > 0"
+        @expand-all="expandAll"
+        @collapse-all="collapseAll"
+      />
 
-    <div w-full flex justify-center bg-base dark:bg-bgr-dark>
+      <ProsePreDecreaseFontSize
+        @decrease-font-size="handleDecreaseFontSize"
+      />
+
+      <ProsePreIncreaseFontSize
+        @increase-font-size="handleIncreaseFontSize"
+      />
+
+      <ProsePreCopyButton
+        :copied="copied"
+        @copy="handleCopy"
+      />
+    </div>
+
+    <div
+      w-full flex justify-center border border-t-0 border-base rounded-b-md bg-base shadow-md dark:bg-bgr-dark
+      :class="{ 'rounded-t-md': !inferredFilename }"
+    >
       <pre
         ref="preEl"
-        w-full
+        mt-0 w-full
         v-bind="preAttrs"
         :class="[
           preClass,
+          !showLineNumbers ? 'ec-hide-line-numbers' : '',
           inferredFilename ? 'rounded-t-none! mt-0!' : '',
         ]"
       >
@@ -150,6 +185,14 @@ pre {
   opacity: 0.45;
 }
 
+:deep(pre.ec-hide-line-numbers code .line) {
+  padding-left: 2rem;
+}
+
+:deep(pre.ec-hide-line-numbers code .line::before) {
+  content: none;
+}
+
 :deep(code .line.ec-collapsed) {
   display: none;
 }
@@ -175,24 +218,40 @@ pre {
 }
 
 :deep(code .line.ec-annotated) {
-  background: color-mix(in oklab, currentColor 8%, transparent);
+  background: transparent;
 }
 
-:deep(code .line.ec-annotation-row) {
-  margin: 0.25rem 0 0.4rem 0;
-  padding: 0.2rem 0.45rem;
-  margin-left: 2.5rem;
-  font-size: 0.7rem;
-  line-height: 1.25;
-  border-radius: 0.375rem;
-  width: fit-content;
-  max-width: min(100%, 36rem);
-  opacity: 0.75;
-  background: color-mix(in oklab, currentColor 14%, transparent);
+:deep(code .line.ec-annotated > .ec-annotated-content) {
+  display: block;
+  background: color-mix(in oklab, var(--amv-highlight) 25%, transparent);
 }
 
-:deep(code .line.ec-annotation-row::before) {
+:deep(code .line.ec-annotated > .ec-annotated-content::before) {
   content: '';
+  display: block;
+  position: absolute;
+  left: 2.5rem;
+  height: 1.2rem;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);
+}
+
+:deep(code .ec-annotation-row) {
+  display: block;
+  margin-left: 2.5rem;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  width: fit-content;
+  max-width: calc(100% - 2.75rem);
+  background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);
+}
+
+:deep(pre.ec-hide-line-numbers code .ec-annotation-row) {
+  margin-left: 0.75rem;
+  max-width: calc(100% - 1rem);
 }
 
 :deep(code .line.ec-annotation-inline) {

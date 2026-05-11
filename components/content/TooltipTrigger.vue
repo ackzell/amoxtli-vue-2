@@ -133,27 +133,57 @@ onUnmounted(() => {
 
 <style>
 .guide-tooltip-popper {
+  --r: 5px; /* Corner Radius */
+  --ap: 1.5rem; /* Arrow Position */
+  --ah: 11px; /* Arrow Height */
+  --aw: 11px; /* Arrow Width (Half) */
+  box-sizing: border-box; /* Important for padding logic */
+
   position: fixed;
   z-index: 300;
   max-width: 400px;
-  border-radius: 6px;
-  padding: 12px;
+  border-radius: var(--r);
   border: 1px solid var(--amv-highlight);
   pointer-events: auto;
-  --uno: 'bg-bgr-50/10 dark:bg-bgr-600/10  backdrop-blur-sm p2 shadow-md';
-}
+  --uno: 'bg-bgr-50/10 dark:bg-bgr-600/10  backdrop-blur-sm p2';
 
-.guide-tooltip-popper::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: calc(var(--tooltip-pointer-x) - 5px);
-  width: 10px;
-  height: 10px;
-  transform: rotate(45deg);
-  border-left: 1px solid var(--amv-highlight);
-  border-top: 1px solid var(--amv-highlight);
-  --uno: 'bg-bgr-50/80  dark:bg-bgr-800/50 backdrop-blur-sm';
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+
+  /* Padding added to compensate for Arrow Height */
+  padding-top: calc(var(--ah) + 8px);
+
+  /* The Shape */
+  border-shape: shape(
+    from var(--r) var(--ah),
+    hline to calc(var(--ap) - var(--aw)),
+    line by var(--aw) calc(var(--ah) * -1),
+    line by var(--aw) var(--ah),
+    hline to calc(100% - var(--r)),
+    curve to right calc(var(--ah) + var(--r)) with right calc(var(--ah)),
+    vline to calc(100% - var(--r)),
+    curve to calc(100% - var(--r)) bottom with right bottom,
+    hline to var(--r),
+    curve to left calc(100% - var(--r)) with left bottom,
+    vline to calc(var(--ah) + var(--r)),
+    curve to var(--r) var(--ah) with left var(--ah)
+  );
+
+  clip-path: shape(
+    from var(--r) calc(var(--ah)),
+    hline to calc(var(--ap) - var(--aw)),
+    line by calc(var(--aw)) calc(var(--ah) * -1),
+    line by calc(var(--aw) + 2px) var(--ah),
+    hline to calc(100% - var(--r)),
+    curve to right calc(var(--ah) + var(--r)) with right calc(var(--ah)),
+    vline to calc(100% - var(--r)),
+    curve to calc(100% - var(--r)) bottom with right bottom,
+    hline to var(--r),
+    curve to left calc(100% - var(--r)) with left bottom,
+    vline to calc(var(--ah) + var(--r)),
+    curve to var(--r) calc(var(--ah)) with left calc(var(--ah))
+  );
+
+  overflow: visible;
 }
 
 .guide-tooltip-popper p {

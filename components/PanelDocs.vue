@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const runtime = useRuntimeConfig()
+// const runtime = useRuntimeConfig()
 const route = useRoute()
 const { locale } = useI18n()
 
@@ -28,11 +28,11 @@ useSeoMeta({
 const prev = computed(() => surroundings.value?.[0])
 const next = computed(() => surroundings.value?.[1])
 
-const sourceUrl = computed(() =>
-  page.value?.id
-    ? `${runtime.public.repoUrl}/edit/main/content/${page.value.stem}.${page.value.extension}`
-    : undefined,
-)
+// const sourceUrl = computed(() =>
+//   page.value?.id
+//     ? `${runtime.public.repoUrl}/edit/main/content/${page.value.stem}.${page.value.extension}`
+//     : undefined,
+// )
 
 const docsEl = ref<HTMLElement | null>(null)
 const router = useRouter()
@@ -70,7 +70,7 @@ router.beforeEach(() => {
           />
         </div>
       </div>
-      <div border="t base dashed" mt-8 p3>
+      <!-- <div border="t base dashed" mt-8 p3>
         <NuxtLink
           v-if="sourceUrl"
           :to="sourceUrl" target="_blank"
@@ -81,7 +81,7 @@ router.beforeEach(() => {
           <div i-ph-note-pencil-duotone />
           {{ $t('edit-this-page') }}
         </NuxtLink>
-      </div>
+      </div> -->
     </article>
   </div>
 </template>

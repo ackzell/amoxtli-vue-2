@@ -11,6 +11,7 @@ export interface CollapseRange {
 export interface ParsedEcInfo {
   file: string
   title: string
+  showLineNumbers: boolean
   collapseRanges: CollapseRange[]
   collapseLines: number[]
   annotations: Annotation[]
@@ -51,6 +52,10 @@ export function parseCollapseRanges(input: string): CollapseRange[] {
 export function parseEcInfo(input: string): ParsedEcInfo {
   const file = input.match(/(?:^|\s)file:(\S+)/)?.[1] || ''
   const title = input.match(/(?:^|\s)title="([^"]+)"/)?.[1] || ''
+  const showLineNumbersRaw = input.match(/(?:^|\s)showLineNumbers(?:=|\{)(true|false)\}?/i)?.[1]
+  const showLineNumbers = showLineNumbersRaw
+    ? showLineNumbersRaw.toLowerCase() !== 'false'
+    : true
   const collapseRaw = input.match(/(?:^|\s)collapse=\{([^}]+)\}/)?.[1] || ''
   const collapseRanges = collapseRaw ? parseCollapseRanges(collapseRaw) : []
   const collapseLines = collapseRaw ? parseRanges(collapseRaw) : []
@@ -73,6 +78,7 @@ export function parseEcInfo(input: string): ParsedEcInfo {
   return {
     file,
     title,
+    showLineNumbers,
     collapseRanges,
     collapseLines,
     annotations,
