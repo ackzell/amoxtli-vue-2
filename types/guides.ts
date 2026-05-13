@@ -4,7 +4,6 @@ export interface GuideIgnoredFiles { overwrite: boolean, patterns: StringOrRegEx
 
 export interface GuideMeta {
   features?: PlaygroundFeatures
-  layout?: GuideLayoutPolicy
   startingFile?: string
   startingUrl?: string
   /**
@@ -40,9 +39,12 @@ export interface PlaygroundFeatures {
   terminal?: boolean
   fileTree?: boolean
   download?: boolean
-  navigation?: boolean
-}
-
-export interface GuideLayoutPolicy {
-  docsOnly?: boolean
+  console?: boolean
+  /**
+   * Forces the main layout view mode when this guide is loaded.
+   * - 'docs': shows only the docs panel
+   * - 'code': shows only the code panel
+   * - 'split': shows both docs and code panels side by side
+   */
+  defaultLayout?: 'split' | 'code' | 'docs'
 }

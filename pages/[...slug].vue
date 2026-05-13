@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const router = useRouter()
+const route = useRoute()
 const guide = useGuideStore()
 
 const templatesMap = Object.fromEntries(
@@ -13,12 +14,37 @@ const templatesMap = Object.fromEntries(
     ]),
 )
 
+function normalizePath(path: string) {
+  return path.replace(/\/$/, '')
+}
+
+async function loadGuideMeta(path: string) {
+  const normalized = normalizePath(path)
+  return await templatesMap[normalized]?.().then((m: any) => m.meta) ?? null
+}
+
+// Load guide meta eagerly so guide.features.defaultLayout is set before first render.
+// This ensures isDocsOnlyMode is correct and the code panel won't mount for docs-only lessons.
+const { data: initialMeta } = await useAsyncData(
+  `guide-meta-${route.path}`,
+  () => loadGuideMeta(route.path),
+)
+
+if (initialMeta.value) {
+  guide.setGuideMeta(initialMeta.value)
+}
+
 async function mount(path: string) {
-  path = path.replace(/\/$/, '') // remove trailing slash
-  await guide.mount(
-    await templatesMap[path]?.().then((m: any) => m.meta),
-    false,
-  )
+  const guideMeta = await loadGuideMeta(path)
+
+  // Only mount the playground (code panel) if defaultLayout is not 'docs'
+  if (guideMeta?.features?.defaultLayout !== 'docs') {
+    await guide.mount(guideMeta, false)
+  }
+  else {
+    // Set features for layout configuration without initializing the playground
+    guide.setGuideMeta(guideMeta)
+  }
 }
 
 router.afterEach(async (to) => {

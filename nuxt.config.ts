@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     // local
     '~/modules/template-loader',
     '~/modules/nuxt-link',
+    '@nuxt/scripts',
   ],
   devtools: {
     enabled: true,
@@ -67,13 +68,12 @@ export default defineNuxtConfig({
       gitSha: execaSync('git', ['rev-parse', 'HEAD']).stdout.trim(),
       repoUrl: 'https://github.com/nuxt/learn.nuxt.com',
     },
-    app: {
-      devtools: {
-        iframeProps: {
-          allow: 'cross-origin-isolated',
-          credentialless: true,
-        },
+    devtools: {
+      iframeProps: {
+        allow: 'cross-origin-isolated',
+        credentialless: true,
       },
+
     },
   },
 
@@ -168,6 +168,12 @@ export default defineNuxtConfig({
     },
     componentOptions: {
       global: true,
+    },
+  },
+
+  scripts: {
+    registry: {
+
     },
   },
 })

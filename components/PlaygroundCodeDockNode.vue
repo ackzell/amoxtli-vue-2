@@ -2,12 +2,10 @@
 import type { DropZone } from '~/types/dnd-spike'
 import type { CodePanelId, LayoutNode } from '~/types/layout'
 import { Splitter } from '@ark-ui/vue'
-import PanelConsole from './PanelConsole.client.vue'
 
 defineOptions({
   name: 'PlaygroundCodeDockNode',
 })
-
 const props = defineProps<{
   node: LayoutNode
   draggedPanelId: CodePanelId | null
@@ -18,7 +16,6 @@ const props = defineProps<{
   showConsole: boolean
   showTerminal: boolean
 }>()
-
 const emit = defineEmits<{
   dragStart: [id: CodePanelId]
   dragEnd: []
@@ -27,6 +24,31 @@ const emit = defineEmits<{
   zoneDrop: [draggedId: CodePanelId, targetId: string, zone: DropZone]
   splitResize: [splitId: string, sizes: number[]]
 }>()
+// Dynamic imports to prevent playground store access when not rendered
+const PanelEditor = defineAsyncComponent({
+  loader: () => import('./PanelEditor.vue'),
+  loadingComponent: { template: '<div />' },
+  delay: 200,
+  timeout: 3000,
+})
+const PanelPreview = defineAsyncComponent({
+  loader: () => import('./PanelPreview.vue'),
+  loadingComponent: { template: '<div />' },
+  delay: 200,
+  timeout: 3000,
+})
+const PanelConsole = defineAsyncComponent({
+  loader: () => import('./PanelConsole.client.vue'),
+  loadingComponent: { template: '<div />' },
+  delay: 200,
+  timeout: 3000,
+})
+const PanelTerminal = defineAsyncComponent({
+  loader: () => import('./PanelTerminal.vue'),
+  loadingComponent: { template: '<div />' },
+  delay: 200,
+  timeout: 3000,
+})
 
 const ZONES: DropZone[] = ['top', 'bottom', 'left', 'right']
 

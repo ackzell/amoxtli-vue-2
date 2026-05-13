@@ -1,11 +1,21 @@
 <script setup lang="ts">
-const play = usePlaygroundStore()
 const ui = useUiState()
 
+// Only access playground store when actually needed
+let play: ReturnType<typeof usePlaygroundStore> | null = null
+
+function getPlaygroundStore() {
+  if (!play) {
+    play = usePlaygroundStore()
+  }
+  return play
+}
+
 function getStep(status: PlaygroundStatus) {
-  if (status === 'error' || play.status === 'error')
+  const playgroundStore = getPlaygroundStore()
+  if (status === 'error' || (playgroundStore.status === 'error' && playgroundStore.status !== 'init'))
     return 'error'
-  const indexCurrent = PlaygroundStatusOrder.indexOf(play.status)
+  const indexCurrent = playgroundStore.status !== 'init' ? PlaygroundStatusOrder.indexOf(playgroundStore.status) : -1
   const index = PlaygroundStatusOrder.indexOf(status)
   if (indexCurrent === index)
     return 'current'
@@ -45,11 +55,11 @@ function getTextClass(status: PlaygroundStatus) {
 
 <template>
   <div
-    v-if="play.status !== 'ready'"
+    v-if="getPlaygroundStore().status !== 'ready'"
     flex="~ col items-center gap-2 justify-center"
     h-full
   >
-    <template v-if="play.status === 'interactive'">
+    <template v-if="getPlaygroundStore().status === 'interactive'">
       <div flex="~ gap-2 items-center" text-lg>
         <div i-ph-terminal-window-duotone text-2xl />
         {{ $t('interactive-terminal-mode') }}
@@ -59,7 +69,7 @@ function getTextClass(status: PlaygroundStatus) {
         flex="~ gap-1 items-center"
         hover="bg-active text-blue op100"
         mx--1 rounded px1 op50
-        @click="play.restartServer()"
+        @click="getPlaygroundStore().restartServer()"
       >
         <div i-ph-arrow-clockwise-duotone text-lg />
         {{ $t('restart-server') }}

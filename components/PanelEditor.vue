@@ -2,30 +2,52 @@
 import { Splitter } from '@ark-ui/vue'
 import { filesToVirtualFsTree } from '~/templates/utils'
 
-const play = usePlaygroundStore()
 const ui = useUiState()
 const guide = useGuideStore()
 
-const files = computed(() => Array
-  .from(play.files.values())
-  .filter(file => !isFileIgnored(file.filepath, guide.ignoredFiles)),
-)
+// Dynamic import to prevent playground store access when not rendered
+const LazyPanelEditorMonaco = defineAsyncComponent({
+  loader: () => import('./PanelEditorMonaco.client.vue'),
+  loadingComponent: { template: '<div />' },
+  delay: 200,
+  timeout: 3000,
+})
 
+// Make play a reactive ref so the template reacts when store is initialized
+const play = ref<ReturnType<typeof usePlaygroundStore> | null>(null)
+
+function getPlaygroundStore() {
+  if (!play.value) {
+    play.value = usePlaygroundStore()
+  }
+  return play.value
+}
+
+const files = ref<any[]>([])
 const directory = computed(() => filesToVirtualFsTree(files.value))
 
 const input = ref<string>('')
 
-watch(
-  () => [play.fileSelected, guide.currentGuide, guide.showingSolution],
-  () => {
-    input.value = play.fileSelected?.read() || ''
-  },
-)
+// Initialize data only when component is mounted
+onMounted(() => {
+  const playground = getPlaygroundStore()
+  files.value = Array
+    .from(playground.files.values())
+    .filter(file => !isFileIgnored(file.filepath, guide.ignoredFiles))
+
+  watch(
+    () => [playground.fileSelected, guide.currentGuide, guide.showingSolution],
+    () => {
+      input.value = playground.fileSelected?.read() || ''
+    },
+    { immediate: true },
+  )
+})
 
 const onTextInput = useDebounceFn(_onTextInput, 500)
 function _onTextInput() {
   if (input.value != null)
-    play?.fileSelected?.write(input.value)
+    play.value?.fileSelected?.write(input.value)
 }
 
 function startDragging() {
@@ -59,6 +81,7 @@ const sizes = computed<number[]>({
 
 <template>
   <Splitter.Root
+    v-if="play"
     :panels="panels"
     :size="sizes"
     of-hidden

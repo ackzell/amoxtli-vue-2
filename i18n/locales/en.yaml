@@ -35,3 +35,6 @@ console-output:
   show-vite: show [vite] logs
 a-book-about-vue: A book about Vue
 amoxtli-vue: Amoxtli Vue
+yt-player:
+  description-goes-here: description goes here
+  watch: Watch

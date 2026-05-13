@@ -1,7 +1,19 @@
 <script setup lang="ts">
-const play = usePlaygroundStore()
 const preview = usePreviewStore()
-const guide = useGuideStore()
+
+// Dynamic import to prevent playground store access when not rendered
+const PanelPreviewLoading = defineAsyncComponent({
+  loader: () => import('./PanelPreviewLoading.vue'),
+  loadingComponent: { template: '<div />' },
+  delay: 200,
+  timeout: 3000,
+})
+const PanelPreviewClient = defineAsyncComponent({
+  loader: () => import('./PanelPreviewClient.client.vue'),
+  loadingComponent: { template: '<div />' },
+  delay: 200,
+  timeout: 3000,
+})
 
 const inputUrl = ref<string>('')
 const inner = ref<{ iframe?: HTMLIFrameElement | undefined }>()
@@ -23,15 +35,6 @@ function refreshIframe(force = false) {
   }
 }
 
-watch(
-  () => play.status,
-  (status) => {
-    if (status === 'ready' || status === 'polling')
-      refreshIframe()
-  },
-  { flush: 'sync' },
-)
-
 function navigate() {
   preview.location.fullPath = inputUrl.value
   preview.updateUrl()
@@ -42,16 +45,14 @@ function navigate() {
 </script>
 
 <template>
-  <div h-full :class="play.status === 'ready' ? ' grid grid-rows-[min-content_1fr]' : 'flex'">
+  <div h-full class="grid grid-rows-[min-content_1fr]">
     <div
-      v-if="play.status === 'ready'"
       data-dock-drag-handle="true"
       draggable="true"
       flex="~ items-center gap-2"
       border="b base dashed" bg-faded pl1 pr2
     >
       <div
-        v-if="guide.features.navigation"
         flex="~ auto gap-2 items-center"
         border="~ base"
         m1.5 rounded bg-faded px2 py0.5 tracking-wide
@@ -72,13 +73,6 @@ function navigate() {
             >
           </form>
         </div>
-      </div>
-      <div
-        v-else
-        flex="~ gap-2 auto items-center" px2 py2
-      >
-        <div i-carbon-wikis />
-        <span text-sm>{{ $t('preview') }}</span>
       </div>
       <IconButton
         tooltip="Refresh Preview"

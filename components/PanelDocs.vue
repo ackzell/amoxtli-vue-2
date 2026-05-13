@@ -45,7 +45,7 @@ router.beforeEach(() => {
 
 <template>
   <div relative h-full of-hidden>
-    <article ref="docsEl" class="max-w-none prose" h-full of-auto p6>
+    <article ref="docsEl" class="m-auto max-w-3xl prose" h-full of-auto p6>
       <ContentRenderer v-if="page" :key="page.id" :value="page" />
       <div mt8 py2 grid="~ cols-[1fr_1fr] gap-4">
         <div>

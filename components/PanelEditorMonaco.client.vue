@@ -15,9 +15,20 @@ const emit = defineEmits<{
   (event: 'change', value: string): void
 }>()
 
-const play = usePlaygroundStore()
+// Only initialize Monaco when the component is actually used
+let play: ReturnType<typeof usePlaygroundStore> | null = null
 
-initMonaco(play)
+function getPlaygroundStore() {
+  if (!play) {
+    play = usePlaygroundStore()
+  }
+  return play
+}
+
+// Initialize Monaco when the component mounts
+onMounted(() => {
+  initMonaco(getPlaygroundStore())
+})
 
 const el = ref<HTMLDivElement>()
 
@@ -146,10 +157,10 @@ watch(
 
     // Restart language tools when dependencies install finished
     cleanups.push(watch(
-      () => play.status,
+      () => getPlaygroundStore().status,
       (s) => {
         if (s === 'ready')
-          reloadLanguageTools(play)
+          reloadLanguageTools(getPlaygroundStore())
       },
     ))
 

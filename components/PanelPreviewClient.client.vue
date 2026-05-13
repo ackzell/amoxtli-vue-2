@@ -4,7 +4,6 @@ import type { ClientInfo, FrameFunctions, ParentFunctions } from '~/types/rpc'
 import { createBirpc } from 'birpc'
 
 const ui = useUiState()
-const play = usePlaygroundStore()
 const colorMode = useColorMode()
 const preview = usePreviewStore()
 
@@ -13,7 +12,7 @@ const iframe = ref<HTMLIFrameElement>()
 // Set up birpc to communicate with iframe
 const functions: ParentFunctions = {
   onReady(info: ClientInfo) {
-    play.status = 'ready'
+    // Don't access playground store in docs mode
     preview.clientInfo = info
     syncColorMode()
   },
@@ -99,7 +98,6 @@ defineExpose({
     v-if="preview.url"
     ref="iframe"
     :src="preview.url"
-    :style="play.status === 'ready' ? '' : 'opacity: 0.001; pointer-events: none;'"
     :class="{ 'pointer-events-none': ui.isPanelDragging }"
     absolute inset-0 h-full w-full bg-transparent allow="geolocation; microphone; camera; payment; autoplay; serial; cross-origin-isolated"
     @load="syncColorMode"

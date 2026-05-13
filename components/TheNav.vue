@@ -1,14 +1,27 @@
 <script setup lang="ts">
 const ui = useUiState()
-const play = usePlaygroundStore()
 const guide = useGuideStore()
 
-const lessonForcesDocsOnly = computed(() => guide.currentGuide?.layout?.docsOnly === true)
+const lessonForcesDocsOnly = computed(() => guide.currentGuide?.features?.defaultLayout === 'docs')
 const effectiveMainViewMode = computed(() => {
   if (lessonForcesDocsOnly.value)
     return 'docs'
   return ui.mainViewMode
 })
+
+// Only access playground store when actually needed (for download functionality)
+let play: ReturnType<typeof usePlaygroundStore> | null = null
+
+function getPlaygroundStore() {
+  // Don't create playground store in docs mode
+  if (effectiveMainViewMode.value === 'docs') {
+    return null
+  }
+  if (!play) {
+    play = usePlaygroundStore()
+  }
+  return play
+}
 const isCodeFocusApplied = computed(() => effectiveMainViewMode.value === 'code')
 const isDocsFocusApplied = computed(() => effectiveMainViewMode.value === 'docs')
 const isVerticalLayoutApplied = computed(() => ui.mainLayoutOrientation === 'vertical')
@@ -41,16 +54,17 @@ function toggleDocsOnly() {
 // const timeAgo = useTimeAgo(buildTime)
 
 function downloadCurrentGuide() {
-  if (!play.webcontainer)
+  const playgroundStore = getPlaygroundStore()
+  if (!playgroundStore?.webcontainer)
     throw new Error('No webcontainer found')
 
-  if (play.status !== 'ready')
+  if (playgroundStore.status !== 'ready')
     throw new Error('Playground is not ready')
 
   if (!guide.features.download)
     throw new Error(`Download feature is disabled for guide ${guide.currentGuide}`)
 
-  downloadZip(play.webcontainer, guide.ignoredFiles)
+  downloadZip(playgroundStore.webcontainer, guide.ignoredFiles)
 }
 
 const i18n = useI18n()
@@ -60,7 +74,8 @@ addCommands(
     id: 'download-zip',
     title: () => $t('download-zip'),
     visible: () => {
-      return play.status === 'ready' && guide.features.download !== false
+      const playgroundStore = getPlaygroundStore()
+      return playgroundStore?.status === 'ready' && guide.features.download !== false
     },
     handler: () => {
       downloadCurrentGuide()
@@ -207,7 +222,7 @@ addCommands(
         <div i-ph-magnifying-glass-duotone text-xl />
       </button> -->
       <!-- <button
-        v-if="play.status === 'ready' && !!guide.features.download"
+        v-if="getPlaygroundStore()?.status === 'ready' && !!guide.features.download"
         rounded p2
         hover="bg-active"
         :title="$t('download-zip')"

@@ -58,7 +58,9 @@ const prev = computed(() => surroundings.value?.[0])
 const next = computed(() => surroundings.value?.[1])
 const navigationItems = computed(() => {
   const items = navigation.value || []
-  if (items.length === 1 && items[0]?.path === '/' && items[0]?.children?.length)
+  // Unwrap a single root collection item (/, /en, /ja, etc.) so the locale
+  // folder itself never appears as an empty-titled nav entry.
+  if (items.length === 1 && items[0]?.children?.length)
     return items[0].children
   return items
 })
@@ -81,16 +83,36 @@ function findNavItemFromPath(
 }
 
 const breadcrumbs = computed(() => {
-  const parts = page.value?.path?.split('/').filter(Boolean) || []
-  const breadcrumbs = parts
+  const pagePath = page.value?.path || ''
+
+  // Strip the locale prefix (/en, /ja) before splitting into segments so the
+  // locale folder never becomes a breadcrumb entry.
+  const localePrefix = `/${locale.value}`
+  const pathWithoutLocale = pagePath.startsWith(localePrefix)
+    ? pagePath.slice(localePrefix.length)
+    : pagePath
+
+  const parts = pathWithoutLocale.split('/').filter(Boolean)
+  const breadcrumbs: BreadcrumbItem[] = parts
     .map((_, idx): BreadcrumbItem => {
-      const path = `/${parts.slice(0, idx + 1).join('/')}`
-      const item = findNavItemFromPath(path)
+      // Search using the full path (with locale prefix) so nav item lookup works.
+      const fullPath = `${localePrefix}/${parts.slice(0, idx + 1).join('/')}`
+      const item = findNavItemFromPath(fullPath)
       return {
-        title: item?.title || 'Not found',
-        path: item ? path : undefined,
+        title: item?.title || parts[idx] || 'Not found',
+        path: item ? fullPath : undefined,
       }
     })
+
+  // When on the root locale page (/en), parts is empty so no page-title
+  // breadcrumb is produced. Look up the nav item for the locale root explicitly
+  // so /en gets the same "Guide > Introduction" treatment as sub-pages.
+  if (parts.length === 0 && pagePath) {
+    const item = findNavItemFromPath(pagePath)
+    if (item?.title) {
+      breadcrumbs.push({ title: item.title, path: pagePath })
+    }
+  }
 
   if (!breadcrumbs.find(i => i.path === '/')) {
     breadcrumbs.unshift({

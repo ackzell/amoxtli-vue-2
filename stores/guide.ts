@@ -4,7 +4,7 @@ import type { GuideMeta, PlaygroundFeatures } from '~/types/guides'
 const defaultFeatures = Object.freeze(<PlaygroundFeatures>{
   fileTree: false,
   terminal: false,
-  navigation: true,
+  console: false,
   download: true,
 })
 
@@ -15,7 +15,16 @@ function toPlain<T>(value: T): T {
 }
 
 export const useGuideStore = defineStore('guide', () => {
-  const play = usePlaygroundStore()
+
+  let play: ReturnType<typeof usePlaygroundStore> | null = null
+
+  function getPlaygroundStore() {
+    if (!play) {
+      play = usePlaygroundStore()
+    }
+    return play
+  }
+
   const ui = useUiState()
   const preview = usePreviewStore()
 
@@ -34,22 +43,32 @@ export const useGuideStore = defineStore('guide', () => {
     else if (features.value.fileTree === false) {
       ui.panelFileTree = 0
     }
+
+    if (features.value.terminal === true)
+      ui.showTerminal = true
+    else if (features.value.terminal === false)
+      ui.showTerminal = false
+
+    if (features.value.console === true)
+      ui.showConsole = true
+    else if (features.value.console === false)
+      ui.showConsole = false
   })
 
   async function mount(guide?: GuideMeta, withSolution = false) {
-    await play.init
-
-    // eslint-disable-next-line no-console
-    console.log('mounting guide', guide)
+    const playgroundStore = getPlaygroundStore()
+    if (!playgroundStore.webcontainer) {
+      await playgroundStore.init()
+    }
 
     const templateName = guide?.template === 'html' ? 'html' : 'vue'
 
-    await play.mount({
+    await playgroundStore.mount({
       ...guide?.files,
       ...withSolution ? guide?.solutions : {},
     }, templateName)
 
-    play.fileSelected = play.files.get(guide?.startingFile || 'app.vue')
+    playgroundStore.fileSelected = playgroundStore.files.get(guide?.startingFile || 'app.vue')
     preview.setFullPath(guide?.startingUrl || '/')
 
     const safeGuide = toPlain(guide)
@@ -72,9 +91,20 @@ export const useGuideStore = defineStore('guide', () => {
     embeddedDocs.value = url
   }
 
+  function setGuideMeta(guideMeta?: GuideMeta) {
+    const safeGuide = toPlain(guideMeta)
+
+    features.value = {
+      ...defaultFeatures,
+      ...safeGuide?.features,
+    }
+    currentGuide.value = safeGuide
+  }
+
   return {
     mount,
     toggleSolutions,
+    setGuideMeta,
     features,
     currentGuide,
     showingSolution,

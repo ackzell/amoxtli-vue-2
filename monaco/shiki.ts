@@ -12,9 +12,11 @@ export async function getShiki() {
     return highlighter
 
   const darkColors = (themeDark as any).colors as Record<string, string>
-  darkColors['editor.background'] = '#00000000'
-  darkColors.focusBorder = '#00000000'
+  darkColors['editor.background'] = '#0b0c07'
+  darkColors.focusBorder = '#0b0c07'
   darkColors['editorCursor.foreground'] = '#ffc799'
+  darkColors['editorStickyScroll.background'] = '#0b0c07'
+  darkColors['editorStickyScroll.shadow'] = '#ffc79933'
 
   highlighter = createHighlighterCore({
     langs: [

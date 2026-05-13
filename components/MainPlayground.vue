@@ -2,18 +2,12 @@
 import type { DropZone } from '~/types/dnd-spike'
 import type { CodePanelId, LayoutNode, LayoutSplit } from '~/types/layout'
 import { Splitter } from '@ark-ui/vue'
-import PlaygroundCodeDockNode from '~/components/PlaygroundCodeDockNode.vue'
 
 const ui = useUiState()
 const guide = useGuideStore()
 const route = useRoute()
 
-const lessonForcesDocsOnly = computed(() => guide.currentGuide?.layout?.docsOnly === true)
-const effectiveMainViewMode = computed(() => {
-  if (lessonForcesDocsOnly.value)
-    return 'docs'
-  return ui.mainViewMode
-})
+const effectiveMainViewMode = computed(() => guide.features.defaultLayout ?? ui.mainViewMode)
 const isSplitMode = computed(() => effectiveMainViewMode.value === 'split')
 const isCodeOnlyMode = computed(() => effectiveMainViewMode.value === 'code')
 const isDocsOnlyMode = computed(() => effectiveMainViewMode.value === 'docs')
@@ -52,6 +46,14 @@ const mainSizes = computed<number[]>({
 const draggedPanelId = ref<CodePanelId | null>(null)
 const activeDropZone = ref<string | null>(null)
 const codeSizesMap = ref<Record<string, number[]>>({})
+
+// Dynamic imports for playground components to prevent initialization when not needed
+const PanelCodeToolbar = defineAsyncComponent(() =>
+  import('~/components/PanelCodeToolbar.vue'),
+)
+const PlaygroundCodeDockNode = defineAsyncComponent(() =>
+  import('~/components/PlaygroundCodeDockNode.vue'),
+)
 
 function collectMaxSplitNumber(node: LayoutNode): number {
   if (node.type === 'panel')
@@ -384,6 +386,7 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
 
 <template>
   <Splitter.Root
+    :key="effectiveMainViewMode"
     :panels="mainPanels"
     :orientation="ui.mainLayoutOrientation"
     :size="mainSizes"

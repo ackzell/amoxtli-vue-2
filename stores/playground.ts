@@ -19,8 +19,13 @@ export type PlaygroundStatus = typeof PlaygroundStatusOrder[number] | 'error'
 const DEV_SERVER_PORT = 5173
 
 export const usePlaygroundStore = defineStore('playground', () => {
+  console.warn('🔍 [DEBUG] Playground store being created/accessed', {
+    stack: new Error('Playground store access stack').stack?.split('\n').slice(1, 5).join('\n'),
+  })
+
   const preview = usePreviewStore()
 
+  const _isInitialized = ref(false)
   const status = ref<PlaygroundStatus>('init')
   const error = shallowRef<{ message: string }>()
   const currentProcess = shallowRef<Raw<WebContainerProcess | undefined>>()
@@ -37,70 +42,75 @@ export const usePlaygroundStore = defineStore('playground', () => {
   let hasInstalled = false
   let lastInstalledPackageJson = ''
 
-  // Mount the playground on client side
-  if (import.meta.client) {
-    async function init() {
-      const [
-        wc,
-        vueTemplate,
-        htmlTemplate,
-      ] = await Promise.all([
-        import('@webcontainer/api')
-          .then(({ WebContainer }) => WebContainer.boot()),
+  async function init() {
+    console.warn('🔍 [DEBUG] Playground init() called', {
+      isClient: import.meta.client,
+      isInitialized: _isInitialized.value,
+      stack: new Error('Playground init stack').stack?.split('\n').slice(1, 5).join('\n'),
+    })
+    if (!import.meta.client || _isInitialized.value)
+      return
 
-        import('../templates')
-          .then(r => r.templates.vue()),
+    const [
+      wc,
+      vueTemplate,
+      htmlTemplate,
+    ] = await Promise.all([
+      import('@webcontainer/api')
+        .then(({ WebContainer }) => WebContainer.boot()),
 
-        import('../templates')
-          .then(r => r.templates.html()),
-      ])
+      import('../templates')
+        .then(r => r.templates.vue()),
 
-      templatesMap = {
-        vue: vueTemplate,
-        html: htmlTemplate,
-      }
-      webcontainer.value = wc
+      import('../templates')
+        .then(r => r.templates.html()),
+    ])
 
-      // Create VirtualFile objects from the default (vue) template
-      Object.entries(vueTemplate)
-        .forEach(([path, content]) => {
-          const file = new VirtualFile(path, content, wc)
-          if (path.endsWith('.html'))
-            file.fsTransform = injectHtmlScripts
-          files.set(path, file)
-        })
+    templatesMap = {
+      vue: vueTemplate,
+      html: htmlTemplate,
+    }
+    webcontainer.value = wc
 
-      wc.on('server-ready', async (port, url) => {
-        // Dev server might listen on multiple ports, we need the main one
-        if (port === DEV_SERVER_PORT) {
-          preview.location = {
-            origin: url,
-            fullPath: preview.pendingFullPath,
-          }
-          preview.updateUrl()
-          status.value = 'ready'
+    // Create VirtualFile objects from the default (vue) template
+    Object.entries(vueTemplate)
+      .forEach(([path, content]) => {
+        const file = new VirtualFile(path, content, wc)
+        if (path.endsWith('.html'))
+          file.fsTransform = injectHtmlScripts
+        files.set(path, file)
+      })
+
+    wc.on('server-ready', async (port, url) => {
+      // Dev server might listen on multiple ports, we need the main one
+      if (port === DEV_SERVER_PORT) {
+        preview.location = {
+          origin: url,
+          fullPath: preview.pendingFullPath,
         }
-      })
-
-      wc.on('error', (err) => {
-        error.value = err
-        status.value = 'error'
-      })
-
-      status.value = 'mount'
-      await wc.mount(filesToWebContainerFs([...files.values()]))
-
-      startServer()
-
-      // In dev, when doing HMR, we kill the previous process while reusing the same WebContainer
-      if (import.meta.hot) {
-        import.meta.hot.accept(() => {
-          killPreviousProcess()
-        })
+        preview.updateUrl()
+        status.value = 'ready'
       }
+    })
+
+    wc.on('error', (err) => {
+      error.value = err
+      status.value = 'error'
+    })
+
+    status.value = 'mount'
+    await wc.mount(filesToWebContainerFs([...files.values()]))
+
+    startServer()
+
+    // In dev, when doing HMR, we kill the previous process while reusing the same WebContainer
+    if (import.meta.hot) {
+      import.meta.hot.accept(() => {
+        killPreviousProcess()
+      })
     }
 
-    _promiseInit = init()
+    _isInitialized.value = true
   }
 
   let abortController: AbortController | undefined
@@ -334,15 +344,18 @@ export const usePlaygroundStore = defineStore('playground', () => {
     }
   }
 
-  return {
-    get init() {
-      return _promiseInit
-    },
+  // Computed properties that return safe values when not initialized
+  const safeStatus = computed(() => _isInitialized.value ? status.value : 'init')
+  const safeWebcontainer = computed(() => _isInitialized.value ? webcontainer.value : null)
+  const safeError = computed(() => _isInitialized.value ? error.value : undefined)
+  const safeCurrentProcess = computed(() => _isInitialized.value ? currentProcess.value : undefined)
 
-    webcontainer,
-    status,
-    error,
-    currentProcess,
+  return {
+    init,
+    webcontainer: safeWebcontainer,
+    status: safeStatus,
+    error: safeError,
+    currentProcess: safeCurrentProcess,
 
     restartServer: startServer,
 
@@ -354,5 +367,6 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
 export type PlaygroundStore = ReturnType<typeof usePlaygroundStore>
 
-if (import.meta.hot)
-  import.meta.hot.accept(acceptHMRUpdate(usePlaygroundStore, import.meta.hot))
+// Disable HMR for playground store to prevent initialization during module import
+// if (import.meta.hot)
+//   import.meta.hot.accept(acceptHMRUpdate(usePlaygroundStore, import.meta.hot))
