@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { execaSync } from 'execa'
 import amoxtliLight from './themes/amoxtli-light'
 
@@ -127,6 +130,32 @@ export default defineNuxtConfig({
       ],
     },
   },
+
+  hooks: {
+    'content:file:beforeParse': function (ctx) {
+      const { file } = ctx as { file: { id: string, body: string, dirname: string } }
+
+      if (!file.id.endsWith('.md'))
+        return
+
+      const templateDir = join(file.dirname, '.template', 'files')
+
+      if (!existsSync(templateDir))
+        return
+
+      file.body = file.body.replace(
+        /^(`{3,})(\w+)?[ \t]*file:\/(\S+)([ \t][^\n]*)?\n([\s\S]*?\n)?\1/gm,
+        (match, fence, lang, filePath, rest) => {
+          const fullPath = join(templateDir, filePath)
+          if (!existsSync(fullPath))
+            return match
+          const content = readFileSync(fullPath, 'utf-8').trimEnd()
+          return `${fence}${lang ?? ''} file:/${filePath}${rest ?? ''}\n${content}\n${fence}`
+        },
+      )
+    },
+  },
+
   eslint: {
     config: {
       standalone: false,

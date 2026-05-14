@@ -13,8 +13,7 @@ const effectiveMainViewMode = computed(() => {
 let play: ReturnType<typeof usePlaygroundStore> | null = null
 
 function getPlaygroundStore() {
-  // Don't create playground store in docs mode
-  if (effectiveMainViewMode.value === 'docs') {
+  if (import.meta.server || effectiveMainViewMode.value === 'docs') {
     return null
   }
   if (!play) {
@@ -22,6 +21,7 @@ function getPlaygroundStore() {
   }
   return play
 }
+
 const isCodeFocusApplied = computed(() => effectiveMainViewMode.value === 'code')
 const isDocsFocusApplied = computed(() => effectiveMainViewMode.value === 'docs')
 const isVerticalLayoutApplied = computed(() => ui.mainLayoutOrientation === 'vertical')
@@ -192,27 +192,29 @@ addCommands(
       flex="~ gap-1 items-center"
       :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
     >
-      <VDropdown :distance="6">
-        <IconButton
-          tooltip="Languages"
-          tooltip-placement="bottom"
-        >
-          <div i-ph-translate-duotone text-xl />
-        </IconButton>
-        <template #popper>
-          <div flex="~ col gap-y-1" p2>
-            <button
-              v-for="locale of i18n.locales.value" :key="locale.code"
-              rounded px2 py1
-              hover="bg-active"
-              :class="locale.code === i18n.locale.value ? 'text-primary' : ''"
-              @click="i18n.setLocale(locale.code)"
-            >
-              {{ locale.name }}
-            </button>
-          </div>
-        </template>
-      </VDropdown>
+      <ClientOnly>
+        <VDropdown :distance="6">
+          <IconButton
+            tooltip="Languages"
+            tooltip-placement="bottom"
+          >
+            <div i-ph-translate-duotone text-xl />
+          </IconButton>
+          <template #popper>
+            <div flex="~ col gap-y-1" p2>
+              <button
+                v-for="locale of i18n.locales.value" :key="locale.code"
+                rounded px2 py1
+                hover="bg-active"
+                :class="locale.code === i18n.locale.value ? 'text-primary' : ''"
+                @click="i18n.setLocale(locale.code)"
+              >
+                {{ locale.name }}
+              </button>
+            </div>
+          </template>
+        </VDropdown>
+      </ClientOnly>
       <!-- <button
         rounded p2
         hover="bg-active"
@@ -250,75 +252,77 @@ addCommands(
           </div>
         </template>
       </VDropdown> -->
-      <VDropdown :distance="6">
-        <IconButton
-          tooltip="Layout Options"
-          tooltip-placement="bottom"
-          :active="hasCustomLayoutApplied"
-        >
-          <div
-            class="transition-all duration-200"
-            text-xl
-            :class="hasCustomLayoutApplied
-              ? 'i-mynaui:layout-solid'
-              : 'i-mynaui:layout hover:i-mynaui:layout-solid'"
-          />
-        </IconButton>
-        <template #popper>
-          <div class="layout-menu-panel" p2>
-            <div class="layout-menu-list" flex="~ col gap-1">
-              <IconButton
-                v-if="!lessonForcesDocsOnly"
-                class="layout-menu-item"
-                tooltip="Code Focus"
-                tooltip-placement="left"
-                :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
-                @click="toggleCodeOnly"
-              >
-                <div i-mynaui-code text-xl />
-              </IconButton>
-              <IconButton
-                class="layout-menu-item"
-                tooltip="Docs Focus"
-                tooltip-placement="left"
-                :class="isDocsFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
-                @click="toggleDocsOnly"
-              >
-                <div i-mynaui-book-open text-xl hover:i-mynaui-book-open-solid />
-              </IconButton>
-              <IconButton
-                class="layout-menu-item op70"
-                :tooltip="`Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'} layout`"
-                tooltip-placement="left"
-                @click="ui.toggleMainLayoutOrientation()"
-              >
-                <div
-                  class="transition-transform duration-200"
-                  text-xl
-                  :class="ui.mainLayoutOrientation === 'horizontal'
-                    ? 'i-mynaui:rectangle hover:i-mynaui:rectangle-solid'
-                    : 'i-mynaui:rectangle-vertical hover:i-mynaui:rectangle-vertical-solid'"
-                />
-              </IconButton>
-              <IconButton
-                class="layout-menu-item"
-                :tooltip="`${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} ${ui.mainLayoutOrientation === 'horizontal' ? 'left/right' : 'top/bottom'} order`"
-                tooltip-placement="left"
-                :class="isReverseLayoutApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op70'"
-                @click="ui.toggleMainLayoutReverse()"
-              >
-                <div
-                  class="transition-transform duration-200"
-                  text-xl
-                  :class="ui.mainLayoutOrientation === 'horizontal'
-                    ? 'i-mynaui:arrow-left-right hover:i-mynaui:arrow-left-right-solid'
-                    : 'i-mynaui:arrow-up-down hover:i-mynaui:arrow-up-down-solid'"
-                />
-              </IconButton>
+      <ClientOnly>
+        <VDropdown :distance="6">
+          <IconButton
+            tooltip="Layout Options"
+            tooltip-placement="bottom"
+            :active="hasCustomLayoutApplied"
+          >
+            <div
+              class="transition-all duration-200"
+              text-xl
+              :class="hasCustomLayoutApplied
+                ? 'i-mynaui:layout-solid'
+                : 'i-mynaui:layout hover:i-mynaui:layout-solid'"
+            />
+          </IconButton>
+          <template #popper>
+            <div class="layout-menu-panel" p2>
+              <div class="layout-menu-list" flex="~ col gap-1">
+                <IconButton
+                  v-if="!lessonForcesDocsOnly"
+                  class="layout-menu-item"
+                  tooltip="Code Focus"
+                  tooltip-placement="left"
+                  :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
+                  @click="toggleCodeOnly"
+                >
+                  <div i-mynaui-code text-xl />
+                </IconButton>
+                <IconButton
+                  class="layout-menu-item"
+                  tooltip="Docs Focus"
+                  tooltip-placement="left"
+                  :class="isDocsFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
+                  @click="toggleDocsOnly"
+                >
+                  <div i-mynaui-book-open text-xl hover:i-mynaui-book-open-solid />
+                </IconButton>
+                <IconButton
+                  class="layout-menu-item op70"
+                  :tooltip="`Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'} layout`"
+                  tooltip-placement="left"
+                  @click="ui.toggleMainLayoutOrientation()"
+                >
+                  <div
+                    class="transition-transform duration-200"
+                    text-xl
+                    :class="ui.mainLayoutOrientation === 'horizontal'
+                      ? 'i-mynaui:rectangle hover:i-mynaui:rectangle-solid'
+                      : 'i-mynaui:rectangle-vertical hover:i-mynaui:rectangle-vertical-solid'"
+                  />
+                </IconButton>
+                <IconButton
+                  class="layout-menu-item"
+                  :tooltip="`${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} ${ui.mainLayoutOrientation === 'horizontal' ? 'left/right' : 'top/bottom'} order`"
+                  tooltip-placement="left"
+                  :class="isReverseLayoutApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op70'"
+                  @click="ui.toggleMainLayoutReverse()"
+                >
+                  <div
+                    class="transition-transform duration-200"
+                    text-xl
+                    :class="ui.mainLayoutOrientation === 'horizontal'
+                      ? 'i-mynaui:arrow-left-right hover:i-mynaui:arrow-left-right-solid'
+                      : 'i-mynaui:arrow-up-down hover:i-mynaui:arrow-up-down-solid'"
+                  />
+                </IconButton>
+              </div>
             </div>
-          </div>
-        </template>
-      </VDropdown>
+          </template>
+        </VDropdown>
+      </ClientOnly>
       <ColorSchemeToggle />
     </div>
   </nav>

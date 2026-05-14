@@ -82,32 +82,34 @@ function navigate() {
       >
         <div i-carbon-rotate-360 text-sm />
       </IconButton>
-      <VDropdown :distance="6">
-        <IconButton
-          tooltip="Playground Information"
-          tooltip-placement="bottom"
-          padding="sm"
-        >
-          <div i-carbon-information text-sm />
-        </IconButton>
-        <template #popper>
-          <div px5 py4 grid="~ gap-y-3 gap-x-2 cols-[max-content_1fr] items-center">
-            <div i-uim-vuejs text-xl />
-            <div flex="~ gap-2 items-center">
-              <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
-              {{ $t('vueVersion') }}:
-              <div
-                v-if="!preview.clientInfo?.versionVue"
-                i-svg-spinners-90-ring-with-bg
-              />
-              <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
-              <code v-else>
-                v{{ preview.clientInfo.versionVue }}
-              </code>
+      <ClientOnly>
+        <VDropdown :distance="6">
+          <IconButton
+            tooltip="Playground Information"
+            tooltip-placement="bottom"
+            padding="sm"
+          >
+            <div i-carbon-information text-sm />
+          </IconButton>
+          <template #popper>
+            <div px5 py4 grid="~ gap-y-3 gap-x-2 cols-[max-content_1fr] items-center">
+              <div i-uim-vuejs text-xl />
+              <div flex="~ gap-2 items-center">
+                <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+                {{ $t('vueVersion') }}:
+                <div
+                  v-if="!preview.clientInfo?.versionVue"
+                  i-svg-spinners-90-ring-with-bg
+                />
+                <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+                <code v-else>
+                  v{{ preview.clientInfo.versionVue }}
+                </code>
+              </div>
             </div>
-          </div>
-        </template>
-      </VDropdown>
+          </template>
+        </VDropdown>
+      </ClientOnly>
     </div>
     <div relative h-full w-full>
       <PanelPreviewLoading />

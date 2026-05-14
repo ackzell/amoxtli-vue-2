@@ -62,7 +62,7 @@ const iconClass = computed(() => {
   if (language.value === 'css')
     return 'i-nonicons-css-16 text-purple'
   if (language.value === 'json')
-    return 'i-logos-json'
+    return 'i-carbon-json'
   return 'i-logos-code'
 })
 

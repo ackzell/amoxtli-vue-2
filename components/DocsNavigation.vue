@@ -114,10 +114,12 @@ const breadcrumbs = computed(() => {
     }
   }
 
-  if (!breadcrumbs.find(i => i.path === '/')) {
+  const localePath = useLocalePath()
+
+  if (!breadcrumbs.find(i => i.path === localePath('/'))) {
     breadcrumbs.unshift({
       title: t('guide'),
-      path: '/',
+      path: localePath('/'),
     })
   }
 

@@ -19,9 +19,9 @@ export type PlaygroundStatus = typeof PlaygroundStatusOrder[number] | 'error'
 const DEV_SERVER_PORT = 5173
 
 export const usePlaygroundStore = defineStore('playground', () => {
-  console.warn('🔍 [DEBUG] Playground store being created/accessed', {
-    stack: new Error('Playground store access stack').stack?.split('\n').slice(1, 5).join('\n'),
-  })
+  // console.warn('🔍 [DEBUG] Playground store being created/accessed', {
+  //   stack: new Error('Playground store access stack').stack?.split('\n').slice(1, 5).join('\n'),
+  // })
 
   const preview = usePreviewStore()
 
@@ -43,11 +43,11 @@ export const usePlaygroundStore = defineStore('playground', () => {
   let lastInstalledPackageJson = ''
 
   async function init() {
-    console.warn('🔍 [DEBUG] Playground init() called', {
-      isClient: import.meta.client,
-      isInitialized: _isInitialized.value,
-      stack: new Error('Playground init stack').stack?.split('\n').slice(1, 5).join('\n'),
-    })
+    // console.warn('🔍 [DEBUG] Playground init() called', {
+    //   isClient: import.meta.client,
+    //   isInitialized: _isInitialized.value,
+    //   stack: new Error('Playground init stack').stack?.split('\n').slice(1, 5).join('\n'),
+    // })
     if (!import.meta.client || _isInitialized.value)
       return
 
@@ -366,7 +366,3 @@ export const usePlaygroundStore = defineStore('playground', () => {
 })
 
 export type PlaygroundStore = ReturnType<typeof usePlaygroundStore>
-
-// Disable HMR for playground store to prevent initialization during module import
-// if (import.meta.hot)
-//   import.meta.hot.accept(acceptHMRUpdate(usePlaygroundStore, import.meta.hot))
