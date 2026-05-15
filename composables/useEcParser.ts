@@ -8,6 +8,11 @@ export interface CollapseRange {
   end: number
 }
 
+export interface Highlight {
+  pattern: string
+  lines?: number[]
+}
+
 export interface ParsedEcInfo {
   file: string
   title: string
@@ -15,6 +20,7 @@ export interface ParsedEcInfo {
   collapseRanges: CollapseRange[]
   collapseLines: number[]
   annotations: Annotation[]
+  highlights: Highlight[]
 }
 
 export function parseRanges(input: string): number[] {
@@ -27,8 +33,7 @@ export function parseRanges(input: string): number[] {
       continue
     const from = Math.min(start, end)
     const to = Math.max(start, end)
-    for (let i = from; i <= to; i++)
-      values.add(i)
+    for (let i = from; i <= to; i++) values.add(i)
   }
   return [...values]
 }
@@ -41,59 +46,61 @@ export function parseCollapseRanges(input: string): CollapseRange[] {
     const end = endRaw ? Number(endRaw) : start
     if (!Number.isFinite(start) || !Number.isFinite(end))
       continue
-    ranges.push({
-      start: Math.min(start, end),
-      end: Math.max(start, end),
-    })
+    ranges.push({ start: Math.min(start, end), end: Math.max(start, end) })
   }
   return ranges.sort((a, b) => a.start - b.start)
 }
 
-export function parseEcInfo(input: string): ParsedEcInfo {
-  // Restore encoded annotations
-  // they are encoded in a nuxt hook
-  // so we can write them in a way that shiki won't mess with, then decode back here
-  const restored = input.replace(
-    /__EANN_([0-9a-f]+)_L_([\d_]+)__/g,
-    (_, hex, lines) => {
-      const text = (hex.match(/.{2}/g) ?? [])
-        .map((b: string) => String.fromCharCode(Number.parseInt(b, 16)))
-        .join('')
-      return `{"${text}":${lines.replace(/_/g, ',')}}`
-    },
-  )
+export function parseEcInfo(input: string = ''): ParsedEcInfo {
+  const result: ParsedEcInfo = {
+    file: '',
+    title: '',
+    showLineNumbers: true,
+    collapseRanges: [],
+    collapseLines: [],
+    annotations: [],
+    highlights: [],
+  }
 
-  const file = restored.match(/(?:^|\s)file:(\S+)/)?.[1] || ''
-  const title = restored.match(/(?:^|\s)title="([^"]+)"/)?.[1] || ''
-  const showLineNumbersRaw = restored.match(/(?:^|\s)showLineNumbers(?:=|\{)(true|false)\}?/i)?.[1]
-  const showLineNumbers = showLineNumbersRaw
-    ? showLineNumbersRaw.toLowerCase() !== 'false'
-    : true
-  const collapseRaw = restored.match(/(?:^|\s)collapse=\{([^}]+)\}/)?.[1] || ''
-  const collapseRanges = collapseRaw ? parseCollapseRanges(collapseRaw) : []
-  const collapseLines = collapseRaw ? parseRanges(collapseRaw) : []
+  if (!input)
+    return result
 
-  const annotations: Annotation[] = []
-  const annotationRegex = /\{"([^"]+)":([0-9,\- ]+)\}/g
-  let match: RegExpExecArray | null = annotationRegex.exec(restored)
-  while (match) {
-    const text = match[1]?.trim()
-    const ranges = match[2]?.trim()
-    if (text && ranges) {
-      annotations.push({
-        text,
-        lines: parseRanges(ranges),
-      })
+  console.group('--- [EC PARSER DEBUG] ---')
+  console.log('Raw input:', input)
+
+  let workingString = input.replace(/__EANN_([0-9a-f]+)_L_([\d_]+)__/g, (_, hex, lines) => {
+    const text = (hex.match(/.{2}/g) ?? []).map((b: string) => String.fromCharCode(Number.parseInt(b, 16))).join('')
+    result.annotations.push({ text, lines: parseRanges(lines.replace(/_/g, ',')) })
+    return ''
+  })
+
+  workingString = workingString.replace(/(?:^|\s)file:(\S+)/, (_, val) => { result.file = val; return '' })
+  workingString = workingString.replace(/(?:^|\s)title="([^"]+)"/, (_, val) => { result.title = val; return '' })
+  workingString = workingString.replace(/(?:^|\s)collapse=\{([^}]+)\}/, (_, val) => {
+    result.collapseRanges = parseCollapseRanges(val); return ''
+  })
+
+  const highlightRegex = /\/([^/]+)\/([\d,\- ]+)?/g
+  let hMatch: RegExpExecArray | null
+
+  while ((hMatch = highlightRegex.exec(workingString)) !== null) {
+    if (hMatch[1]) {
+      const pattern = hMatch[1].trim()
+      const rawLines = hMatch[2]?.trim()
+
+      // FIX: Only parse if rawLines actually has content,
+      // otherwise keep it undefined so it matches all lines.
+      const lines = (rawLines && rawLines.length > 0)
+        ? parseRanges(rawLines)
+        : undefined
+
+      console.log(`Found highlight: "${pattern}" on lines:`, lines || 'all')
+      result.highlights.push({ pattern, lines })
     }
-    match = annotationRegex.exec(restored)
   }
 
-  return {
-    file,
-    title,
-    showLineNumbers,
-    collapseRanges,
-    collapseLines,
-    annotations,
-  }
+  console.log('Final highlights array:', JSON.stringify(result.highlights))
+  console.groupEnd()
+
+  return result
 }

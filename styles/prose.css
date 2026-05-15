@@ -82,3 +82,8 @@
 .dark .prose :where(a > code):hover:not(:where(.not-prose, .not-prose *)) {
   --uno: important-border-primary-dark-200/50;
 }
+
+mark {
+  background: transparent;
+  color: inherit;
+}

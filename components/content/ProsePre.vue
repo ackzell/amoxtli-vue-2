@@ -277,4 +277,19 @@ pre {
   opacity: 0.75;
   background: color-mix(in oklab, currentColor 14%, transparent);
 }
+
+:deep(code .ec-highlight) {
+  position: relative;
+}
+
+:deep(code .ec-highlight::before) {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 130%;
+  background-color: color-mix(in oklab, var(--amv-highlight) 15%, transparent);
+  border: 1px solid var(--amv-highlight);
+  border-radius: 2px;
+  color: inherit;
+}
 </style>
