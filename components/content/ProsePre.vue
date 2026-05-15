@@ -226,6 +226,8 @@ pre {
 :deep(code .line.ec-annotated > .ec-annotated-content) {
   display: block;
   background: color-mix(in oklab, var(--amv-highlight) 25%, transparent);
+  height: 1.5rem;
+  margin-right: 0.5rem;
 }
 
 :deep(code .line.ec-annotated > .ec-annotated-content::before) {
@@ -233,7 +235,7 @@ pre {
   display: block;
   position: absolute;
   left: 2.5rem;
-  height: 1.2rem;
+  height: 1.5rem;
   top: 0;
   bottom: 0;
   width: 4px;
@@ -245,7 +247,7 @@ pre {
   margin-left: 2.5rem;
   padding: 0.2rem 0.45rem;
   font-size: 0.75rem;
-  line-height: 1.25;
+  line-height: 1.3rem;
   width: fit-content;
   max-width: calc(100% - 2.75rem);
   background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);

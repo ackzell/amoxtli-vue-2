@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from 'vue'
 import type { ParsedEcInfo } from './useEcParser'
-import { h, render } from 'vue'
+import { computed, h, nextTick, ref, render } from 'vue'
 import ProsePreCollapseWidget from '~/components/content/ProsePreCollapseWidget.vue'
 
 export function useEcDecorations(
@@ -61,14 +61,13 @@ export function useEcDecorations(
       return
     const codeEl = code as HTMLElement
 
+    // Cleanup previous decorations
     code.querySelectorAll<HTMLElement>('.ec-collapse-range').forEach((rangeEl) => {
       const widget = rangeEl.querySelector('.ec-collapse-widget')
       if (widget)
         render(null, widget)
-
       while (rangeEl.firstChild)
         rangeEl.parentNode?.insertBefore(rangeEl.firstChild, rangeEl)
-
       rangeEl.remove()
     })
 
@@ -102,23 +101,9 @@ export function useEcDecorations(
         lineMap.set(lineNo, line)
     })
 
-    // Validate collapse ranges against actual line count
-    for (const range of parsedEc.value.collapseRanges) {
-      const declaredCount = range.end - range.start + 1
-      let actualCount = 0
-      for (let lineNo = range.start; lineNo <= range.end; lineNo++) {
-        if (lineMap.has(lineNo))
-          actualCount++
-      }
-      if (actualCount !== declaredCount) {
-        console.warn(
-          `[ProsePre] Collapse range ${range.start}-${range.end} declares ${declaredCount} line${declaredCount > 1 ? 's' : ''} but only ${actualCount} line${actualCount > 1 ? 's' : ''} exist${actualCount === 1 ? 's' : ''}. `
-          + `Consider updating collapse={${range.start}-${range.start + actualCount - 1}}.`,
-        )
-      }
-    }
-
     const placeholders: HTMLElement[] = []
+
+    // Handle Collapse Ranges
     for (const range of parsedEc.value.collapseRanges) {
       const key = rangeKey(range.start, range.end)
       const isExpanded = expandedCollapseRanges.value.has(key)
@@ -157,14 +142,9 @@ export function useEcDecorations(
 
       for (let lineNo = range.start; lineNo <= range.end; lineNo++) {
         const line = lineMap.get(lineNo)
-        if (line)
+        if (line) {
           rangeContainer.appendChild(line)
-      }
-
-      if (!isExpanded) {
-        for (let lineNo = range.start; lineNo <= range.end; lineNo++) {
-          const line = lineMap.get(lineNo)
-          if (line)
+          if (!isExpanded)
             line.classList.add('ec-collapsed')
         }
       }
@@ -176,16 +156,12 @@ export function useEcDecorations(
     function findPlaceholderForAnnotation(annotationLines: number[]) {
       if (!annotationLines.length)
         return undefined
-
       const lineSet = new Set(annotationLines)
       return placeholders.find((placeholder) => {
         const start = Number(placeholder.getAttribute('data-start-line'))
         const end = Number(placeholder.getAttribute('data-end-line'))
-        if (!Number.isFinite(start) || !Number.isFinite(end))
-          return false
-
-        for (let lineNo = start; lineNo <= end; lineNo++) {
-          if (lineSet.has(lineNo))
+        for (let i = start; i <= end; i++) {
+          if (lineSet.has(i))
             return true
         }
         return false
@@ -196,8 +172,6 @@ export function useEcDecorations(
       return placeholders.find((placeholder) => {
         const start = Number(placeholder.getAttribute('data-start-line'))
         const end = Number(placeholder.getAttribute('data-end-line'))
-        if (!Number.isFinite(start) || !Number.isFinite(end))
-          return false
         return lineNo >= start && lineNo <= end
       })
     }
@@ -211,32 +185,29 @@ export function useEcDecorations(
         codeEl.insertBefore(note, codeEl.firstChild)
         return
       }
-
       if (annotationRowPlacement.value === 'bottom') {
         codeEl.appendChild(note)
         return
       }
 
       if (annotationRowPlacement.value === 'before') {
-        const previousInserted = insertBeforeMap.get(anchor)
-        if (previousInserted) {
-          previousInserted.insertAdjacentElement('afterend', note)
+        const prev = insertBeforeMap.get(anchor)
+        if (prev) {
+          prev.insertAdjacentElement('afterend', note)
           insertBeforeMap.set(anchor, note)
           return
         }
-
         anchor.insertAdjacentElement('beforebegin', note)
         insertBeforeMap.set(anchor, note)
         return
       }
 
-      const previousInserted = insertAfterMap.get(anchor)
-      if (previousInserted) {
-        previousInserted.insertAdjacentElement('afterend', note)
+      const prev = insertAfterMap.get(anchor)
+      if (prev) {
+        prev.insertAdjacentElement('afterend', note)
         insertAfterMap.set(anchor, note)
         return
       }
-
       anchor.insertAdjacentElement('afterend', note)
       insertAfterMap.set(anchor, note)
     }
@@ -245,35 +216,35 @@ export function useEcDecorations(
       const existing = line.querySelector<HTMLElement>(':scope > .ec-annotated-content')
       if (existing)
         return existing
-
       const content = document.createElement('span')
       content.className = 'ec-annotated-content'
-      while (line.firstChild)
-        content.appendChild(line.firstChild)
+      while (line.firstChild) content.appendChild(line.firstChild)
       line.appendChild(content)
       return content
     }
 
+    // Process Annotations (The Fix)
     for (const annotation of parsedEc.value.annotations) {
-      const lineSet = new Set(annotation.lines)
       const startLineNo = Math.min(...annotation.lines)
-      let startLine: HTMLElement | undefined
-      lines.forEach((line) => {
-        const lineNo = Number(line.getAttribute('line'))
-        if (!lineSet.has(lineNo))
-          return
-        line.classList.add('ec-annotated')
-        ensureAnnotatedContent(line)
+      const endLineNo = Math.max(...annotation.lines)
+      let firstLineEl: HTMLElement | undefined
 
-        if (!startLine && lineNo === startLineNo)
-          startLine = line
-      })
+      // Inclusive loop to apply classes to every line in the range
+      for (let i = startLineNo; i <= endLineNo; i++) {
+        const line = lineMap.get(i)
+        if (line) {
+          line.classList.add('ec-annotated')
+          ensureAnnotatedContent(line)
+          if (!firstLineEl && i === startLineNo)
+            firstLineEl = line
+        }
+      }
 
-      const startCollapsed = startLine?.classList.contains('ec-collapsed')
-
-      const anchor = (startLine && !startCollapsed)
-        ? startLine
+      const startCollapsed = firstLineEl?.classList.contains('ec-collapsed')
+      const anchor = (firstLineEl && !startCollapsed)
+        ? firstLineEl
         : findPlaceholderForLine(startLineNo) || findPlaceholderForAnnotation(annotation.lines)
+
       if (!anchor)
         continue
 
@@ -295,8 +266,7 @@ export function useEcDecorations(
 
   function expandAll() {
     for (const range of parsedEc.value.collapseRanges) {
-      const key = rangeKey(range.start, range.end)
-      expandedCollapseRanges.value.add(key)
+      expandedCollapseRanges.value.add(rangeKey(range.start, range.end))
     }
     applyEcDecorations()
   }
