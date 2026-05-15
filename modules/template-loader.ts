@@ -30,16 +30,15 @@ export default defineNuxtModule({
       )
 
       watcher.on('all', async (event: string, path: string) => {
-        // Only care about files inside .template/files/
         if (!path.includes('.template/files'))
           return
 
         if (!viteServer) {
-          console.error('Vite server not available for HMR')
+          // console.error('Vite server not available for HMR')
           return
         }
 
-        console.warn(`Template ${event}:`, path)
+        // console.warn(`Template ${event}:`, path)
 
         // 1. READ RAW CONTENT FOR WEBCONTAINER
         let content = ''
@@ -53,8 +52,7 @@ export default defineNuxtModule({
 
         const filename = path.split('/').pop()
 
-        // 2. BROADCAST TO FRONTEND (DO THIS FIRST)
-        // This updates the WebContainer WITHOUT a page reload
+        // 2. BROADCAST TO FRONTEND
         if (event === 'change' || event === 'add') {
           console.warn('📡 Broadcasting template:update for:', filename)
           viteServer.ws.send({
@@ -64,35 +62,41 @@ export default defineNuxtModule({
           })
         }
 
-        // 3. INVALIDATE VITE CACHE
-        // This ensures that when the page DOES refresh or re-fetch, it gets new data
-        for (const moduleId of templateModules) {
-          const mod = viteServer.moduleGraph.getModuleById(moduleId)
-          if (mod) {
+        // 3. INVALIDATE ALL MODULES UNDER .template/
+        const templateDir = path.replace(/\.template\/files\/.+$/, '.template')
+        for (const [, mod] of viteServer.moduleGraph.idToModuleMap) {
+          if (mod.id && mod.id.includes('.template')) {
             viteServer.moduleGraph.invalidateModule(mod)
+            console.warn('🗑️ Invalidated:', mod.id)
           }
         }
 
-        // 4. SYNC WITH NUXT CONTENT (TOUCH SIBLING MD)
+        // 4. INVALIDATE VITE GLOB VIRTUAL MODULES
+        for (const [url, mod] of viteServer.moduleGraph.urlToModuleMap) {
+          if (url.includes('glob') || url.includes('.template')) {
+            viteServer.moduleGraph.invalidateModule(mod)
+            // console.warn('Invalidated glob/template module:', url)
+          }
+        }
+
+        // 5. TOUCH SIBLING MD TO TRIGGER CONTENT REPARSE
         try {
-          const templateDir = resolve(path, '..', '..')
-          const parentDir = resolve(templateDir, '..')
+          const parentDir = resolve(path, '..', '..', '..')
           const siblingFiles = await fs.readdir(parentDir)
           const mdFile = siblingFiles.find(f => f.endsWith('.md'))
-
           if (mdFile) {
             const mdPath = join(parentDir, mdFile)
-            console.warn('Touching content file:', mdPath)
+            // console.warn('Touching content file:', mdPath)
             const now = new Date()
             utimesSync(mdPath, now, now)
           }
         }
         catch (err) {
-          console.error('Failed to touch sibling MD:', err)
+          // console.error('Failed to touch sibling MD:', err)
         }
 
-        // NOTE: We omit full-reload here to allow the custom event
-        // to update the WebContainer state seamlessly.
+        // 6. FULL RELOAD SO GLOB LOADERS RE-EXECUTE
+        viteServer.ws.send({ type: 'full-reload' })
       })
 
       nuxt.hook('close', () => watcher.close())
@@ -154,6 +158,7 @@ export default defineNuxtModule({
             files.sort().map(async (filename) => {
               const fullPath = resolve(dir, filename)
               const content = await fs.readFile(fullPath, 'utf-8')
+              // console.warn('reading:', fullPath, content.slice(0, 50))
               filesMap[filename] = content
             }),
           )
@@ -164,6 +169,8 @@ export default defineNuxtModule({
           getFileMap(resolve(id, '../files')),
           getFileMap(resolve(id, '../solutions')),
         ])
+
+        // console.warn('files map:', JSON.stringify(files, null, 2))
 
         return {
           code: [

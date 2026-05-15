@@ -50,19 +50,32 @@ export function parseCollapseRanges(input: string): CollapseRange[] {
 }
 
 export function parseEcInfo(input: string): ParsedEcInfo {
-  const file = input.match(/(?:^|\s)file:(\S+)/)?.[1] || ''
-  const title = input.match(/(?:^|\s)title="([^"]+)"/)?.[1] || ''
-  const showLineNumbersRaw = input.match(/(?:^|\s)showLineNumbers(?:=|\{)(true|false)\}?/i)?.[1]
+  // Restore encoded annotations
+  // they are encoded in a nuxt hook
+  // so we can write them in a way that shiki won't mess with, then decode back here
+  const restored = input.replace(
+    /__EANN_([0-9a-f]+)_L_([\d_]+)__/g,
+    (_, hex, lines) => {
+      const text = (hex.match(/.{2}/g) ?? [])
+        .map((b: string) => String.fromCharCode(Number.parseInt(b, 16)))
+        .join('')
+      return `{"${text}":${lines.replace(/_/g, ',')}}`
+    },
+  )
+
+  const file = restored.match(/(?:^|\s)file:(\S+)/)?.[1] || ''
+  const title = restored.match(/(?:^|\s)title="([^"]+)"/)?.[1] || ''
+  const showLineNumbersRaw = restored.match(/(?:^|\s)showLineNumbers(?:=|\{)(true|false)\}?/i)?.[1]
   const showLineNumbers = showLineNumbersRaw
     ? showLineNumbersRaw.toLowerCase() !== 'false'
     : true
-  const collapseRaw = input.match(/(?:^|\s)collapse=\{([^}]+)\}/)?.[1] || ''
+  const collapseRaw = restored.match(/(?:^|\s)collapse=\{([^}]+)\}/)?.[1] || ''
   const collapseRanges = collapseRaw ? parseCollapseRanges(collapseRaw) : []
   const collapseLines = collapseRaw ? parseRanges(collapseRaw) : []
 
   const annotations: Annotation[] = []
   const annotationRegex = /\{"([^"]+)":([0-9,\- ]+)\}/g
-  let match: RegExpExecArray | null = annotationRegex.exec(input)
+  let match: RegExpExecArray | null = annotationRegex.exec(restored)
   while (match) {
     const text = match[1]?.trim()
     const ranges = match[2]?.trim()
@@ -72,7 +85,7 @@ export function parseEcInfo(input: string): ParsedEcInfo {
         lines: parseRanges(ranges),
       })
     }
-    match = annotationRegex.exec(input)
+    match = annotationRegex.exec(restored)
   }
 
   return {

@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -137,6 +138,19 @@ export default defineNuxtConfig({
 
       if (!file.id.endsWith('.md'))
         return
+
+      // Only replace on opening fence lines — no block spanning needed
+      file.body = file.body.replace(
+        /^(`{3}[^\n]*)\{"([^"]+)":([0-9,\- ]+)\}/gm,
+        (_, before, text, lines) => {
+          const hex = Buffer.from(text).toString('hex')
+          const lineStr = lines.trim().replace(/\D/g, '_')
+          return `${before}__EANN_${hex}_L_${lineStr}__`
+        },
+      )
+
+      // Handle multiple annotations on the same line by running until no more matches
+      // (the above replace handles one per call, but g flag handles all on same line)
 
       const templateDir = join(file.dirname, '.template', 'files')
 

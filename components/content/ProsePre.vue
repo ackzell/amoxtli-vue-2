@@ -9,6 +9,8 @@ const props = defineProps<{
 const attrs = useAttrs()
 const preEl = ref<HTMLElement>()
 
+// console.log('[ProsePre] meta is:', props.meta)
+
 const ecInfo = computed(() => `${props.language || ''} ${props.meta || ''}`.trim())
 
 const parsedEc = computed(() => parseEcInfo(ecInfo.value))

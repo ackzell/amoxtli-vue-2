@@ -38,6 +38,7 @@ onMounted(() => {
   watch(
     () => [playground.fileSelected, guide.currentGuide, guide.showingSolution],
     () => {
+      // console.warn('📝 watch triggered, content:', playground.fileSelected?.read()?.slice(0, 50))
       input.value = playground.fileSelected?.read() || ''
     },
     { immediate: true },

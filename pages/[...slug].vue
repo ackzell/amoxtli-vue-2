@@ -20,7 +20,10 @@ function normalizePath(path: string) {
 
 async function loadGuideMeta(path: string) {
   const normalized = normalizePath(path)
-  return await templatesMap[normalized]?.().then((m: any) => m.meta) ?? null
+  const result = await templatesMap[normalized]?.().then((m: any) => m.meta) ?? null
+  // console.warn('loadGuideMeta result files:', Object.keys(result?.files || {}))
+
+  return result
 }
 
 // Load guide meta eagerly so guide.features.defaultLayout is set before first render.

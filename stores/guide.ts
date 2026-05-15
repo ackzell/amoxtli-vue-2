@@ -15,7 +15,6 @@ function toPlain<T>(value: T): T {
 }
 
 export const useGuideStore = defineStore('guide', () => {
-
   let play: ReturnType<typeof usePlaygroundStore> | null = null
 
   function getPlaygroundStore() {
@@ -56,6 +55,8 @@ export const useGuideStore = defineStore('guide', () => {
   })
 
   async function mount(guide?: GuideMeta, withSolution = false) {
+    // console.warn('guide.files content:', guide?.files?.['index.html']?.slice(0, 50))
+
     const playgroundStore = getPlaygroundStore()
     if (!playgroundStore.webcontainer) {
       await playgroundStore.init()
@@ -67,6 +68,10 @@ export const useGuideStore = defineStore('guide', () => {
       ...guide?.files,
       ...withSolution ? guide?.solutions : {},
     }, templateName)
+
+    // playgroundStore.fileSelected = undefined
+    // await nextTick()
+    // playgroundStore.fileSelected = playgroundStore.files.get(startingFile)
 
     playgroundStore.fileSelected = playgroundStore.files.get(guide?.startingFile || 'app.vue')
     preview.setFullPath(guide?.startingUrl || '/')

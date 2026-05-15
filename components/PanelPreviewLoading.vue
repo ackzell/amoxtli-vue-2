@@ -13,7 +13,7 @@ function getPlaygroundStore() {
 
 function getStep(status: PlaygroundStatus) {
   const playgroundStore = getPlaygroundStore()
-  if (status === 'error' || (playgroundStore.status === 'error' && playgroundStore.status !== 'init'))
+  if (status === 'error' || (playgroundStore.status === 'error'))
     return 'error'
   const indexCurrent = playgroundStore.status !== 'init' ? PlaygroundStatusOrder.indexOf(playgroundStore.status) : -1
   const index = PlaygroundStatusOrder.indexOf(status)
@@ -28,13 +28,13 @@ function getStatusIcon(status: PlaygroundStatus) {
   const step = getStep(status)
   switch (step) {
     case 'error':
-      return 'i-ph-x-circle-duotone text-error text-xl'
+      return 'i-mynaui-x-hexagon-solid text-error text-xl'
     case 'current':
-      return 'i-svg-spinners-90-ring-with-bg scale-95 text-xl'
+      return 'i-svg-spinners-pulse-multiple scale-95 text-xl'
     case 'done':
-      return 'i-ph-check-circle-duotone text-positive dark:text-positive-200 text-xl'
+      return 'i-mynaui-check-hexagon-solid text-positive dark:text-positive-300 text-xl'
     case 'todo':
-      return 'i-ph-dot-duotone text-xl'
+      return 'i-mynaui-hexagon text-xl  op40'
   }
 }
 
@@ -46,9 +46,9 @@ function getTextClass(status: PlaygroundStatus) {
     case 'current':
       return 'animate-pulse'
     case 'done':
-      return 'text-positive dark:text-positive-200'
+      return 'text-positive dark:text-positive-300'
     case 'todo':
-      return 'op50'
+      return 'op40'
   }
 }
 </script>
@@ -61,7 +61,7 @@ function getTextClass(status: PlaygroundStatus) {
   >
     <template v-if="getPlaygroundStore().status === 'interactive'">
       <div flex="~ gap-2 items-center" text-lg>
-        <div i-ph-terminal-window-duotone text-2xl />
+        <div i-carbon-terminal text-2xl />
         {{ $t('interactive-terminal-mode') }}
       </div>
       <button
@@ -71,11 +71,11 @@ function getTextClass(status: PlaygroundStatus) {
         mx--1 rounded px1 op50
         @click="getPlaygroundStore().restartServer()"
       >
-        <div i-ph-arrow-clockwise-duotone text-lg />
+        <div i-carbon-rotate-360 text-lg />
         {{ $t('restart-server') }}
       </button>
     </template>
-    <div v-else grid="~ cols-[max-content_1fr] gap-2 items-center justify-center">
+    <div v-else grid="~ cols-[max-content_1fr] gap-2 items-center justify-center" text-sm font-mono>
       <div :class="getStatusIcon('init')" />
       <span :class="getTextClass('init')">{{ $t('steps.initializing-webcontainer') }}</span>
       <div :class="getStatusIcon('mount')" />
@@ -91,7 +91,7 @@ function getTextClass(status: PlaygroundStatus) {
           padding="sm"
           @click="ui.toggleTerminal()"
         >
-          <div i-ph-terminal-window-duotone text-xl />
+          <div i-carbon-terminal text-xl />
         </IconButton>
       </span>
       <div :class="getStatusIcon('start')" />
