@@ -146,7 +146,7 @@ onKeyStroke('Escape', () => {
 </script>
 
 <template>
-  <div mt4 flex items-center justify-around gap-2 px2 sm:mt0>
+  <div flex items-center justify-around gap-2 px2 sm:mt0>
     <NuxtLink
       v-if="prev"
       :to="prev.path"
@@ -157,11 +157,10 @@ onKeyStroke('Escape', () => {
       <div i-carbon-arrow-left />
     </NuxtLink>
     <!-- flex-grow spacer so the absolute child can anchor to the bar position -->
-    <div ref="navRoot" class="nav-bar-anchor group relative min-w-0 flex-grow">
+    <div ref="navRoot" class="nav-bar-anchor group relative z-110 min-w-0 flex-grow">
       <!-- Single bordered box: contains both trigger bar and dropdown panel -->
       <div
-        absolute inset-x-0 top-0 z-110 border rounded-lg
-        class="overflow-hidden transition-colors duration-300 dark:border-bgr-700 hover:border-primary dark:hover:border-primary-dark"
+        class="overflow-hidden border rounded-lg transition-colors duration-300 dark:border-bgr-700 hover:border-primary hover:shadow-md dark:hover:border-primary-dark dark:hover-shadow-dark-950"
       >
         <!-- Trigger bar -->
         <div

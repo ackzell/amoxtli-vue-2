@@ -28,13 +28,13 @@ function getStatusIcon(status: PlaygroundStatus) {
   const step = getStep(status)
   switch (step) {
     case 'error':
-      return 'i-mynaui-x-hexagon-solid text-error text-xl'
+      return 'i-mynaui-x-hexagon-solid text-error text-l'
     case 'current':
-      return 'i-svg-spinners-pulse-multiple scale-95 text-xl'
+      return 'i-svg-spinners-pulse-multiple scale-95 text-l'
     case 'done':
-      return 'i-mynaui-check-hexagon-solid text-positive dark:text-positive-300 text-xl'
+      return 'i-mynaui-check-hexagon-solid text-positive dark:text-positive-300 text-l'
     case 'todo':
-      return 'i-mynaui-hexagon text-xl  op40'
+      return 'i-mynaui-hexagon text-l  op40'
   }
 }
 

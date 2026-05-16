@@ -1,14 +1,9 @@
 {
-  "name": "html-tutorial",
+  "name": "amoxtli-vue-html-template",
   "type": "module",
   "version": "0.0.1",
-  "packageManager": "pnpm@8.15.6",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "vite": "^7.0.0"
+    "dev": "node server.js"
   }
+
 }

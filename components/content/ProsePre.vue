@@ -106,7 +106,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
 </script>
 
 <template>
-  <div class="group" relative my-5 max-w-4xl>
+  <div class="group" relative my-5 max-w-4xl transition-filter hover:filter-drop-shadow-md>
     <ProsePreHeader
       v-if="inferredFilename"
       :filename="inferredFilename"
@@ -135,7 +135,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
     </div>
 
     <div
-      w-full flex justify-center border border-t-0 border-base rounded-b-md bg-base shadow-md dark:bg-bgr-dark
+      w-full flex justify-center border border-t-0 border-base rounded-b-md bg-base dark:bg-bgr-dark
       :class="{ 'rounded-t-md': !inferredFilename }"
     >
       <pre
@@ -226,7 +226,7 @@ pre {
 :deep(code .line.ec-annotated > .ec-annotated-content) {
   display: block;
   background: color-mix(in oklab, var(--amv-highlight) 25%, transparent);
-  height: 1.5rem;
+  min-height: 1.5rem;
   margin-right: 0.5rem;
 }
 
@@ -235,7 +235,7 @@ pre {
   display: block;
   position: absolute;
   left: 2.5rem;
-  height: 1.5rem;
+  min-height: 1.5rem;
   top: 0;
   bottom: 0;
   width: 4px;
@@ -278,18 +278,11 @@ pre {
   background: color-mix(in oklab, currentColor 14%, transparent);
 }
 
-:deep(code .ec-highlight) {
-  position: relative;
-}
-
-:deep(code .ec-highlight::before) {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 130%;
-  background-color: color-mix(in oklab, var(--amv-highlight) 15%, transparent);
-  border: 1px solid var(--amv-highlight);
-  border-radius: 2px;
+:deep(.ec-highlight) {
   color: inherit;
+  border: 1px solid var(--amv-highlight);
+  background-color: color-mix(in oklab, var(--amv-highlight) 15%, transparent);
+  border-radius: 0.25rem;
+  padding-block: 0.2rem;
 }
 </style>

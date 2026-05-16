@@ -161,82 +161,82 @@ export function useEcDecorations(
       }
     })
 
-    // 3. Robust Regex Highlighting with Step-by-Step Logs
-    // console.group('--- [EC HIGHLIGHTER DEBUG] ---')
-    // console.log(`Total patterns to process: ${parsedEc.value.highlights.length}`)
+    // // 3. Robust Regex Highlighting with Step-by-Step Logs
+    // // console.group('--- [EC HIGHLIGHTER DEBUG] ---')
+    // // console.log(`Total patterns to process: ${parsedEc.value.highlights.length}`)
 
-    // parsedEc.value.highlights.forEach(({ pattern, lines: targetLines }, index) => {
-    parsedEc.value.highlights.forEach(({ pattern, lines: targetLines }) => {
-      const regex = new RegExp(escapeRegExp(pattern), 'g')
-      // console.group(`Pass #${index + 1}: /${pattern}/`)
+    // // parsedEc.value.highlights.forEach(({ pattern, lines: targetLines }, index) => {
+    // parsedEc.value.highlights.forEach(({ pattern, lines: targetLines }) => {
+    //   const regex = new RegExp(escapeRegExp(pattern), 'g')
+    //   // console.group(`Pass #${index + 1}: /${pattern}/`)
 
-      lines.forEach((line) => {
-        const lineNo = Number(line.getAttribute('line'))
-        if (targetLines && !targetLines.includes(lineNo))
-          return
+    //   lines.forEach((line) => {
+    //     const lineNo = Number(line.getAttribute('line'))
+    //     if (targetLines && !targetLines.includes(lineNo))
+    //       return
 
-        const textContent = line.textContent || ''
-        regex.lastIndex = 0
-        const matches: { start: number, end: number }[] = []
+    //     const textContent = line.textContent || ''
+    //     regex.lastIndex = 0
+    //     const matches: { start: number, end: number }[] = []
 
-        let match: RegExpExecArray | null
-        match = regex.exec(textContent)
-        while (match !== null) {
-          matches.push({
-            start: match.index,
-            end: regex.lastIndex,
-          })
+    //     let match: RegExpExecArray | null
+    //     match = regex.exec(textContent)
+    //     while (match !== null) {
+    //       matches.push({
+    //         start: match.index,
+    //         end: regex.lastIndex,
+    //       })
 
-          if (match.index === regex.lastIndex)
-            regex.lastIndex++
+    //       if (match.index === regex.lastIndex)
+    //         regex.lastIndex++
 
-          match = regex.exec(textContent)
-        }
+    //       match = regex.exec(textContent)
+    //     }
 
-        if (matches.length > 0) {
-          // console.log(`Line ${lineNo}: Found ${matches.length} match(es) for "${pattern}"`)
+    //     if (matches.length > 0) {
+    //       // console.log(`Line ${lineNo}: Found ${matches.length} match(es) for "${pattern}"`)
 
-          const nodes: { node: Text, start: number, end: number }[] = []
-          let currentPos = 0
-          const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT)
-          let currentNode = walker.nextNode() as Text | null
+    //       const nodes: { node: Text, start: number, end: number }[] = []
+    //       let currentPos = 0
+    //       const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT)
+    //       let currentNode = walker.nextNode() as Text | null
 
-          while (currentNode) {
-            const length = currentNode.textContent?.length || 0
-            nodes.push({ node: currentNode, start: currentPos, end: currentPos + length })
-            currentPos += length
-            currentNode = walker.nextNode() as Text | null
-          }
+    //       while (currentNode) {
+    //         const length = currentNode.textContent?.length || 0
+    //         nodes.push({ node: currentNode, start: currentPos, end: currentPos + length })
+    //         currentPos += length
+    //         currentNode = walker.nextNode() as Text | null
+    //       }
 
-          for (let i = matches.length - 1; i >= 0; i--) {
-            const { start, end } = matches[i]!
+    //       for (let i = matches.length - 1; i >= 0; i--) {
+    //         const { start, end } = matches[i]!
 
-            nodes.forEach(({ node, start: nodeStart, end: nodeEnd }) => {
-              const intersectionStart = Math.max(start, nodeStart)
-              const intersectionEnd = Math.min(end, nodeEnd)
+    //         nodes.forEach(({ node, start: nodeStart, end: nodeEnd }) => {
+    //           const intersectionStart = Math.max(start, nodeStart)
+    //           const intersectionEnd = Math.min(end, nodeEnd)
 
-              if (intersectionStart < intersectionEnd) {
-                try {
-                  const range = document.createRange()
-                  range.setStart(node, intersectionStart - nodeStart)
-                  range.setEnd(node, intersectionEnd - nodeStart)
+    //           if (intersectionStart < intersectionEnd) {
+    //             try {
+    //               const range = document.createRange()
+    //               range.setStart(node, intersectionStart - nodeStart)
+    //               range.setEnd(node, intersectionEnd - nodeStart)
 
-                  const mark = document.createElement('mark')
-                  mark.className = 'ec-highlight'
-                  range.surroundContents(mark)
-                  // console.log(`Applied mark to "${textContent.substring(intersectionStart, intersectionEnd)}"`)
-                }
-                catch (e: any) {
-                  console.error(`Failed to wrap "${pattern}" on Line ${lineNo}:`, e.message)
-                }
-              }
-            })
-          }
-        }
-      })
-      // console.groupEnd()
-    })
-    // console.groupEnd()
+    //               const mark = document.createElement('mark')
+    //               mark.className = 'ec-highlight'
+    //               range.surroundContents(mark)
+    //               // console.log(`Applied mark to "${textContent.substring(intersectionStart, intersectionEnd)}"`)
+    //             }
+    //             catch (e: any) {
+    //               console.error(`Failed to wrap "${pattern}" on Line ${lineNo}:`, e.message)
+    //             }
+    //           }
+    //         })
+    //       }
+    //     }
+    //   })
+    //   // console.groupEnd()
+    // })
+    // // console.groupEnd()
   }
 
   return {

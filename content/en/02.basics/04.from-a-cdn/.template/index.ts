@@ -5,7 +5,7 @@ export const meta: GuideMeta = {
   features: {
     defaultLayout: 'split',
     terminal: false,
-    fileTree: true,
+    fileTree: false,
   },
   template: 'html',
   ignoredFiles: ['package.json', 'main.js', 'style.css', 'server.js'],

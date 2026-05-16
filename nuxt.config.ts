@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { execaSync } from 'execa'
+
 import amoxtliLight from './themes/amoxtli-light'
 
 export default defineNuxtConfig({
@@ -133,7 +134,11 @@ export default defineNuxtConfig({
   },
 
   hooks: {
+    'mdc:configSources': async function (sources) {
+      sources.push(join(process.cwd(), 'mdc.config.ts'))
+    },
     'content:file:beforeParse': function (ctx) {
+      // console.log('[content:file:beforeParse] ctx:', ctx)
       const { file } = ctx as { file: { id: string, body: string, dirname: string } }
 
       if (!file.id.endsWith('.md'))

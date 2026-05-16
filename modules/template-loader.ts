@@ -118,7 +118,7 @@ export default defineNuxtModule({
             await fs.writeFile(mdPath, mdContent, 'utf-8')
           }
         }
-        catch (err) {
+        catch {
           // console.error('Failed to modify sibling MD:', err)
         }
 
@@ -205,7 +205,8 @@ export default defineNuxtModule({
         // When they change, Vite will invalidate the cached transform
         // and re-run it on next request (fixing stale content on refresh).
         if (files) {
-          for (const [fname, fcontent] of Object.entries(files)) {
+          // for (const [fname, fcontent] of Object.entries(files)) {
+          for (const [fname] of Object.entries(files)) {
             this.addWatchFile(resolve(filesDir, fname))
             // console.warn(`  ${fname}: ${(fcontent as string).length} chars, first 80: ${(fcontent as string).slice(0, 80)}`)
           }

@@ -326,7 +326,7 @@ addCommands(
       <ColorSchemeToggle />
     </div>
   </nav>
-  <div class="relative mt1 block h-10 md:hidden">
+  <div class="block h-full flex flex-col py-3 md:hidden">
     <DocsNavigation />
   </div>
 </template>

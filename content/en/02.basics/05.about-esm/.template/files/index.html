@@ -1,0 +1,22 @@
+<div id="app">
+  <p>{{ message }}</p>
+  <code>version: {{ version }}</code>
+</div>
+
+<script type="module">
+  import {
+    createApp,
+    ref,
+    version,
+  } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+
+  createApp({
+    setup() {
+      const message = ref('Hola Vue!');
+      return {
+        version,
+        message,
+      };
+    },
+  }).mount('#app');
+</script>
