@@ -167,7 +167,7 @@ export default defineNuxtModule({
           return
 
         templateModules.add(id)
-        console.warn('🔄 Transforming template index:', id)
+        // console.warn('Transforming template index:', id)
 
         async function getFileMap(dir: string) {
           const files = await fg('**/*.*', {
@@ -207,7 +207,7 @@ export default defineNuxtModule({
         if (files) {
           for (const [fname, fcontent] of Object.entries(files)) {
             this.addWatchFile(resolve(filesDir, fname))
-            console.warn(`  📄 ${fname}: ${(fcontent as string).length} chars, first 80: ${(fcontent as string).slice(0, 80)}`)
+            // console.warn(`  ${fname}: ${(fcontent as string).length} chars, first 80: ${(fcontent as string).slice(0, 80)}`)
           }
         }
         if (solutions) {
