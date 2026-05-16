@@ -39,11 +39,6 @@ async function loadGuideMeta(path: string) {
         }
       }
     }
-    
-    console.warn('📦 [slug] loadGuideMeta files for', normalized)
-    for (const [fname, fcontent] of Object.entries(result.files)) {
-      console.warn(`  📄 ${fname}: ${(fcontent as string).length} chars, first 80: ${(fcontent as string).slice(0, 80)}`)
-    }
   }
 
   return result

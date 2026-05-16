@@ -55,13 +55,6 @@ export const useGuideStore = defineStore('guide', () => {
   })
 
   async function mount(guide?: GuideMeta, withSolution = false) {
-    if (guide?.files) {
-      console.warn('🧭 [guide] mount() called, files:')
-      for (const [fname, fcontent] of Object.entries(guide.files)) {
-        console.warn(`  📄 ${fname}: ${fcontent.length} chars, first 80: ${fcontent.slice(0, 80)}`)
-      }
-    }
-
     const playgroundStore = getPlaygroundStore()
     if (!playgroundStore.webcontainer) {
       await playgroundStore.init()

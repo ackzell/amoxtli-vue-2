@@ -21,7 +21,6 @@ export default defineNuxtModule({
     nuxt.hook('vite:serverCreated', (server, { isClient }) => {
       if (isClient) {
         viteServer = server
-        console.warn('🔥 Vite CLIENT server attached via hook')
       }
     })
 
@@ -56,7 +55,6 @@ export default defineNuxtModule({
 
         // 2. BROADCAST TO FRONTEND
         if (event === 'change' || event === 'add') {
-          console.warn('📡 Broadcasting template:update for:', filename, 'content length:', content.length, 'first 80 chars:', content.slice(0, 80))
           viteServer.ws.send({
             type: 'custom',
             event: 'template:update',
@@ -69,7 +67,6 @@ export default defineNuxtModule({
           const indexTsPath = path.replace(/\.template\/files\/.*$/, '.template/index.ts')
           const now = new Date()
           utimesSync(indexTsPath, now, now)
-          console.warn('🕒 Touched index.ts to bust cache:', indexTsPath)
         }
         catch (err) {
           console.error('Failed to touch index.ts:', err)

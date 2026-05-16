@@ -53,9 +53,7 @@ onMounted(() => {
   watch(
     () => [playground.files.size, guide.currentGuide, guide.showingSolution],
     () => {
-      console.warn('📂 [PanelEditor] files watch fired, playground.files.size:', playground.files.size)
       syncFiles(playground)
-      console.warn('📂 [PanelEditor] files.value length after sync:', files.value.length, 'filenames:', files.value.map((f: any) => f.filepath))
     },
     { immediate: true },
   )
@@ -67,7 +65,6 @@ onMounted(() => {
     () => [playground.fileSelected, guide.currentGuide, guide.showingSolution, contentVersion.value],
     () => {
       const content = playground.fileSelected?.read() || ''
-      console.warn('📝 [PanelEditor] content watch fired, fileSelected:', playground.fileSelected?.filepath, 'content first 80:', content.slice(0, 80), 'contentVersion:', contentVersion.value)
       input.value = content
     },
     { immediate: true },
@@ -77,15 +74,10 @@ onMounted(() => {
   // when a file update arrives from the dev server.
   if (import.meta.client) {
     const handleTemplateUpdate = (e: Event) => {
-      const event = e as CustomEvent<{ filename: string, content: string }>
-      console.warn('🔥 [PanelEditor] custom event received for:', event.detail?.filename, 'length:', event.detail?.content?.length)
-      if (event.detail && event.detail.filename) {
-        const playground = getPlaygroundStore()
-        const file = playground.files.get(event.detail.filename)
-        if (file) {
-          file.write(event.detail.content)
-          contentVersion.value++
-        }
+      const event = e as CustomEvent<string>
+      const playground = getPlaygroundStore()
+      if (event.detail && event.detail === playground.fileSelected?.filepath) {
+        contentVersion.value++
       }
     }
     

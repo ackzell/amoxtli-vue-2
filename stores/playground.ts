@@ -369,12 +369,10 @@ export type PlaygroundStore = ReturnType<typeof usePlaygroundStore>
 
 if (import.meta.hot) {
   import.meta.hot.on('template:update', (data: { filename: string, content: string }) => {
-    console.warn('🔥 [playground.ts] HMR template:update received!', data.filename, 'length:', data.content.length, 'first 80:', data.content.slice(0, 80))
     // We can directly access the store since it should be instantiated
     const playground = usePlaygroundStore()
     const file = playground.files.get(data.filename)
     if (file) {
-      console.warn('🔥 [playground.ts] writing live content to VirtualFile:', data.filename)
       file.write(data.content)
       // We mutate a bogus property or trigger a change so observers can react
       // The VirtualFile class could have an event emitter, but since it doesn't,

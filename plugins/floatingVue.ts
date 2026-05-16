@@ -12,12 +12,3 @@ export default defineNuxtPlugin(() => {
     distance: 2,
   }
 })
-
-if (import.meta.hot) {
-  import.meta.hot.on('template:update', (data: { filename: string, content: string }) => {
-    console.warn('🔥 [floatingVue plugin] HMR template:update received!', data.filename, 'length:', data.content?.length)
-    if (import.meta.client) {
-      window.dispatchEvent(new CustomEvent('template-file-updated', { detail: data }))
-    }
-  })
-}
