@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const ui = useUiState()
+const play = usePlaygroundStore()
 </script>
 
 <template>
@@ -15,11 +16,11 @@ const ui = useUiState()
       <span text-sm>{{ $t('terminal.name') }}</span>
       <div flex-auto />
       <IconButton
-        v-if="false"
+        v-if="play.status !== 'init' && play.status !== 'mount'"
         :tooltip="$t('terminal.restart')"
         tooltip-placement="bottom"
         padding="sm"
-        @click="() => {}"
+        @click="play.restartServer(true)"
       >
         <div i-carbon-rotate-360 />
       </IconButton>
