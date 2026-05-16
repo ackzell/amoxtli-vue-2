@@ -28,21 +28,73 @@ const directory = computed(() => filesToVirtualFsTree(files.value))
 
 const input = ref<string>('')
 
-// Initialize data only when component is mounted
-onMounted(() => {
-  const playground = getPlaygroundStore()
+// A monotonically-increasing counter bumped every time a VirtualFile is
+// written to via the HMR path so we can force the editor-content watch
+// to re-evaluate even though the VirtualFile reference didn't change.
+const contentVersion = ref(0)
+
+/**
+ * Rebuild the files list from the playground store.
+ * Called both at mount and whenever the store's files map changes.
+ */
+function syncFiles(playground: ReturnType<typeof usePlaygroundStore>) {
   files.value = Array
     .from(playground.files.values())
     .filter(file => !isFileIgnored(file.filepath, guide.ignoredFiles))
+}
 
+// Initialize data only when component is mounted
+onMounted(() => {
+  const playground = getPlaygroundStore()
+
+  // Reactively keep the file list in sync with the playground store.
+  // playground.files is a shallowReactive Map — Vue tracks .size, .has(),
+  // iteration, etc., so this watch fires whenever mount() adds/removes files.
   watch(
-    () => [playground.fileSelected, guide.currentGuide, guide.showingSolution],
+    () => [playground.files.size, guide.currentGuide, guide.showingSolution],
     () => {
-      // console.warn('📝 watch triggered, content:', playground.fileSelected?.read()?.slice(0, 50))
-      input.value = playground.fileSelected?.read() || ''
+      console.warn('📂 [PanelEditor] files watch fired, playground.files.size:', playground.files.size)
+      syncFiles(playground)
+      console.warn('📂 [PanelEditor] files.value length after sync:', files.value.length, 'filenames:', files.value.map((f: any) => f.filepath))
     },
     { immediate: true },
   )
+
+  // Keep the editor content in sync with the selected file.
+  // We include `contentVersion` so that HMR-driven content mutations
+  // (which don't change the VirtualFile reference) still trigger a refresh.
+  watch(
+    () => [playground.fileSelected, guide.currentGuide, guide.showingSolution, contentVersion.value],
+    () => {
+      const content = playground.fileSelected?.read() || ''
+      console.warn('📝 [PanelEditor] content watch fired, fileSelected:', playground.fileSelected?.filepath, 'content first 80:', content.slice(0, 80), 'contentVersion:', contentVersion.value)
+      input.value = content
+    },
+    { immediate: true },
+  )
+
+  // Listen for the custom DOM event emitted by the playground store/plugin
+  // when a file update arrives from the dev server.
+  if (import.meta.client) {
+    const handleTemplateUpdate = (e: Event) => {
+      const event = e as CustomEvent<{ filename: string, content: string }>
+      console.warn('🔥 [PanelEditor] custom event received for:', event.detail?.filename, 'length:', event.detail?.content?.length)
+      if (event.detail && event.detail.filename) {
+        const playground = getPlaygroundStore()
+        const file = playground.files.get(event.detail.filename)
+        if (file) {
+          file.write(event.detail.content)
+          contentVersion.value++
+        }
+      }
+    }
+    
+    window.addEventListener('template-file-updated', handleTemplateUpdate)
+    
+    onUnmounted(() => {
+      window.removeEventListener('template-file-updated', handleTemplateUpdate)
+    })
+  }
 })
 
 const onTextInput = useDebounceFn(_onTextInput, 500)

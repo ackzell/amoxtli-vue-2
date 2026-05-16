@@ -162,12 +162,13 @@ export function useEcDecorations(
     })
 
     // 3. Robust Regex Highlighting with Step-by-Step Logs
-    console.group('--- [EC HIGHLIGHTER DEBUG] ---')
-    console.log(`Total patterns to process: ${parsedEc.value.highlights.length}`)
+    // console.group('--- [EC HIGHLIGHTER DEBUG] ---')
+    // console.log(`Total patterns to process: ${parsedEc.value.highlights.length}`)
 
-    parsedEc.value.highlights.forEach(({ pattern, lines: targetLines }, index) => {
+    // parsedEc.value.highlights.forEach(({ pattern, lines: targetLines }, index) => {
+    parsedEc.value.highlights.forEach(({ pattern, lines: targetLines }) => {
       const regex = new RegExp(escapeRegExp(pattern), 'g')
-      console.group(`Pass #${index + 1}: /${pattern}/`)
+      // console.group(`Pass #${index + 1}: /${pattern}/`)
 
       lines.forEach((line) => {
         const lineNo = Number(line.getAttribute('line'))
@@ -177,16 +178,23 @@ export function useEcDecorations(
         const textContent = line.textContent || ''
         regex.lastIndex = 0
         const matches: { start: number, end: number }[] = []
-        let match: RegExpExecArray | null
 
-        while ((match = regex.exec(textContent)) !== null) {
-          matches.push({ start: match.index, end: regex.lastIndex })
+        let match: RegExpExecArray | null
+        match = regex.exec(textContent)
+        while (match !== null) {
+          matches.push({
+            start: match.index,
+            end: regex.lastIndex,
+          })
+
           if (match.index === regex.lastIndex)
             regex.lastIndex++
+
+          match = regex.exec(textContent)
         }
 
         if (matches.length > 0) {
-          console.log(`Line ${lineNo}: Found ${matches.length} match(es) for "${pattern}"`)
+          // console.log(`Line ${lineNo}: Found ${matches.length} match(es) for "${pattern}"`)
 
           const nodes: { node: Text, start: number, end: number }[] = []
           let currentPos = 0
@@ -201,7 +209,7 @@ export function useEcDecorations(
           }
 
           for (let i = matches.length - 1; i >= 0; i--) {
-            const { start, end } = matches[i]
+            const { start, end } = matches[i]!
 
             nodes.forEach(({ node, start: nodeStart, end: nodeEnd }) => {
               const intersectionStart = Math.max(start, nodeStart)
@@ -216,19 +224,19 @@ export function useEcDecorations(
                   const mark = document.createElement('mark')
                   mark.className = 'ec-highlight'
                   range.surroundContents(mark)
-                  console.log(`✅ Applied mark to "${textContent.substring(intersectionStart, intersectionEnd)}"`)
+                  // console.log(`Applied mark to "${textContent.substring(intersectionStart, intersectionEnd)}"`)
                 }
                 catch (e: any) {
-                  console.warn(`❌ Failed to wrap "${pattern}" on Line ${lineNo}:`, e.message)
+                  console.error(`Failed to wrap "${pattern}" on Line ${lineNo}:`, e.message)
                 }
               }
             })
           }
         }
       })
-      console.groupEnd()
+      // console.groupEnd()
     })
-    console.groupEnd()
+    // console.groupEnd()
   }
 
   return {

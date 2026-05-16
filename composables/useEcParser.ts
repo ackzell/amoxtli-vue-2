@@ -65,8 +65,8 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
   if (!input)
     return result
 
-  console.group('--- [EC PARSER DEBUG] ---')
-  console.log('Raw input:', input)
+  // console.group('--- [EC PARSER DEBUG] ---')
+  // console.log('Raw input:', input)
 
   let workingString = input.replace(/__EANN_([0-9a-f]+)_L_([\d_]+)__/g, (_, hex, lines) => {
     const text = (hex.match(/.{2}/g) ?? []).map((b: string) => String.fromCharCode(Number.parseInt(b, 16))).join('')
@@ -83,7 +83,9 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
   const highlightRegex = /\/([^/]+)\/([\d,\- ]+)?/g
   let hMatch: RegExpExecArray | null
 
-  while ((hMatch = highlightRegex.exec(workingString)) !== null) {
+  hMatch = highlightRegex.exec(workingString)
+
+  while (hMatch !== null) {
     if (hMatch[1]) {
       const pattern = hMatch[1].trim()
       const rawLines = hMatch[2]?.trim()
@@ -94,13 +96,14 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
         ? parseRanges(rawLines)
         : undefined
 
-      console.log(`Found highlight: "${pattern}" on lines:`, lines || 'all')
+      // console.log(`Found highlight: "${pattern}" on lines:`, lines || 'all')
       result.highlights.push({ pattern, lines })
     }
+    hMatch = highlightRegex.exec(workingString)
   }
 
-  console.log('Final highlights array:', JSON.stringify(result.highlights))
-  console.groupEnd()
+  // console.log('Final highlights array:', JSON.stringify(result.highlights))
+  // console.groupEnd()
 
   return result
 }

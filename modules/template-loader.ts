@@ -18,9 +18,11 @@ export default defineNuxtModule({
     const templateModules = new Set<string>()
 
     // Use a hook to ensure we have the live Vite server instance
-    nuxt.hook('vite:serverCreated', (server) => {
-      viteServer = server
-      console.warn('🔥 Vite server attached via hook')
+    nuxt.hook('vite:serverCreated', (server, { isClient }) => {
+      if (isClient) {
+        viteServer = server
+        console.warn('🔥 Vite CLIENT server attached via hook')
+      }
     })
 
     if (nuxt.options.dev) {
@@ -54,7 +56,7 @@ export default defineNuxtModule({
 
         // 2. BROADCAST TO FRONTEND
         if (event === 'change' || event === 'add') {
-          console.warn('📡 Broadcasting template:update for:', filename)
+          console.warn('📡 Broadcasting template:update for:', filename, 'content length:', content.length, 'first 80 chars:', content.slice(0, 80))
           viteServer.ws.send({
             type: 'custom',
             event: 'template:update',
@@ -62,13 +64,32 @@ export default defineNuxtModule({
           })
         }
 
-        // 3. INVALIDATE ALL MODULES UNDER .template/
-        const templateDir = path.replace(/\.template\/files\/.+$/, '.template')
-        for (const [, mod] of viteServer.moduleGraph.idToModuleMap) {
-          if (mod.id && mod.id.includes('.template')) {
-            viteServer.moduleGraph.invalidateModule(mod)
-            console.warn('🗑️ Invalidated:', mod.id)
+        // 3. TOUCH index.ts TO FORCE VITE NATIVE HMR AND CACHE BUSTING
+        try {
+          const indexTsPath = path.replace(/\.template\/files\/.*$/, '.template/index.ts')
+          const now = new Date()
+          utimesSync(indexTsPath, now, now)
+          console.warn('🕒 Touched index.ts to bust cache:', indexTsPath)
+        }
+        catch (err) {
+          console.error('Failed to touch index.ts:', err)
+        }
+
+        // 4. INVALIDATE VITE MODULE GRAPH (CLIENT + SSR)
+        const invalidateGraph = (graph: any) => {
+          if (!graph || !graph.urlToModuleMap) return
+          for (const [url, mod] of graph.urlToModuleMap) {
+            if (url.includes('.template')) {
+              graph.invalidateModule(mod)
+            }
           }
+        }
+        
+        invalidateGraph(viteServer.moduleGraph)
+        if ((viteServer as any).environments?.ssr) {
+          invalidateGraph((viteServer as any).environments.ssr.moduleGraph)
+        } else if ((viteServer as any).ssrModules) {
+          // Fallback for older Vite
         }
 
         // 4. INVALIDATE VITE GLOB VIRTUAL MODULES
@@ -79,24 +100,31 @@ export default defineNuxtModule({
           }
         }
 
-        // 5. TOUCH SIBLING MD TO TRIGGER CONTENT REPARSE
+        // 5. MODIFY SIBLING MD TO BUST NUXT CONTENT CACHE
+        // Nuxt Content hashes the raw file content and caches it. If we only touch the timestamp,
+        // it skips the `beforeParse` hook entirely! We must change the actual raw text.
         try {
           const parentDir = resolve(path, '..', '..', '..')
           const siblingFiles = await fs.readdir(parentDir)
           const mdFile = siblingFiles.find(f => f.endsWith('.md'))
           if (mdFile) {
             const mdPath = join(parentDir, mdFile)
-            // console.warn('Touching content file:', mdPath)
-            const now = new Date()
-            utimesSync(mdPath, now, now)
+            let mdContent = await fs.readFile(mdPath, 'utf-8')
+            if (mdContent.endsWith(' ')) {
+              mdContent = mdContent.slice(0, -1)
+            } else {
+              mdContent += ' '
+            }
+            await fs.writeFile(mdPath, mdContent, 'utf-8')
           }
         }
         catch (err) {
-          // console.error('Failed to touch sibling MD:', err)
+          // console.error('Failed to modify sibling MD:', err)
         }
 
-        // 6. FULL RELOAD SO GLOB LOADERS RE-EXECUTE
-        viteServer.ws.send({ type: 'full-reload' })
+        // Note: full-reload was removed here. The editor receives live
+        // updates via the custom template:update HMR event, and the
+        // markdown panel refreshes via the MD touch + Nuxt Content HMR.
       })
 
       nuxt.hook('close', () => watcher.close())
@@ -139,7 +167,7 @@ export default defineNuxtModule({
           return
 
         templateModules.add(id)
-        console.warn('Transforming template index:', id)
+        console.warn('🔄 Transforming template index:', id)
 
         async function getFileMap(dir: string) {
           const files = await fg('**/*.*', {
@@ -165,12 +193,28 @@ export default defineNuxtModule({
           return filesMap
         }
 
+        const filesDir = resolve(id, '../files')
+        const solutionsDir = resolve(id, '../solutions')
+
         const [files, solutions] = await Promise.all([
-          getFileMap(resolve(id, '../files')),
-          getFileMap(resolve(id, '../solutions')),
+          getFileMap(filesDir),
+          getFileMap(solutionsDir),
         ])
 
-        // console.warn('files map:', JSON.stringify(files, null, 2))
+        // Tell Vite these files are dependencies of this transform.
+        // When they change, Vite will invalidate the cached transform
+        // and re-run it on next request (fixing stale content on refresh).
+        if (files) {
+          for (const [fname, fcontent] of Object.entries(files)) {
+            this.addWatchFile(resolve(filesDir, fname))
+            console.warn(`  📄 ${fname}: ${(fcontent as string).length} chars, first 80: ${(fcontent as string).slice(0, 80)}`)
+          }
+        }
+        if (solutions) {
+          for (const fname of Object.keys(solutions)) {
+            this.addWatchFile(resolve(solutionsDir, fname))
+          }
+        }
 
         return {
           code: [
