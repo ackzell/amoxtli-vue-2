@@ -21,7 +21,7 @@ function normalizePath(path: string) {
 async function loadGuideMeta(path: string) {
   const normalized = normalizePath(path)
   const result = await templatesMap[normalized]?.().then((m: any) => m.meta) ?? null
-  
+
   if (result?.files) {
     // In dev mode, always fetch the freshest files to bypass Vite/SSR caching
     if (import.meta.dev && import.meta.client) {
@@ -29,12 +29,13 @@ async function loadGuideMeta(path: string) {
         try {
           const filePath = `${normalized}/.template/files/${fname}`
           const res = await $fetch<{ content?: string }>(`/api/dev-template`, {
-            query: { path: filePath.replace(/^\//, '') }
+            query: { path: filePath.replace(/^\//, '') },
           })
           if (res && res.content !== undefined) {
             result.files[fname] = res.content
           }
-        } catch (e) {
+        }
+        catch (e) {
           // Fallback to cached content
         }
       }

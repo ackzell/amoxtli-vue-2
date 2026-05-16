@@ -8,8 +8,8 @@ import '@xterm/xterm/css/xterm.css'
 
 let globalTerminal: Terminal | undefined
 let globalFitAddon: FitAddon | undefined
-let currentProcess: any = undefined
-let currentReader: any = undefined
+let currentProcess: any
+let currentReader: any
 let onDataDisposable: { dispose: () => void } | undefined
 let init = false
 </script>
@@ -67,8 +67,9 @@ watch(
 watch(
   () => {
     // Prevent playground store access in docs mode
-    if (ui.mainViewMode === 'docs') return undefined
-    
+    if (ui.mainViewMode === 'docs')
+      return undefined
+
     // We conditionally access the store
     const play = usePlaygroundStore()
     return play.currentProcess
@@ -77,7 +78,7 @@ watch(
     if (currentProcess === p) {
       return // Already bound to this process
     }
-    
+
     currentProcess = p
 
     if (onDataDisposable) {
@@ -92,7 +93,7 @@ watch(
 
     if (!p || !globalTerminal)
       return
-    
+
     // Output
     try {
       currentReader = p.output.getReader()
@@ -107,7 +108,7 @@ watch(
             read()
         })
       }
-      
+
       if (!init) {
         init = true
       }
@@ -153,18 +154,19 @@ const stop = watch(
   (el) => {
     if (!el || !globalTerminal || !globalFitAddon)
       return
-    
+
     if (globalTerminal.element) {
       el.appendChild(globalTerminal.element)
       globalFitAddon.fit()
-    } else {
+    }
+    else {
       globalTerminal.open(el)
       globalTerminal.write('\n')
       globalFitAddon.fit()
     }
     stop()
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 

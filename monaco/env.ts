@@ -1,10 +1,10 @@
+import type { FileType } from './types'
+import type { CreateData } from './vue.worker'
 import * as volar from '@volar/monaco'
 import { editor, languages, Uri } from 'monaco-editor-core'
 import { basename, dirname } from 'pathe'
 import stripJsonComments from 'strip-json-comments'
-import type { FileType } from './types'
 import { getOrCreateModel } from './utils'
-import type { CreateData } from './vue.worker'
 
 export type PlaygroundMonacoContext = Pick<PlaygroundStore, 'webcontainer' | 'files'>
 

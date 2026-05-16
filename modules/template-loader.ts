@@ -74,18 +74,20 @@ export default defineNuxtModule({
 
         // 4. INVALIDATE VITE MODULE GRAPH (CLIENT + SSR)
         const invalidateGraph = (graph: any) => {
-          if (!graph || !graph.urlToModuleMap) return
+          if (!graph || !graph.urlToModuleMap)
+            return
           for (const [url, mod] of graph.urlToModuleMap) {
             if (url.includes('.template')) {
               graph.invalidateModule(mod)
             }
           }
         }
-        
+
         invalidateGraph(viteServer.moduleGraph)
         if ((viteServer as any).environments?.ssr) {
           invalidateGraph((viteServer as any).environments.ssr.moduleGraph)
-        } else if ((viteServer as any).ssrModules) {
+        }
+        else if ((viteServer as any).ssrModules) {
           // Fallback for older Vite
         }
 
@@ -109,7 +111,8 @@ export default defineNuxtModule({
             let mdContent = await fs.readFile(mdPath, 'utf-8')
             if (mdContent.endsWith(' ')) {
               mdContent = mdContent.slice(0, -1)
-            } else {
+            }
+            else {
               mdContent += ' '
             }
             await fs.writeFile(mdPath, mdContent, 'utf-8')

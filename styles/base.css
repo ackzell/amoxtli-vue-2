@@ -40,8 +40,12 @@ body {
 }
 
 :root {
-  transition: --hdr-color-1 1s ease, --hdr-color-2 1s ease,
-    --hdr-color-3 1s ease, --hdr-x 1s ease, --hdr-y 1s ease;
+  transition:
+    --hdr-color-1 1s ease,
+    --hdr-color-2 1s ease,
+    --hdr-color-3 1s ease,
+    --hdr-x 1s ease,
+    --hdr-y 1s ease;
 
   /* Intermediate animatable version */
   background: radial-gradient(
@@ -52,7 +56,6 @@ body {
   );
   position: relative;
   overflow: hidden;
-
 }
 
 /* These pseudo-elements hold your “true” gradients */
@@ -72,7 +75,7 @@ body {
   --amv-highlight: oklch(0.77 0.14 70.23);
   --av-text-primary: oklch(40% 0.05 249);
 
-  --amv-links: oklch(from var(--amv-highlight) calc(l - 0.20)  c h);
+  --amv-links: oklch(from var(--amv-highlight) calc(l - 0.2) c h);
 
   --hdr-color-1: var(--amv-highlight);
   --hdr-color-2: oklch(0.9702 0 0);
@@ -94,7 +97,7 @@ body {
   --amv-highlight: oklch(0.5962 0.2423 358.92);
   --av-text-primary: oklch(0.8385 0.0263 248.14);
 
-  --amv-links: oklch(from var(--amv-highlight) calc(l + 0.20)  c h);
+  --amv-links: oklch(from var(--amv-highlight) calc(l + 0.2) c h);
 
   --hdr-color-1: oklch(60% 0.224 354);
   --hdr-color-2: oklch(60% 0.224 354);

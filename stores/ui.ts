@@ -1,4 +1,4 @@
-import type { CodePanelId, LayoutSplit, LayoutNode } from '~/types/layout'
+import type { CodePanelId, LayoutNode, LayoutSplit } from '~/types/layout'
 
 export type MainViewMode = 'split' | 'code' | 'docs'
 export type MainLayoutOrientation = 'horizontal' | 'vertical'

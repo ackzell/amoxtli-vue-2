@@ -80,9 +80,9 @@ onMounted(() => {
         contentVersion.value++
       }
     }
-    
+
     window.addEventListener('template-file-updated', handleTemplateUpdate)
-    
+
     onUnmounted(() => {
       window.removeEventListener('template-file-updated', handleTemplateUpdate)
     })

@@ -3,13 +3,13 @@
 }
 
 .prose {
-  & h1, 
-  & h2, 
+  & h1,
+  & h2,
   & h3,
-  & h4, 
+  & h4,
   & h5,
   & h6 {
-   --uno: font-mono;
+    --uno: font-mono;
   }
 }
 
@@ -17,7 +17,7 @@
   line-height: 2rem;
 }
 
-.prose :where(code):not(:where(.not-prose,.not-prose *)) {
+.prose :where(code):not(:where(.not-prose, .not-prose *)) {
   font-weight: 500;
 }
 
