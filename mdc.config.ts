@@ -7,6 +7,9 @@ function escapeRegExp(s: string) {
 
 export default defineConfig({
   shiki: {
+    setup() {
+      console.log('[ec-highlight] setup called')
+    },
     transformers: [
       {
         name: 'ec-highlight',

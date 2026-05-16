@@ -80,7 +80,7 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
     result.collapseRanges = parseCollapseRanges(val); return ''
   })
 
-  const highlightRegex = /\/([^/]+)\/([\d,\- ]+)?/g
+  const highlightRegex = /\/(.+?)\/(?=[\s\d,\-]|$)/g
   let hMatch: RegExpExecArray | null
 
   hMatch = highlightRegex.exec(workingString)

@@ -121,6 +121,13 @@ export default defineNuxtConfig({
         '@volar/monaco/worker',
         'typescript',
         'vscode-uri',
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        '@ark-ui/vue',
+        'fuse.js',
+        'jszip', // CJS
+        '@webcontainer/api',
+        '@unhead/schema-org/vue',
       ],
     },
   },
@@ -136,6 +143,8 @@ export default defineNuxtConfig({
   hooks: {
     'mdc:configSources': async function (sources) {
       sources.push(join(process.cwd(), 'mdc.config.ts'))
+
+      // await new Promise(resolve => setTimeout(resolve, 500))
     },
     'content:file:beforeParse': function (ctx) {
       // console.log('[content:file:beforeParse] ctx:', ctx)

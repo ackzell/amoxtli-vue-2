@@ -3,7 +3,7 @@ import type { GuideMeta } from '~/types/guides'
 export const meta: GuideMeta = {
   startingFile: 'index.html',
   features: {
-    defaultLayout: 'split',
+    defaultLayout: 'docs',
     terminal: false,
     fileTree: false,
   },
