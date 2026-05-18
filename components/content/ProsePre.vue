@@ -18,22 +18,34 @@ const showLineNumbers = computed(() => parsedEc.value.showLineNumbers)
 
 const language = computed(() => {
   const value = (props.language || '').toLowerCase()
-  if (!value.startsWith('file:'))
-    return value
-  const file = parsedEc.value.file.toLowerCase()
-  const ext = file.split('.').pop() || ''
-  if (ext === 'vue')
-    return 'vue'
-  if (ext === 'ts')
-    return 'typescript'
-  if (ext === 'js')
-    return 'javascript'
-  if (ext === 'html')
-    return 'html'
-  if (ext === 'css')
-    return 'css'
-  if (ext === 'json')
-    return 'json'
+
+  // Determine the filename to derive extension from
+  const fileSource = value.startsWith('file:')
+    ? parsedEc.value.file.toLowerCase()
+    : (parsedEc.value.file || parsedEc.value.title || '').toLowerCase()
+
+  if (fileSource) {
+    const ext = fileSource.split('.').pop() || ''
+    const extMap: Record<string, string> = {
+      vue: 'vue',
+      ts: 'typescript',
+      tsx: 'typescript',
+      js: 'javascript',
+      jsx: 'javascript',
+      html: 'html',
+      css: 'css',
+      scss: 'css',
+      json: 'json',
+      md: 'markdown',
+      py: 'python',
+      sh: 'bash',
+      yaml: 'yaml',
+      yml: 'yaml',
+    }
+    if (extMap[ext])
+      return extMap[ext]
+  }
+
   return value
 })
 
@@ -238,7 +250,7 @@ pre {
   min-height: 1.5rem;
   top: 0;
   bottom: 0;
-  width: 4px;
+  width: 2px;
   background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);
 }
 

@@ -360,6 +360,9 @@ onUnmounted(() => {
   margin-bottom: 0.5rem;
   color: var(--tk-text-primary);
   opacity: 0.9;
+  font-style: italic;
+  padding-block: 0.5rem;
+  --uno: 'dark:bg-dark';
 }
 
 .tooltip-content a {

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const preview = usePreviewStore()
+const guide = useGuideStore()
+const colorMode = useColorMode()
 
 // Dynamic import to prevent playground store access when not rendered
 const PanelPreviewLoading = defineAsyncComponent({
@@ -29,7 +31,10 @@ function refreshIframe(force = false) {
   preview.updateUrl()
   if (preview.url && inner.value?.iframe) {
     if (force || inner.value.iframe.src !== preview.url) {
-      inner.value.iframe.src = preview.url
+      const colorMode = useColorMode()
+      const url = new URL(preview.url)
+      url.searchParams.set('dark', colorMode.value === 'dark' ? 'true' : 'false')
+      inner.value.iframe.src = url.toString()
     }
     inputUrl.value = preview.location.fullPath
   }
@@ -42,6 +47,18 @@ function navigate() {
   if (activeElement instanceof HTMLElement)
     activeElement.blur()
 }
+
+watch(
+  () => [guide.currentGuide, guide.showingSolution],
+  () => {
+    refreshIframe(true)
+  },
+)
+
+watch(
+  () => colorMode.value,
+  () => refreshIframe(true),
+)
 </script>
 
 <template>

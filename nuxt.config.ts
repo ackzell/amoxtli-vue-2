@@ -153,15 +153,50 @@ export default defineNuxtConfig({
       if (!file.id.endsWith('.md'))
         return
 
-      // Only replace on opening fence lines — no block spanning needed
+      // console.log(`[content:file.body:beforeParse]: ${file.body}`)
+
+      // Infer language from file extension when none is specified
       file.body = file.body.replace(
-        /^(`{3}[^\n]*)\{"([^"]+)":([0-9,\- ]+)\}/gm,
-        (_, before, text, lines) => {
-          const hex = Buffer.from(text).toString('hex')
-          const lineStr = lines.trim().replace(/\D/g, '_')
-          return `${before}__EANN_${hex}_L_${lineStr}__`
+        /^(`{3,})([ \t]*file:\/(\S+))([ \t][^\n]*)?\n/gm,
+        (match, fence, filePrefix, filePath, rest) => {
+          const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
+          const extMap: Record<string, string> = {
+            vue: 'vue',
+            ts: 'typescript',
+            tsx: 'typescript',
+            js: 'javascript',
+            jsx: 'javascript',
+            html: 'html',
+            css: 'css',
+            scss: 'scss',
+            json: 'json',
+            md: 'markdown',
+            py: 'python',
+            sh: 'bash',
+            yaml: 'yaml',
+            yml: 'yaml',
+          }
+          const lang = extMap[ext]
+          if (!lang)
+            return match
+          return `${fence}${lang} ${filePrefix}${rest ?? ''}\n`
         },
       )
+
+      // Run repeatedly until no more annotation tokens remain on fence lines
+      // This handles multiple {"text":lines} on the same opening fence
+      const annotationRe = /^(`{3}[^\n]*)\{"([^"]+)":([0-9,\- ]+)\}/gm
+      while (annotationRe.test(file.body)) {
+        file.body = file.body.replace(
+          annotationRe,
+          (_, before, text, lines) => {
+            const hex = Buffer.from(text).toString('hex')
+            const lineStr = lines.trim().replace(/\D+/g, '_')
+            return `${before}__EANN_${hex}_L_${lineStr}__`
+          },
+        )
+        annotationRe.lastIndex = 0
+      }
 
       // Handle multiple annotations on the same line by running until no more matches
       // (the above replace handles one per call, but g flag handles all on same line)
@@ -180,6 +215,12 @@ export default defineNuxtConfig({
           const content = readFileSync(fullPath, 'utf-8').trimEnd()
           return `${fence}${lang ?? ''} file:/${filePath}${rest ?? ''}\n${content}\n${fence}`
         },
+      )
+
+      // Escape collapse braces so MDC doesn't consume them as attribute syntax
+      file.body = file.body.replace(
+        /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
+        (_, before, val) => `${before}collapse=__ECOL_${val}__`,
       )
     },
   },

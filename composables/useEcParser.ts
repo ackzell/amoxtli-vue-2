@@ -76,9 +76,24 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
 
   workingString = workingString.replace(/(?:^|\s)file:(\S+)/, (_, val) => { result.file = val; return '' })
   workingString = workingString.replace(/(?:^|\s)title="([^"]+)"/, (_, val) => { result.title = val; return '' })
-  workingString = workingString.replace(/(?:^|\s)collapse=\{([^}]+)\}/, (_, val) => {
-    result.collapseRanges = parseCollapseRanges(val); return ''
-  })
+  // workingString = workingString.replace(/(?:^|\s)collapse=\{([^}]+)\}/, (_, val) => {
+  //   result.collapseRanges = parseCollapseRanges(val); return ''
+  // })
+
+  // Was: collapse=\{([^}]+)\}
+  // Now handles both encoded and raw forms
+  workingString = workingString.replace(
+    /(?:^|\s)collapse=(?:\{([^}]+)\}|__ECOL_([^_]+)__)/,
+    (_, v1, v2) => {
+      result.collapseRanges = parseCollapseRanges(v1 ?? v2)
+      return ''
+    },
+  )
+
+  workingString = workingString.replace(
+    /(?:^|\s)showLineNumbers=(true|false)/,
+    (_, val) => { result.showLineNumbers = val !== 'false'; return '' },
+  )
 
   const highlightRegex = /\/(.+?)\/(?=[\s\d,\-]|$)/g
   let hMatch: RegExpExecArray | null

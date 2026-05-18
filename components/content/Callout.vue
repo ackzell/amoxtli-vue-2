@@ -38,13 +38,13 @@ const variant = computed(() => {
       `border-${variant.color}`,
     ]"
     border="~ rounded-xl"
-    flex="~ gap-4 items-center justify-between"
+    flex="~ gap-4 items-center"
 
-    relative p3 px4 text-sm text-faded
+    relative py4 pr2 text-sm text-faded
   >
     <div
       :class="[variant.icon, `text-${variant.color}`]"
-      absolute left-5.5 h15 w15 flex-shrink-0 opacity-10
+      absolute left-1.5 h15 w15 flex-shrink-0 opacity-10
     />
 
     <div

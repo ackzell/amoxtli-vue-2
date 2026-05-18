@@ -1,0 +1,60 @@
+<script type="importmap">
+  {
+    "imports": {
+      "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+    }
+  }
+</script>
+
+<div id="app1">
+  <h2>{{ appName }}</h2>
+  <p>{{ message }}</p>
+</div>
+
+<br />
+
+<div id="app2">
+  <h2>{{ appName }}</h2>
+  <p>{{ message }}</p>
+</div>
+
+<script type="module">
+  import { createApp, ref, version } from 'vue'
+
+  // Composition API
+  const firstApp = createApp({
+    setup() {
+      const message = ref('Hola Vue!')
+      const appName = ref('This is app #1')
+      return {
+        message,
+        appName,
+      }
+    },
+  })
+
+  // Options API
+  const secondApp = createApp({
+    data() {
+      return {
+        message: 'Hallo Vue!',
+        appName: 'This is app #2',
+      }
+    },
+  })
+
+  firstApp.mount('#app1')
+  secondApp.mount('#app2')
+</script>
+
+<style>
+  #app1 {
+    border: 1px solid tomato;
+    padding: 1rem;
+  }
+
+  #app2 {
+    border: 1px solid rebeccapurple;
+    padding: 1rem;
+  }
+</style>

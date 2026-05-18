@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, watch } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { extname } from 'node:path'
 
@@ -7,6 +7,16 @@ const MIME = {
   '.js': 'application/javascript',
   '.css': 'text/css',
 }
+
+const INJECTED_SCRIPT_BLOCKING = `
+<script>
+  (function() {
+    if (!document.documentElement.classList.contains('dark')
+      && sessionStorage.getItem('playground-dark') === 'true') {
+      document.documentElement.classList.add('dark')
+    }
+  })();
+<\/script>`
 
 const INJECTED_STYLE = `
 <style>
@@ -19,26 +29,70 @@ const INJECTED_SCRIPT = `
 <script>
   window.addEventListener('message', function(e) {
     if (e.data && e.data.source === 'nuxt-playground-color-mode') {
-      document.documentElement.classList.toggle('dark', e.data.mode === 'dark');
+      const dark = e.data.mode === 'dark'
+      sessionStorage.setItem('playground-dark', dark)
+      document.documentElement.classList.toggle('dark', dark)
     }
   });
   window.parent.postMessage({ source: 'nuxt-playground-color-mode-request' }, '*');
+
+  const es = new EventSource('/__reload');
+  es.onmessage = () => location.reload();
 <\/script>`
 
+const clients = new Set()
+
+const watcher = watch('.', { recursive: true })
+;(async () => {
+  for await (const event of watcher) {
+    if (event.filename?.endsWith('.html') || event.filename?.endsWith('.js') || event.filename?.endsWith('.css')) {
+      for (const res of clients) {
+        res.write('data: reload\n\n')
+      }
+    }
+  }
+})()
+
 createServer(async (req, res) => {
+  if (req.url === '/__reload') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    })
+    clients.add(res)
+    req.on('close', () => clients.delete(res))
+    return
+  }
+
   try {
-    const file = req.url === '/' ? '/index.html' : req.url
-    let content = await readFile(`.${file}`, 'utf-8')
+    const url = new URL(req.url, 'http://localhost')
+    const isDark = url.searchParams.get('dark') === 'true'
+    const pathname = url.pathname
+
+    const file = pathname === '/' ? '/index.html' : pathname
     const mime = MIME[extname(file)] ?? 'text/plain'
+    let content = await readFile(`.${file}`, 'utf-8')
 
     if (mime === 'text/html') {
-      // Inject before </head> if present, otherwise prepend
-      if (content.includes('</head>')) {
-        content = content.replace('</head>', `${INJECTED_STYLE}${INJECTED_SCRIPT}</head>`)
+      if (isDark) {
+        if (content.includes('<html')) {
+          content = content.includes('class="')
+            ? content.replace('class="', 'class="dark ')
+            : content.replace('<html', '<html class="dark"')
+        }
+        else {
+          content = `<html class="dark">${content}`
+        }
       }
-      else {
-        content = INJECTED_STYLE + INJECTED_SCRIPT + content
-      }
+
+      content = content.includes('<head>')
+        ? content.replace('<head>', `<head>${INJECTED_SCRIPT_BLOCKING}`)
+        : INJECTED_SCRIPT_BLOCKING + content
+
+      content = content.includes('</head>')
+        ? content.replace('</head>', `${INJECTED_STYLE}${INJECTED_SCRIPT}</head>`)
+        : content + INJECTED_STYLE + INJECTED_SCRIPT
     }
 
     res.writeHead(200, { 'Content-Type': mime })
