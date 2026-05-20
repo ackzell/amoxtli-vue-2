@@ -5,9 +5,11 @@ import {
   presetIcons,
   presetTypography,
   presetWebFonts,
-  presetWind3,
+  presetWind4,
   transformerDirectives,
 } from 'unocss'
+
+import { presetAnimations } from 'unocss-preset-animations'
 
 export default defineConfig({
   shortcuts: {
@@ -15,7 +17,7 @@ export default defineConfig({
     'bg-active': 'dark:bg-bgr-700 bg-bgr-100',
     'bg-faded': 'bg-bgr/5 dark:bg-bgr-dark/5',
     'bg-base': 'bg-white dark:bg-bgr-dark',
-    'text-faded': 'text-gray6:100 dark:text-gray3:80',
+    'text-faded': 'text-bgr-500/90 dark:text-bgr-300/90',
 
     'bg-code': 'bg-gray/5',
 
@@ -27,6 +29,17 @@ export default defineConfig({
     'z-splitter': 'z-102',
     'z-embedded-docs-close': 'z-103',
     'z-index-command-palette': 'z-200',
+
+    // brought in from YV
+    'sc-toolbar-btn': 'cursor-pointer hover:text-foreground/80 hover:scale-120 transition duration-200 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100 active:scale-95',
+    'sc-btn-base': 'p-2 rounded-lg bg-transparent',
+    'btn': 'sc-btn-base bg-bgr-800 text-bgr-200 dark:bg-bgr-200 dark:text-dark-900',
+    'sc-btn-outline': 'sc-btn-base outline-solid outline-bgr text-bgr hover',
+
+    // overriding shadcn as I didn't install it here
+    'border-input': 'border-bgr-500/30',
+    'bg-popover': 'bg-bgr-50 dark:bg-bgr-dark border-bgr-500/30',
+    'bg-input': 'bg-bgr-100/50 dark:bg-bgr-800',
   },
   safelist: [
     'bg-info/8',
@@ -208,7 +221,7 @@ export default defineConfig({
     },
   },
   presets: [
-    presetWind3(),
+    presetWind4(),
     presetIcons({
       collections: {
         carbon: () =>
@@ -239,6 +252,7 @@ export default defineConfig({
       },
     }),
     presetTypography(),
+    presetAnimations(),
   ],
   extractors: [
     extractorMdc(),

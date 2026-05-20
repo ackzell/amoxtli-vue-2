@@ -107,6 +107,7 @@ export const useUiState = defineStore('ui', () => {
       mainLayoutOrientation: 'horizontal' as MainLayoutOrientation,
       mainLayoutReverse: false,
       layoutTree: getDefaultLayoutTree(),
+      isSnapshotSidebarOpen: false,
     }
   }
 
@@ -157,6 +158,10 @@ export const useUiState = defineStore('ui', () => {
     persistState.mainLayoutReverse = !persistState.mainLayoutReverse
   }
 
+  function toggleSnapshotSidebar() {
+    persistState.isSnapshotSidebarOpen = !persistState.isSnapshotSidebarOpen
+  }
+
   return {
     isPanelDragging,
     isContentDropdownShown,
@@ -169,6 +174,8 @@ export const useUiState = defineStore('ui', () => {
     toggleMainLayoutReverse,
     resetLayout,
     ...toRefs(persistState),
+
+    toggleSnapshotSidebar,
   }
 })
 

@@ -38,3 +38,12 @@ amoxtli-vue: Amoxtli Vue
 yt-player:
   description-goes-here: description goes here
   watch: Watch
+more: more
+no-snapshots-saved-in-this-session: No snapshots saved in this session
+updated: updated
+no-changes: no changes
+restore: Restore
+delete: Delete
+confirm: Confirm
+one-file: 1 file
+file: file

@@ -33,6 +33,12 @@ export interface GuideMeta {
    * ignoredFiles: { overwrite: true, patterns: ['pnpm-lock.yaml'] }
    */
   ignoredFiles?: StringOrRegExp[] | GuideIgnoredFiles
+
+  /**
+   * Stable identifier for snapshot sessions
+   */
+  sessionName?: string
+
 }
 
 export interface PlaygroundFeatures {

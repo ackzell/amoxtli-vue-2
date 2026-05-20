@@ -9,4 +9,5 @@ export const meta: GuideMeta = {
   },
   template: 'html',
   ignoredFiles: ['package.json', 'main.js', 'style.css', 'server.js'],
+  sessionName: 'import-maps',
 }

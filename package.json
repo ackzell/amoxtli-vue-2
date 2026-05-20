@@ -23,6 +23,8 @@
     "@xterm/addon-fit": "catalog:frontend",
     "@xterm/xterm": "catalog:frontend",
     "birpc": "catalog:frontend",
+    "clsx": "catalog:frontend",
+    "dexie": "catalog:frontend",
     "floating-vue": "catalog:frontend",
     "fuse.js": "catalog:frontend",
     "jszip": "catalog:frontend",
@@ -30,7 +32,9 @@
     "luna-console": "catalog:frontend",
     "monaco-editor": "catalog:frontend",
     "monaco-editor-core": "catalog:frontend",
+    "motion-v": "catalog:frontend",
     "pathe": "catalog:frontend",
+    "reka-ui": "catalog:frontend",
     "shiki": "catalog:frontend",
     "strip-json-comments": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
@@ -72,6 +76,8 @@
     "pinia": "catalog:nuxt",
     "rehype-external-links": "catalog:dev",
     "typescript": "catalog:dev",
+    "unocss-preset-animations": "catalog:dev",
+    "v-code-diff": "catalog:frontend",
     "vue-tsc": "catalog:dev"
   }
 }

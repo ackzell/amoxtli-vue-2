@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import process from 'node:process'
 
 import { execaSync } from 'execa'
 
@@ -114,20 +115,35 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: [
-        'monaco-editor/esm/vs/editor/editor.worker',
-        'monaco-editor-core/esm/vs/editor/editor.worker',
-        'typescript/lib/tsserverlibrary',
-        '@vue/language-service',
+        '@ark-ui/vue',
+        '@shikijs/monaco',
+        '@unhead/schema-org/vue',
+        '@volar/monaco',
         '@volar/monaco/worker',
-        'typescript',
-        'vscode-uri',
         '@vue/devtools-core',
         '@vue/devtools-kit',
-        '@ark-ui/vue',
+        '@vue/language-service', // CJS
+        '@webcontainer/api',
+        'birpc',
+        'clsx',
+        'dexie',
         'fuse.js',
         'jszip', // CJS
-        '@webcontainer/api',
-        '@unhead/schema-org/vue',
+        'monaco-editor-core',
+        'monaco-editor-core/esm/vs/editor/editor.api',
+        'monaco-editor-core/esm/vs/editor/editor.worker',
+        'monaco-editor/esm/vs/editor/editor.worker',
+        'motion-v',
+        'reka-ui',
+        'shiki/core',
+        'shiki/engine-javascript.mjs',
+        'shiki/langs/vue.mjs',
+        'shiki/themes/snazzy-light.mjs',
+        'shiki/themes/vesper.mjs',
+        'strip-json-comments',
+        'typescript', // CJS
+        'typescript/lib/tsserverlibrary', // CJS
+        'vscode-uri',
       ],
     },
   },

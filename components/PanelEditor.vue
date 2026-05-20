@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Splitter } from '@ark-ui/vue'
+import Toasts from '@/components/Toasts/Toasts.vue'
 import { filesToVirtualFsTree } from '~/templates/utils'
 
 const ui = useUiState()
@@ -165,11 +166,9 @@ const sizes = computed<number[]>({
       id="file-tree-panel:editor-pane"
     />
 
-    <Splitter.Panel id="editor-pane">
-      <div
-        h-full
-        grid="~ rows-[min-content_1fr]"
-      >
+    <Splitter.Panel id="editor-pane" min-h-0>
+      <Toasts />
+      <PanelSnapshotsSidebar h-full min-h-0>
         <div
           data-dock-drag-handle="true"
           draggable="true"
@@ -191,7 +190,7 @@ const sizes = computed<number[]>({
           h-full w-full
           @change="onTextInput"
         />
-      </div>
+      </PanelSnapshotsSidebar>
     </Splitter.Panel>
   </Splitter.Root>
 </template>
