@@ -1,5 +1,6 @@
 import type { Raw } from 'vue'
-import type { GuideMeta, PlaygroundFeatures } from '~/types/guides'
+import type { GuideMeta, PlaygroundFeatures, TemplateType } from '~/types/guides'
+import { TEMPLATE_TYPES } from '~/types/guides'
 
 const defaultFeatures = Object.freeze(<PlaygroundFeatures>{
   fileTree: false,
@@ -60,7 +61,14 @@ export const useGuideStore = defineStore('guide', () => {
       await playgroundStore.init()
     }
 
-    const templateName = guide?.template === 'html' ? 'html' : 'vue'
+    function isTemplateType(value: unknown): value is TemplateType {
+      return typeof value === 'string'
+        && TEMPLATE_TYPES.includes(value as TemplateType)
+    }
+
+    const templateName = isTemplateType(guide?.template)
+      ? guide.template
+      : 'html'
 
     await playgroundStore.mount({
       ...guide?.files,

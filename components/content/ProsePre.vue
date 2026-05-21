@@ -147,8 +147,8 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
     </div>
 
     <div
-      w-full flex justify-center border border-t-0 border-base rounded-b-md bg-base dark:bg-bgr-dark
-      :class="{ 'rounded-t-md': !inferredFilename }"
+
+      :class="{ 'rounded-t-md': !inferredFilename }" w-full flex justify-center border border-t-0 border-base rounded-b-md bg-base py-4 dark:bg-bgr-dark
     >
       <pre
         ref="preEl"
@@ -159,9 +159,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
           !showLineNumbers ? 'ec-hide-line-numbers' : '',
           inferredFilename ? 'rounded-t-none! mt-0!' : '',
         ]"
-      >
-      <slot />
-    </pre>
+      ><slot /></pre>
     </div>
   </div>
 </template>
@@ -199,8 +197,13 @@ pre {
   opacity: 0.45;
 }
 
+:deep(pre.ec-hide-line-numbers) {
+  --hidden-line-number-spacing: 1rem;
+  padding-block: 4px;
+}
+
 :deep(pre.ec-hide-line-numbers code .line) {
-  padding-left: 2rem;
+  padding-left: var(--hidden-line-number-spacing);
 }
 
 :deep(pre.ec-hide-line-numbers code .line::before) {
@@ -236,10 +239,11 @@ pre {
 }
 
 :deep(code .line.ec-annotated > .ec-annotated-content) {
+  padding-left: 0.25rem;
   display: block;
   background: color-mix(in oklab, var(--amv-highlight) 25%, transparent);
   min-height: 1.5rem;
-  margin-right: 0.5rem;
+  margin-right: 1rem;
 }
 
 :deep(code .line.ec-annotated > .ec-annotated-content::before) {
@@ -266,8 +270,20 @@ pre {
 }
 
 :deep(pre.ec-hide-line-numbers code .ec-annotation-row) {
-  margin-left: 0.75rem;
+  margin-left: var(--hidden-line-number-spacing);
   max-width: calc(100% - 1rem);
+}
+
+:deep(pre.ec-hide-line-numbers code .line.ec-annotated > .ec-annotated-content::before) {
+  content: '';
+  display: block;
+  position: absolute;
+  left: var(--hidden-line-number-spacing);
+  min-height: 1.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);
 }
 
 :deep(code .line.ec-annotation-inline) {

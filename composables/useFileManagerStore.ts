@@ -27,8 +27,11 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
     () => [guide.currentGuide, guide.showingSolution] as const,
     async ([currentGuide]) => {
       if (!currentGuide?.sessionName) {
-        toast.warning('Current guide does not have a sessionName.')
-        console.warn('[guide-meta] Current guide does not have a sessionName. Skipping session load and snapshot save.', currentGuide)
+        let currentPath = ''
+        if (window) {
+          currentPath = window.location.pathname
+        }
+        console.warn('[guide-meta] Current guide does not have a sessionName. Skipping session load and snapshot save.', currentGuide, currentPath)
         return
       }
 

@@ -59,6 +59,7 @@ export default defineNuxtConfig({
           },
         },
         highlight: {
+          langs: ['vue', 'scss', 'javascript', 'typescript', 'html', 'json', 'bash'],
           theme: {
             default: amoxtliLight,
             dark: 'vesper',
@@ -124,6 +125,8 @@ export default defineNuxtConfig({
         '@vue/devtools-kit',
         '@vue/language-service', // CJS
         '@webcontainer/api',
+        '@xterm/addon-fit', // CJS
+        '@xterm/xterm', // CJS
         'birpc',
         'clsx',
         'dexie',
@@ -138,11 +141,13 @@ export default defineNuxtConfig({
         'shiki/core',
         'shiki/engine-javascript.mjs',
         'shiki/langs/vue.mjs',
+        'shiki/langs/scss.mjs',
         'shiki/themes/snazzy-light.mjs',
         'shiki/themes/vesper.mjs',
         'strip-json-comments',
         'typescript', // CJS
         'typescript/lib/tsserverlibrary', // CJS
+        'v-code-diff',
         'vscode-uri',
       ],
     },
@@ -226,8 +231,9 @@ export default defineNuxtConfig({
         /^(`{3,})(\w+)?[ \t]*file:\/(\S+)([ \t][^\n]*)?\n([\s\S]*?\n)?\1/gm,
         (match, fence, lang, filePath, rest) => {
           const fullPath = join(templateDir, filePath)
-          if (!existsSync(fullPath))
+          if (!existsSync(fullPath)) {
             return match
+          }
           const content = readFileSync(fullPath, 'utf-8').trimEnd()
           return `${fence}${lang ?? ''} file:/${filePath}${rest ?? ''}\n${content}\n${fence}`
         },
@@ -238,6 +244,29 @@ export default defineNuxtConfig({
         /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
         (_, before, val) => `${before}collapse=__ECOL_${val}__`,
       )
+    },
+
+    'content:file:afterParse': function (ctx) {
+      const { file } = ctx as { file: { id: string, body: string, meta?: any } }
+      if (!file.id.endsWith('.md'))
+        return
+
+      // Use a strict regular expression test to see if the parsed document contains a vue block
+      // containing embedded scss style wrappers
+      const hasEmbeddedScss = /<style[^>]*lang="scss"[^>]*>[\s\S]*?<\/style>/.test(file.body || '')
+
+      if (hasEmbeddedScss) {
+        // Force register the sub-language metadata directly into the Nuxt Content asset data frame.
+        // This instructs Nuxt's markdown processor to explicitly pull the scss grammar
+        // asset file into Shiki's dynamic compiler pool for this page.
+        file.meta = file.meta || {}
+        file.meta.highlight = file.meta.highlight || {}
+        file.meta.highlight.langs = file.meta.highlight.langs || []
+
+        if (!file.meta.highlight.langs.includes('scss')) {
+          file.meta.highlight.langs.push('scss')
+        }
+      }
     },
   },
 

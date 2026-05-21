@@ -48,7 +48,7 @@
 
 .prose pre[class*='language-'],
 .prose pre.shiki {
-  --uno: line-height-snug p0 mb0;
+  --uno: line-height-snug px-0 py-1 mb0;
 }
 
 .prose pre.shiki,
@@ -92,5 +92,5 @@
   padding-left: 2em;
   padding-block: 0.5em;
   border-left: 2px solid var(--amv-highlight);
-  --uno: bg-bgr-50 dark:bg-bgr-dark/80 dark:text-bgr-300;
+  --uno: 'bg-bgr-50 dark:bg-bgr-dark/80 dark:text-bgr-300';
 }

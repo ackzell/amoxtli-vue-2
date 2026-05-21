@@ -2,15 +2,23 @@ export type StringOrRegExp = string | RegExp
 
 export interface GuideIgnoredFiles { overwrite: boolean, patterns: StringOrRegExp[] }
 
+export const TEMPLATE_TYPES = [
+  'vue',
+  'html',
+  'vue-sass',
+] as const
+
+export type TemplateType = typeof TEMPLATE_TYPES[number]
+
 export interface GuideMeta {
   features?: PlaygroundFeatures
   startingFile?: string
   startingUrl?: string
   /**
-   * Template to use for this guide ('vue' or 'html')
+   * Template to use for this guide ('vue', 'html', or 'vue-sass')
    * @default 'vue'
    */
-  template?: 'vue' | 'html'
+  template?: TemplateType
   // TODO:
   packageJsonOverrides?: any
   /**

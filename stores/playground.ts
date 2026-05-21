@@ -1,6 +1,8 @@
 import type { WebContainer, WebContainerProcess } from '@webcontainer/api'
 import type { Raw } from 'vue'
+import type { TemplateType } from '~/types/guides'
 import { filesToWebContainerFs } from '~/templates/utils'
+import { TEMPLATE_TYPES } from '~/types/guides'
 import { VirtualFile } from '../structures/VirtualFile'
 import { CONSOLE_INTERCEPTOR_CODE } from '../templates/console-interceptor'
 
@@ -31,10 +33,21 @@ export const usePlaygroundStore = defineStore('playground', () => {
   const currentProcess = shallowRef<Raw<WebContainerProcess | undefined>>()
   const webcontainer = shallowRef<Raw<WebContainer>>()
 
-  let templatesMap: Record<string, Record<string, string>> = {
-    vue: {},
-    html: {},
+  /**
+   * Creates a map of templates with empty file objects, to be filled later.
+   * @param keys
+   * @returns A record mapping each key to an empty file object.
+   * @example { vue: {}, html: {}, 'vue-sass': {} }
+   */
+  function createTemplateMap<T>(
+    keys: readonly T[],
+  ): Record<T & PropertyKey, Record<string, string>> {
+    return Object.fromEntries(
+      keys.map(key => [key, {}]),
+    ) as Record<T & PropertyKey, Record<string, string>>
   }
+
+  let templatesMap = createTemplateMap(TEMPLATE_TYPES)
   const files = shallowReactive<Raw<Map<string, VirtualFile>>>(new Map())
   const fileSelected = shallowRef<Raw<VirtualFile>>()
 
@@ -51,35 +64,27 @@ export const usePlaygroundStore = defineStore('playground', () => {
     if (!import.meta.client || _isInitialized.value)
       return
 
-    const [
-      wc,
-      vueTemplate,
-      htmlTemplate,
-    ] = await Promise.all([
+    const [wc, loadedTemplates] = await Promise.all([
       import('@webcontainer/api')
         .then(({ WebContainer }) => WebContainer.boot()),
 
-      import('../templates')
-        .then(r => r.templates.vue()),
+      Promise.all(
+        TEMPLATE_TYPES.map(async (type) => {
+          const template = await import('../templates')
+            .then(r => r.templates[type]())
 
-      import('../templates')
-        .then(r => r.templates.html()),
+          return [type, template] as const
+        }),
+      ),
     ])
 
-    templatesMap = {
-      vue: vueTemplate,
-      html: htmlTemplate,
-    }
+    templatesMap = Object.fromEntries(loadedTemplates) as typeof templatesMap
+
     webcontainer.value = wc
 
-    // Create VirtualFile objects from the default (vue) template
-    Object.entries(vueTemplate)
-      .forEach(([path, content]) => {
-        const file = new VirtualFile(path, content, wc)
-        if (path.endsWith('.html'))
-          file.fsTransform = injectHtmlScripts
-        files.set(path, file)
-      })
+    const defaultTemplate = templatesMap.html
+
+    Object.entries(defaultTemplate)
 
     wc.on('server-ready', async (port, url) => {
       // Dev server might listen on multiple ports, we need the main one
@@ -299,8 +304,10 @@ export const usePlaygroundStore = defineStore('playground', () => {
    * This will do a diff with the current files and only update the ones that changed.
    * If package.json changed, triggers a reinstall + server restart.
    */
-  async function mount(map: Record<string, string>, templateName: 'vue' | 'html' = 'vue') {
-    const templates = templatesMap[templateName] || templatesMap.vue || {}
+  async function mount(map: Record<string, string>, templateName: TemplateType = 'vue') {
+    // console.warn(`[playgroundStore.mount] Mounting files with template ${templateName}:`, map)
+
+    const templates = templatesMap[templateName]
     const objects = {
       ...templates,
       ...map,

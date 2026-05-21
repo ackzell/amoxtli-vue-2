@@ -7,6 +7,7 @@ import { addTemplate, addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import { watch } from 'chokidar'
 import fg from 'fast-glob'
 import { join, relative, resolve } from 'pathe'
+import { TEMPLATE_TYPES } from '~/types/guides'
 
 export default defineNuxtModule({
   meta: {
@@ -51,7 +52,8 @@ export default defineNuxtModule({
             return // Ignore if file was just deleted
         }
 
-        const filename = path.split('/').pop()
+        const filesBase = path.substring(0, path.indexOf('.template/files/') + '.template/files/'.length)
+        const filename = relative(filesBase, path) // → "src/App.vue"
 
         // 2. BROADCAST TO FRONTEND
         if (event === 'change' || event === 'add') {
@@ -103,7 +105,7 @@ export default defineNuxtModule({
         // Nuxt Content hashes the raw file content and caches it. If we only touch the timestamp,
         // it skips the `beforeParse` hook entirely! We must change the actual raw text.
         try {
-          const parentDir = resolve(path, '..', '..', '..')
+          const parentDir = path.split('.template')[0]!
           const siblingFiles = await fs.readdir(parentDir)
           const mdFile = siblingFiles.find(f => f.endsWith('.md'))
           if (mdFile) {
@@ -131,7 +133,7 @@ export default defineNuxtModule({
     }
 
     // Default Templates
-    const templates = ['vue', 'html']
+    const templates = TEMPLATE_TYPES
     for (const name of templates) {
       addTemplate({
         filename: `templates/${name}.ts`,
