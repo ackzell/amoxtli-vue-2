@@ -14,7 +14,6 @@ body {
 
   *::selection {
     --uno: 'bg-primary-dark-500/35';
-    color: var(--av-text-primary);
   }
 }
 

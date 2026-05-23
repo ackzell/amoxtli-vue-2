@@ -9,6 +9,7 @@ const props = defineProps<{
 }>()
 
 const colorMode = useColorMode()
+const { copied, copyCode } = useCodeCopy()
 
 // ─── State ───────────────────────────────────────────────────────────────────
 interface Step {
@@ -16,7 +17,9 @@ interface Step {
   label?: string
 }
 
+const instanceId = useId()
 const slotRef = ref<HTMLElement>()
+const containerRef = ref<HTMLElement>()
 const highlighter = ref()
 const currentStep = ref(0)
 const steps = ref<Step[]>([])
@@ -29,36 +32,29 @@ const activeTheme = computed(() =>
   colorMode.value === 'dark' ? 'vesper' : 'amoxtli-light',
 )
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function getPreEl(): HTMLElement | null {
+  return containerRef.value?.querySelector('pre') ?? null
+}
+
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 onMounted(async () => {
   const preEls = slotRef.value?.querySelectorAll('pre') ?? []
-
-  // it's on another tree?
   const labelEls = slotRef.value?.querySelectorAll('[data-filename]') ?? []
-  // console.log('[magic-move]: found preEls', preEls)
 
-  // console.log('[magic-move]:', slotRef.value)
-
-  steps.value = Array.from(preEls).map((pre, i) => {
-    // console.log('[magic-move]: pre is', pre)
-
-    return {
-      code: (pre.querySelector('code')?.textContent ?? '').trimEnd(),
-      label: labelEls[i]?.textContent?.trim() || '',
-    }
-  })
-
-  // console.log('[magic-move]: steps', steps.value)
+  steps.value = Array.from(preEls).map((pre, i) => ({
+    code: (pre.querySelector('code')?.textContent ?? '').trimEnd(),
+    label: labelEls[i]?.textContent?.trim() ?? '',
+  }))
 
   if (steps.value.length === 0) {
-    console.warn('[MagicMove] No <pre><code> blocks found inside ::magic-move. '
-      + 'Make sure you are using fenced code blocks inside the component.')
+    console.warn(
+      '[MagicMove] No <pre><code> blocks found inside ::magic-move. '
+      + 'Make sure you are using fenced code blocks inside the component.',
+    )
     return
   }
 
-  // 2. Create a client-side Shiki highlighter.
-  //    We need it separately from Nuxt Content's SSR highlighter because
-  //    shiki-magic-move needs the live instance to diff and animate tokens.
   highlighter.value = await useMagicMoveHighlighter()
 })
 
@@ -67,6 +63,7 @@ function prev() {
   if (!isFirst.value)
     currentStep.value--
 }
+
 function next() {
   if (!isLast.value)
     currentStep.value++
@@ -77,6 +74,26 @@ function handleKey(e: KeyboardEvent) {
     next()
   if (e.key === 'ArrowLeft')
     prev()
+}
+
+function handleIncreaseFontSize() {
+  const preEl = getPreEl()
+  if (!preEl)
+    return
+  const currentSize = Number.parseFloat(getComputedStyle(preEl).fontSize)
+  preEl.style.fontSize = `${currentSize + 2}px`
+}
+
+function handleDecreaseFontSize() {
+  const preEl = getPreEl()
+  if (!preEl)
+    return
+  const currentSize = Number.parseFloat(getComputedStyle(preEl).fontSize)
+  preEl.style.fontSize = `${currentSize - 2}px`
+}
+
+function handleCopy() {
+  copyCode(currentCode.value || '')
 }
 </script>
 
@@ -89,6 +106,8 @@ function handleKey(e: KeyboardEvent) {
 
   <div
     v-if="isReady"
+    ref="containerRef"
+    :data-magic-move-id="instanceId"
     class="magic-move-slot-container my-8 outline-none rounded-md overflow-hidden hover:shadow-md"
     bg="bgr-50 dark:bgr-800"
     border="~ bgr-700/10 dark:bgr-50/10"
@@ -152,7 +171,23 @@ function handleKey(e: KeyboardEvent) {
     </Transition>
 
     <!-- Animated code block -->
-    <div class="shiki-magic-move-container text-sm min-h-20">
+    <div class="shiki-magic-move-container group text-sm min-h-20 relative">
+      <ProsePreDecreaseFontSize
+        right-18 top-2 absolute
+        @decrease-font-size="handleDecreaseFontSize"
+      />
+
+      <ProsePreIncreaseFontSize
+        right-10 top-2 absolute
+        @increase-font-size="handleIncreaseFontSize"
+      />
+
+      <ProsePreCopyButton
+        right-2 top-2 absolute
+        :copied="copied"
+        @copy="handleCopy"
+      />
+
       <ShikiMagicMove
         :key="activeTheme"
         :lang="props.lang ?? 'ts'"

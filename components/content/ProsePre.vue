@@ -118,14 +118,14 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
 </script>
 
 <template>
-  <div class="group" relative my-5 max-w-4xl transition-filter hover:filter-drop-shadow-md>
+  <div class="group" my-5 max-w-4xl transition-filter relative hover:filter-drop-shadow-md>
     <ProsePreHeader
       v-if="inferredFilename"
       :filename="inferredFilename"
       :icon-class="iconClass"
     />
 
-    <div flex="~ justify-around gap-2" absolute right-4 top-4 z-1>
+    <div flex="~ justify-around gap-2" right-4 top-4 absolute z-1>
       <ProsePreCollapseAllButton
         :has-ranges="collapseRanges.length > 0"
         @expand-all="expandAll"
@@ -148,7 +148,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
 
     <div
 
-      :class="{ 'rounded-t-md': !inferredFilename }" w-full flex justify-center border border-t-0 border-base rounded-b-md bg-base py-4 dark:bg-bgr-dark
+      :class="{ 'rounded-t-md': !inferredFilename }" py-4 border border-t-0 border-base rounded-b-md bg-base flex w-full justify-center dark:bg-bgr-dark
     >
       <pre
         ref="preEl"
