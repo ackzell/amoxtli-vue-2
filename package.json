@@ -1,8 +1,8 @@
 {
-  "name": "learn.nuxt.com",
+  "name": "amoxtli-vue-2",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@11.2.2",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -36,6 +36,7 @@
     "pathe": "catalog:frontend",
     "reka-ui": "catalog:frontend",
     "shiki": "catalog:frontend",
+    "shiki-magic-move": "catalog:frontend",
     "strip-json-comments": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
     "vscode-uri": "catalog:frontend",

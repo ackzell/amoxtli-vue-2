@@ -2,10 +2,25 @@ import { Buffer } from 'node:buffer'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
-
 import { execaSync } from 'execa'
+import langScss from 'shiki/langs/scss.mjs'
+
+import langVue from 'shiki/langs/vue.mjs'
 
 import amoxtliLight from './themes/amoxtli-light'
+
+// Create custom Vue grammar with SCSS embedded language support
+const customVueLang = Array.isArray(langVue)
+  ? langVue.map((lang: any) => {
+      if (lang.name === 'vue' || lang.id === 'vue') {
+        return {
+          ...lang,
+          embeddedLangs: ['css', 'html', 'scss', 'sass', 'less', 'stylus', 'json', 'javascript', 'typescript'],
+        }
+      }
+      return lang
+    })
+  : langVue
 
 export default defineNuxtConfig({
   modules: [
@@ -59,7 +74,15 @@ export default defineNuxtConfig({
           },
         },
         highlight: {
-          langs: ['vue', 'scss', 'javascript', 'typescript', 'html', 'json', 'bash'],
+          langs: [
+            customVueLang as any,
+            langScss as any,
+            'javascript',
+            'typescript',
+            'html',
+            'json',
+            'bash',
+          ],
           theme: {
             default: amoxtliLight,
             dark: 'vesper',
@@ -138,10 +161,12 @@ export default defineNuxtConfig({
         'monaco-editor/esm/vs/editor/editor.worker',
         'motion-v',
         'reka-ui',
+        'shiki',
+        'shiki-magic-move/vue',
         'shiki/core',
         'shiki/engine-javascript.mjs',
-        'shiki/langs/vue.mjs',
         'shiki/langs/scss.mjs',
+        'shiki/langs/vue.mjs',
         'shiki/themes/snazzy-light.mjs',
         'shiki/themes/vesper.mjs',
         'strip-json-comments',
@@ -246,28 +271,34 @@ export default defineNuxtConfig({
       )
     },
 
-    'content:file:afterParse': function (ctx) {
-      const { file } = ctx as { file: { id: string, body: string, meta?: any } }
-      if (!file.id.endsWith('.md'))
-        return
+    // 'content:file:afterParse': function (ctx) {
+    //   console.log('[content:file:afterParse] ctx:', ctx)
 
-      // Use a strict regular expression test to see if the parsed document contains a vue block
-      // containing embedded scss style wrappers
-      const hasEmbeddedScss = /<style[^>]*lang="scss"[^>]*>[\s\S]*?<\/style>/.test(file.body || '')
+    //   const { file } = ctx as { file: { id: string, body: string, meta?: any } }
 
-      if (hasEmbeddedScss) {
-        // Force register the sub-language metadata directly into the Nuxt Content asset data frame.
-        // This instructs Nuxt's markdown processor to explicitly pull the scss grammar
-        // asset file into Shiki's dynamic compiler pool for this page.
-        file.meta = file.meta || {}
-        file.meta.highlight = file.meta.highlight || {}
-        file.meta.highlight.langs = file.meta.highlight.langs || []
+    //   // console.log('[content:file:afterParse] file:', file)
 
-        if (!file.meta.highlight.langs.includes('scss')) {
-          file.meta.highlight.langs.push('scss')
-        }
-      }
-    },
+    //   if (!file.id.endsWith('.md'))
+    //     return
+
+    //   // Use a strict regular expression test to see if the parsed document contains a vue block
+    //   // containing embedded scss style wrappers
+    //   const hasEmbeddedScss = /<style[^>]*lang="scss"[^>]*>[\s\S]*?<\/style>/.test(file.body || '')
+
+    //   if (hasEmbeddedScss) {
+    //     console.warn(`[content:file:afterParse] Detected embedded SCSS in ${file.id}, ensuring Shiki highlights it properly.`)
+    //     // Force register the sub-language metadata directly into the Nuxt Content asset data frame.
+    //     // This instructs Nuxt's markdown processor to explicitly pull the scss grammar
+    //     // asset file into Shiki's dynamic compiler pool for this page.
+    //     file.meta = file.meta || {}
+    //     file.meta.highlight = file.meta.highlight || {}
+    //     file.meta.highlight.langs = file.meta.highlight.langs || []
+
+    //     if (!file.meta.highlight.langs.includes('scss')) {
+    //       file.meta.highlight.langs.push('scss')
+    //     }
+    //   }
+    // },
   },
 
   eslint: {

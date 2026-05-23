@@ -47,3 +47,5 @@ delete: Delete
 confirm: Confirm
 one-file: 1 file
 file: file
+loading: Loading…
+slash: /

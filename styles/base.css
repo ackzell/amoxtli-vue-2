@@ -3,10 +3,19 @@ body {
   height: 100vh;
   overflow: hidden;
   --uno: font-sans;
+
+    *::selection {
+    --uno: 'bg-primary-400/50';
+  }
 }
 
 .dark {
   color-scheme: dark;
+
+  *::selection {
+    --uno: 'bg-primary-dark-500/35';
+    color: var(--av-text-primary);
+  }
 }
 
 * {

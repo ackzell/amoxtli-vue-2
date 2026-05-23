@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { shikiToMonaco } from '@shikijs/monaco'
-import * as monaco from 'monaco-editor-core/esm/vs/editor/editor.api'
 import { reloadLanguageTools } from '~/monaco/env'
 import { initMonaco } from '~/monaco/setup'
 import { getShiki } from '~/monaco/shiki'
@@ -15,7 +14,10 @@ const emit = defineEmits<{
   (event: 'change', value: string): void
 }>()
 
-// Only initialize Monaco when the component is actually used
+// 1. Remove the static import: import * as monaco from 'monaco-editor-core/esm/vs/editor/editor.api'
+// 2. Create a local reference variable for the api object
+let monaco: typeof import('monaco-editor-core/esm/vs/editor/editor.api') | null = null
+
 let play: ReturnType<typeof usePlaygroundStore> | null = null
 
 function getPlaygroundStore() {
@@ -25,42 +27,39 @@ function getPlaygroundStore() {
   return play
 }
 
-// Initialize Monaco when the component mounts
-onMounted(() => {
-  initMonaco(getPlaygroundStore())
+// Initialize Monaco ONLY on the client
+onMounted(async () => {
+  if (import.meta.client) {
+    // Dynamically load the package only when mounting on the client
+    monaco = await import('monaco-editor-core/esm/vs/editor/editor.api')
+    initMonaco(getPlaygroundStore())
+  }
 })
 
 const el = ref<HTMLDivElement>()
-
 const colorMode = useColorMode()
-const models = new Map<string, monaco.editor.ITextModel>()
+const models = new Map<string, any>() // Using 'any' here since monaco types are dynamic now
 
 const language = computed(() => {
   const ext = props.filepath.split('.').pop()
   switch (ext) {
-    case 'js':
-      return 'javascript'
-    case 'ts':
-      return 'typescript'
-    case 'css':
-      return 'css'
-    case 'json':
-      return 'json'
-    case 'vue':
-      return 'vue'
-    case 'html':
-      return 'html'
-    default:
-      return 'plaintext'
+    case 'js': return 'javascript'
+    case 'ts': return 'typescript'
+    case 'css': return 'css'
+    case 'json': return 'json'
+    case 'vue': return 'vue'
+    case 'html': return 'html'
+    default: return 'plaintext'
   }
 })
-const theme = computed(() => colorMode.value === 'dark'
-  ? 'vesper'
-  : 'amoxtli-light',
-)
+
+const theme = computed(() => colorMode.value === 'dark' ? 'vesper' : 'amoxtli-light')
 
 function getModel(filepath: string) {
-  let model: monaco.editor.ITextModel
+  if (!monaco)
+    return null
+
+  let model: any
   if (!models.has(filepath)) {
     model = monaco.editor.createModel(
       props.modelValue,
@@ -88,8 +87,12 @@ onUnmounted(() => {
 watch(
   () => el.value,
   async (value) => {
-    if (!value)
+    // Ensure we are on client and monaco module has loaded successfully
+    if (!value || !import.meta.client)
       return
+    if (!monaco) {
+      monaco = await import('monaco-editor-core/esm/vs/editor/editor.api')
+    }
 
     cleanups.forEach(cleanup => cleanup())
     cleanups = []
@@ -97,27 +100,25 @@ watch(
     const shiki = await getShiki()
     shikiToMonaco(shiki, monaco)
 
+    const currentModel = getModel(props.filepath)
+    if (!currentModel)
+      return
+
     const editor = monaco.editor.create(
       value,
       {
-        model: getModel(props.filepath),
+        model: currentModel,
         theme: theme.value,
         fontSize: 14,
-        bracketPairColorization: {
-          enabled: false,
-        },
+        bracketPairColorization: { enabled: false },
         glyphMargin: false,
         automaticLayout: true,
         folding: false,
         lineDecorationsWidth: 10,
         lineNumbersMinChars: 3,
         fontFamily: 'DM Mono, monospace',
-        minimap: {
-          enabled: false,
-        },
-        padding: {
-          top: 8,
-        },
+        minimap: { enabled: false },
+        padding: { top: 8 },
         overviewRulerLanes: 0,
         fixedOverflowWidgets: true,
       },
@@ -138,7 +139,9 @@ watch(
     cleanups.push(watch(
       () => props.filepath,
       () => {
-        editor.setModel(getModel(props.filepath))
+        const m = getModel(props.filepath)
+        if (m)
+          editor.setModel(m)
       },
     ))
 
@@ -149,13 +152,14 @@ watch(
           return
         const selections = editor.getSelections()
         const model = getModel(props.filepath)
-        model.setValue(value)
-        if (selections)
-          editor.setSelections(selections)
+        if (model) {
+          model.setValue(value)
+          if (selections)
+            editor.setSelections(selections)
+        }
       },
     ))
 
-    // Restart language tools when dependencies install finished
     cleanups.push(watch(
       () => getPlaygroundStore().status,
       (s) => {
@@ -164,7 +168,7 @@ watch(
       },
     ))
 
-    cleanups.push(watch(theme, () => monaco.editor.setTheme(theme.value)))
+    cleanups.push(watch(theme, () => monaco!.editor.setTheme(theme.value)))
   },
 )
 </script>
@@ -172,3 +176,4 @@ watch(
 <template>
   <div ref="el" />
 </template>
+j

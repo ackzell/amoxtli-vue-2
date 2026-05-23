@@ -60,6 +60,8 @@ export default defineConfig({
     'border-tip',
     'border-challenge',
     'border-success',
+    'bg-primary-dark-500',
+    'bg-primary-400',
   ],
   theme: {
     colors: {

@@ -146,7 +146,7 @@ const sizes = computed<number[]>({
         <div
           flex="~ gap-2 items-center"
           border="b base dashed"
-          bg-faded px4 py2
+          px4 py2 bg-faded
         >
           <div i-ph-tree-structure-duotone flex-none />
           <span text-sm>{{ $t('files') }}</span>
@@ -174,22 +174,24 @@ const sizes = computed<number[]>({
           draggable="true"
           flex="~ gap-2 items-center"
           border="b base dashed"
-          bg-faded px4 py2
+          px4 py2 bg-faded
         >
           <FileIcon :path="play.fileSelected?.filepath || ''" />
-          <span flex-auto text-sm>{{ play.fileSelected?.filepath || $t('editor') }}</span>
+          <span text-sm flex-auto>{{ play.fileSelected?.filepath || $t('editor') }}</span>
           <ButtonShowSolution
-            my--1 mr--3 flex-none rounded px2 py1 text-sm op50
+            text-sm my--1 mr--3 px2 py1 rounded op50 flex-none
             hover="bg-active op100"
           />
         </div>
-        <LazyPanelEditorMonaco
-          v-if="play.fileSelected"
-          v-model="input"
-          :filepath="play.fileSelected.filepath"
-          h-full w-full
-          @change="onTextInput"
-        />
+        <ClientOnly>
+          <LazyPanelEditorMonaco
+            v-if="play.fileSelected"
+            v-model="input"
+            :filepath="play.fileSelected.filepath"
+            h-full w-full
+            @change="onTextInput"
+          />
+        </ClientOnly>
       </PanelSnapshotsSidebar>
     </Splitter.Panel>
   </Splitter.Root>
