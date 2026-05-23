@@ -1,6 +1,7 @@
 import type { HighlighterCore } from 'shiki/core'
 import { createHighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine-javascript.mjs'
+import langPug from 'shiki/langs/pug.mjs'
 import langScss from 'shiki/langs/scss.mjs'
 import langVue from 'shiki/langs/vue.mjs'
 import themeDark from 'shiki/themes/vesper.mjs'
@@ -23,6 +24,7 @@ export async function getShiki() {
     langs: [
       langVue as any,
       langScss as any,
+      langPug as any,
     ],
     themes: [
       customLightTheme as any,

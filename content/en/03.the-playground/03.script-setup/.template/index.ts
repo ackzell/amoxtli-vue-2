@@ -7,7 +7,7 @@ export const meta: GuideMeta = {
     terminal: true,
   },
   sessionName: 'script-setup',
-  template: 'vue',
+  template: 'vue-sass',
   startingFile: 'src/App.vue',
   ignoredFiles: ['package.json', 'main.js', 'tsconfig.node.json', 'vite.config.ts', 'App.vue', 'index.html', 'src/main.ts'],
 }

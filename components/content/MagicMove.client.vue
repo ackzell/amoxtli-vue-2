@@ -169,7 +169,7 @@ function handleKey(e: KeyboardEvent) {
       bg="~ bgr-100/40 dark:bgr-dark"
     >
       <span class="text-xs tracking-wide font-mono">
-        {{ currentStep + 1 }}<span class="mx-1 opacity-40" /> {{ $t('slash') }} {{ steps.length }}
+        {{ currentStep + 1 }}<span class="mx-1 opacity-40" />{{ $t('slash') }} {{ steps.length }}
       </span>
     </div>
   </div>

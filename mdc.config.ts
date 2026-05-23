@@ -1,4 +1,5 @@
 import { defineConfig } from '@nuxtjs/mdc/config'
+import langPug from 'shiki/langs/pug.mjs'
 import langScss from 'shiki/langs/scss.mjs'
 import { parseEcInfo } from './composables/useEcParser'
 
@@ -9,11 +10,12 @@ function escapeRegExp(s: string) {
 export default defineConfig({
   shiki: {
     async setup(shiki) {
-      console.log('[ec-highlight] setup called')
+      // console.log('[ec-highlight] setup called')
 
       await shiki.loadLanguage(langScss)
+      await shiki.loadLanguage(langPug)
 
-      console.log('[mdc shiki] loaded langs:', shiki.getLoadedLanguages())
+      // console.log('[mdc shiki] loaded langs:', shiki.getLoadedLanguages())
     },
     transformers: [
       {

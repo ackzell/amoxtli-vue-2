@@ -1,8 +1,8 @@
 <script setup>
-import { ref, version } from 'vue';
+import { ref, version } from 'vue'
 
-const message = ref('Hola yehyecoa-vue script setup!');
-console.log('version:', version);
+const message = ref('Hola playground script setup!')
+console.log('version:', version)
 </script>
 
 <template>

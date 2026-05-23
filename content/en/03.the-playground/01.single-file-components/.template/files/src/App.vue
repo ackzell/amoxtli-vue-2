@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 import { ref, version } from 'vue'
 
 export default {
@@ -20,18 +20,14 @@ export default {
   Version is: <code>{{ version }}</code>
 
   <div class="box">
-    <p>SASS walked so CSS could run</p>
+    <p>I am centered!</p>
   </div>
 </template>
 
-<style lang="scss">
-$surface-color: #42b983;
-$foreground-color: whitesmoke;
-
-@mixin center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+<style>
+:root {
+  --surface-color: #42b983;
+  --foreground-color: whitesmoke;
 }
 
 body {
@@ -41,8 +37,10 @@ body {
 .box {
   width: 60%;
   height: 200px;
-  background-color: $surface-color;
-  color: $foreground-color;
-  @include center;
+  background-color: var(--surface-color);
+  color: var(--foreground-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

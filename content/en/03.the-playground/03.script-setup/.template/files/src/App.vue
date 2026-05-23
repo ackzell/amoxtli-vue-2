@@ -3,7 +3,7 @@ import { ref, version } from 'vue'
 
 export default {
   setup() {
-    const message = ref('Hola yehyecoa-vue!')
+    const message = ref('Hola playground!')
     console.log('version:', version)
 
     return {
