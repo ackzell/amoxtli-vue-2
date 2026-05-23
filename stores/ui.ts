@@ -61,7 +61,7 @@ function normalizeLayoutTree(tree: unknown): LayoutSplit {
       if (children.length === 0)
         return null
       if (children.length === 1)
-        return children[0]
+        return children[0] ?? null
 
       const id = typeof n.id === 'string' && n.id.length > 0 ? n.id : nextSplitId()
       return {

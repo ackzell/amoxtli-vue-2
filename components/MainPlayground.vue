@@ -7,7 +7,11 @@ const ui = useUiState()
 const guide = useGuideStore()
 const route = useRoute()
 
-const effectiveMainViewMode = computed(() => guide.features.defaultLayout ?? ui.mainViewMode)
+const effectiveMainViewMode = computed(() => {
+  if (guide.features.defaultLayout === 'docs')
+    return 'docs'
+  return ui.mainViewMode
+})
 const isSplitMode = computed(() => effectiveMainViewMode.value === 'split')
 const isCodeOnlyMode = computed(() => effectiveMainViewMode.value === 'code')
 const isDocsOnlyMode = computed(() => effectiveMainViewMode.value === 'docs')
@@ -406,7 +410,7 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
       <div v-if="!isDocsOnlyMode" h-full grid="~ rows-[max-content_1fr]">
         <PanelCodeToolbar />
         <div
-          relative min-h-0 of-hidden
+          min-h-0 relative of-hidden
           :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
         >
           <PlaygroundCodeDockNode
@@ -434,7 +438,7 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
       v-if="guide.embeddedDocs"
       :panels="embeddedPanels"
       :size="mainSizes"
-      fixed inset-0 z-embedded-docs
+      inset-0 fixed z-embedded-docs
       @resize-start="onResizeStart"
       @resize="onEmbeddedResize"
       @resize-end="onEmbeddedResizeEnd"
@@ -446,8 +450,8 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
         <iframe
           :class="{ 'pointer-events-none': ui.isPanelDragging }"
           :src="guide.embeddedDocs"
-          crossorigin="anonymous" allow="cross-origin-isolated" credentialless
-          inset-0 h-full w-full
+          crossorigin="anonymous" allow="cross-origin-isolated"
+          credentialless h-full w-full inset-0
         />
       </Splitter.Panel>
 
@@ -459,13 +463,13 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
       >
         <div
           border="~ base"
-          absolute left--4 top-4 z-embedded-docs-close h-8 w-8 of-hidden rounded-full bg-base
+          rounded-full bg-base h-8 w-8 left--4 top-4 absolute z-embedded-docs-close of-hidden
         >
           <IconButton
             tooltip="Close embedded docs"
             tooltip-placement="left"
             padding="sm"
-            class="h-full w-full flex items-center justify-center"
+            class="flex h-full w-full items-center justify-center"
             @click="guide.embeddedDocs = ''"
           >
             <div i-ph-caret-left-bold h-4 w-4 />
