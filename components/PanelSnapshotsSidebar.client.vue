@@ -59,7 +59,7 @@ function handleScroll() {
             <div
               v-else
               v-bind="containerProps"
-              overflow-auto pt-4
+              pt-4 overflow-auto
               class="sidebar-scroll-container"
               @scroll="handleScroll"
             >

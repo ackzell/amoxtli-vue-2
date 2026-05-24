@@ -29,7 +29,7 @@ const forwardedProps = useForwardProps(delegatedProps)
       )
     "
   >
-    <span class="absolute right-2 size-3.5 flex items-center justify-center">
+    <span class="flex size-3.5 items-center right-2 justify-center absolute">
       <SelectItemIndicator>
         <div i-mynaui-check class="size-4" />
       </SelectItemIndicator>

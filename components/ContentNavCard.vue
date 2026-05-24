@@ -11,30 +11,27 @@ defineProps<{
 <template>
   <div
     flex="~ col"
-    class="group min-w-0 flex-1 p4"
+    class="group p4 flex-1 min-w-0"
     bg="bgr dark:transparent"
     border="~ base rounded-lg dark:bgr-600"
-    relative block h-full
+
     hover="bg-bgr-50 dark:bg-bgr-dark border-primary dark:hover:border-primary-dark scale-102 shadow-md"
-    transition-all
+    h-full block transition-all relative
   >
     <span
-      pointer-events-none
-      mb4
-      h-7 w-7
-      inline-flex flex-none items-center
-      text-lg transition-colors
+
+      text-lg mb4 inline-flex flex-none h-7 w-7 pointer-events-none transition-colors items-center
       class="group-hover:text-primary dark:group-hover:text-primary-dark"
       :class="icon"
     />
-    <div class="my-0 min-w-0 break-words text-lg font-semibold transition-colors group-hover:text-primary dark:group-hover:text-primary-dark">
+    <div class="text-lg font-semibold my-0 min-w-0 break-words transition-colors group-hover:text-primary dark:group-hover:text-primary-dark">
       {{ title }}
     </div>
-    <div v-if="description" class="content-nav-card-description line-clamp-2 mb-0 mt-1 text-[14px] op50">
+    <div v-if="description" class="content-nav-card-description text-[14px] mb-0 mt-1 op50 line-clamp-2">
       {{ description }}
       <slot />
     </div>
-    <NuxtLink :to="to" class="absolute inset-0" />
+    <NuxtLink :to="to" class="inset-0 absolute" />
   </div>
 </template>
 

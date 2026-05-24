@@ -58,25 +58,25 @@ function onCodeResize(details: { size: number[] }) {
 
 <template>
   <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
-  <main h-screen w-screen of-hidden grid="~ rows-[max-content_1fr]" bg-base>
+  <main grid="~ rows-[max-content_1fr]" bg-base h-screen w-screen of-hidden>
     <header border="b base" p4 flex="~ wrap items-center gap-2">
       <strong text-base>Ark Splitter Spike</strong>
-      <button rounded border="~ base" px3 py1 text-sm hover:bg-active @click="mainOrientation = mainOrientation === 'horizontal' ? 'vertical' : 'horizontal'">
+      <button border="~ base" text-sm px3 py1 rounded hover:bg-active @click="mainOrientation = mainOrientation === 'horizontal' ? 'vertical' : 'horizontal'">
         Main: {{ mainOrientation }}
       </button>
-      <button rounded border="~ base" px3 py1 text-sm hover:bg-active @click="showSplitMode">
+      <button border="~ base" text-sm px3 py1 rounded hover:bg-active @click="showSplitMode">
         Split mode
       </button>
-      <button rounded border="~ base" px3 py1 text-sm hover:bg-active @click="showDocsOnly">
+      <button border="~ base" text-sm px3 py1 rounded hover:bg-active @click="showDocsOnly">
         Docs only
       </button>
-      <button rounded border="~ base" px3 py1 text-sm hover:bg-active @click="showCodeOnly">
+      <button border="~ base" text-sm px3 py1 rounded hover:bg-active @click="showCodeOnly">
         Code only
       </button>
-      <button rounded border="~ base" px3 py1 text-sm hover:bg-active @click="resetNested">
+      <button border="~ base" text-sm px3 py1 rounded hover:bg-active @click="resetNested">
         Reset nested
       </button>
-      <div ml-auto text-xs op70>
+      <div text-xs ml-auto op70>
         docs: {{ showDocs ? 'visible' : 'hidden' }} | code: {{ showCode ? 'visible' : 'hidden' }}
       </div>
     </header>
@@ -90,8 +90,8 @@ function onCodeResize(details: { size: number[] }) {
       @resize="onMainResize" @resize-end="onMainResizeEnd"
     >
       <Splitter.Panel id="docs-panel" border="r base" p4>
-        <div h-full rounded border="~ base" p4>
-          <h2 mb2 text-sm font-bold>
+        <div border="~ base" p4 rounded h-full>
+          <h2 text-sm font-bold mb2>
             Docs Panel
           </h2>
           <p text-sm op80>
@@ -115,8 +115,8 @@ function onCodeResize(details: { size: number[] }) {
           @resize="onCodeResize" @resize-end="onCodeResizeEnd"
         >
           <Splitter.Panel id="editor-panel" p2>
-            <div h-full rounded border="~ base" p4>
-              <h3 mb2 text-sm font-bold>
+            <div border="~ base" p4 rounded h-full>
+              <h3 text-sm font-bold mb2>
                 Editor
               </h3>
               <p text-sm op70>
@@ -130,8 +130,8 @@ function onCodeResize(details: { size: number[] }) {
           </Splitter.ResizeTrigger>
 
           <Splitter.Panel id="preview-panel" p2>
-            <div h-full rounded border="~ base" p4>
-              <h3 mb2 text-sm font-bold>
+            <div border="~ base" p4 rounded h-full>
+              <h3 text-sm font-bold mb2>
                 Preview
               </h3>
               <p text-sm op70>
@@ -145,8 +145,8 @@ function onCodeResize(details: { size: number[] }) {
           </Splitter.ResizeTrigger>
 
           <Splitter.Panel id="console-panel" p2>
-            <div h-full rounded border="~ base" p4>
-              <h3 mb2 text-sm font-bold>
+            <div border="~ base" p4 rounded h-full>
+              <h3 text-sm font-bold mb2>
                 Console / Terminal
               </h3>
               <p text-sm op70>

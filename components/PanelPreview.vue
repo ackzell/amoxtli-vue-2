@@ -67,12 +67,12 @@ watch(
       data-dock-drag-handle="true"
       draggable="true"
       flex="~ items-center gap-2"
-      border="b base dashed" bg-faded pl1 pr2
+      border="b base dashed" pl1 pr2 bg-faded
     >
       <div
         flex="~ auto gap-2 items-center"
         border="~ base"
-        m1.5 rounded bg-faded px2 py0.5 tracking-wide
+        tracking-wide m1.5 px2 py0.5 rounded bg-faded
       >
         <div i-carbon-wikis />
         <span text-sm op50>{{ $t('preview') }}</span>
@@ -86,7 +86,7 @@ watch(
           <form w-full @submit.prevent="navigate">
             <input
               v-model="inputUrl" type="text"
-              w-full flex-1 bg-transparent focus:outline-none
+              bg-transparent flex-1 w-full focus:outline-none
             >
           </form>
         </div>
@@ -128,7 +128,7 @@ watch(
         </VDropdown>
       </ClientOnly>
     </div>
-    <div relative h-full w-full>
+    <div h-full w-full relative>
       <PanelPreviewLoading />
       <PanelPreviewClient ref="inner" />
     </div>

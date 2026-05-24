@@ -3,7 +3,7 @@
  * (c) 2018-present Yuxi (Evan) You and Vue contributors
  * @license MIT
  */
-let Vue = (function (exports) {
+const Vue = (function (exports) {
   'use strict'
 
   // @__NO_SIDE_EFFECTS__
@@ -286,7 +286,7 @@ let Vue = (function (exports) {
   function normalizeProps(props) {
     if (!props)
       return null
-    let { class: klass, style } = props
+    const { class: klass, style } = props
     if (klass && !isString(klass)) {
       props.class = normalizeClass(klass)
     }
@@ -3348,7 +3348,7 @@ let Vue = (function (exports) {
       if (oldBindings) {
         binding.oldValue = oldBindings[i].value
       }
-      let hook = binding.dir[name]
+      const hook = binding.dir[name]
       if (hook) {
         pauseTracking()
         callWithAsyncErrorHandling(hook, instance, 8, [
@@ -3843,7 +3843,7 @@ let Vue = (function (exports) {
           && !isSameVNodeType(oldInnerChild, innerChild)
           && recursiveGetSubtree(instance).type !== Comment
         ) {
-          let leavingHooks = resolveTransitionHooks(
+          const leavingHooks = resolveTransitionHooks(
             oldInnerChild,
             rawProps,
             state,
@@ -4118,7 +4118,7 @@ let Vue = (function (exports) {
     let ret = []
     let keyedFragmentCount = 0
     for (let i = 0; i < children.length; i++) {
-      let child = children[i]
+      const child = children[i]
       const key
         = parentKey == null
           ? child.key
@@ -6101,8 +6101,7 @@ If this is a native custom element, make sure to exclude it from component resol
       else if (
         // global properties
         ((globalProperties = appContext.config.globalProperties),
-        hasOwn(globalProperties, key))
-      ) {
+        hasOwn(globalProperties, key))) {
         {
           return globalProperties[key]
         }
@@ -6691,7 +6690,7 @@ If this is a native custom element, make sure to exclude it from component resol
     )
   }
   function createWatcher(raw, ctx, publicThis, key) {
-    let getter = key.includes('.')
+    const getter = key.includes('.')
       ? createPathGetter(publicThis, key)
       : () => publicThis[key]
     if (isString(raw)) {
@@ -7115,7 +7114,7 @@ If you want to remount the same app, move your app creation logic into a factory
   function inject(key, defaultValue, treatDefaultAsFactory = false) {
     const instance = getCurrentInstance()
     if (instance || currentApp) {
-      let provides = currentApp
+      const provides = currentApp
         ? currentApp._context.provides
         : instance
           ? instance.parent == null || instance.ce
@@ -7202,7 +7201,7 @@ If you want to remount the same app, move your app creation logic into a factory
       if (patchFlag & 8) {
         const propsToUpdate = instance.vnode.dynamicProps
         for (let i = 0; i < propsToUpdate.length; i++) {
-          let key = propsToUpdate[i]
+          const key = propsToUpdate[i]
           if (isEmitListener(instance.emitsOptions, key)) {
             continue
           }
@@ -7290,7 +7289,7 @@ If you want to remount the same app, move your app creation logic into a factory
     let hasAttrsChanged = false
     let rawCastValues
     if (rawProps) {
-      for (let key in rawProps) {
+      for (const key in rawProps) {
         if (isReservedProp(key)) {
           continue
         }
@@ -7487,7 +7486,7 @@ If you want to remount the same app, move your app creation logic into a factory
     const options = instance.propsOptions[0]
     const camelizePropsKey = Object.keys(rawProps).map(key => camelize(key))
     for (const key in options) {
-      let opt = options[key]
+      const opt = options[key]
       if (opt == null)
         continue
       validateProp(
@@ -8669,7 +8668,7 @@ If you want to remount the same app, move your app creation logic into a factory
               return
             }
           }
-          let originNext = next
+          const originNext = next
           let vnodeHook
           {
             pushWarningContext(next || instance.vnode)
@@ -9853,7 +9852,7 @@ If you want to remount the same app, move your app creation logic into a factory
       return cached
     }
     const raw = comp.emits
-    let normalized = {}
+    const normalized = {}
     let hasExtends = false
     if (!isFunction(comp)) {
       const extendEmits = (raw2) => {
@@ -9939,15 +9938,15 @@ If you want to remount the same app, move your app creation logic into a factory
         const proxyToUse = withProxy || proxy
         const thisProxy = setupState.__isScriptSetup
           ? new Proxy(proxyToUse, {
-            get(target, key, receiver) {
-              warn$1(
-                `Property '${String(
-                  key,
-                )}' was accessed via 'this'. Avoid using 'this' in templates.`,
-              )
-              return Reflect.get(target, key, receiver)
-            },
-          })
+              get(target, key, receiver) {
+                warn$1(
+                  `Property '${String(
+                    key,
+                  )}' was accessed via 'this'. Avoid using 'this' in templates.`,
+                )
+                return Reflect.get(target, key, receiver)
+              },
+            })
           : proxyToUse
         result = normalizeVNode(
           render.call(
@@ -13591,7 +13590,7 @@ Expected function or array of functions, received type ${typeof value}.`,
       return () => {
         const rawProps = toRaw(props)
         const cssTransitionProps = resolveTransitionProps(rawProps)
-        let tag = rawProps.tag || Fragment
+        const tag = rawProps.tag || Fragment
         prevChildren = []
         if (children) {
           for (let i = 0; i < children.length; i++) {
@@ -15422,7 +15421,7 @@ Use a v-bind binding combined with a v-on listener that emits update:x event ins
       .trim()
       .replace(whitespaceRE, s => s.trim())
     let state = 0 /* inMemberExp */
-    let stateStack = []
+    const stateStack = []
     let currentOpenBracketCount = 0
     let currentOpenParensCount = 0
     let currentStringType = null
@@ -15922,7 +15921,7 @@ Use a v-bind binding combined with a v-on listener that emits update:x event ins
             }
           }
           else {
-            let expParseMode = 0 /* Normal */
+            const expParseMode = 0 /* Normal */
             currentProp.exp = createExp(
               currentAttrValue,
               false,
@@ -18027,7 +18026,7 @@ Use a v-bind binding combined with a v-on listener that emits update:x event ins
         const memo = findDir(node, 'memo')
         const keyProp = findProp(node, `key`, false, true)
         keyProp && keyProp.type === 7
-        let keyExp
+        const keyExp
           = keyProp
             && (keyProp.type === 6
               ? keyProp.value
@@ -18323,8 +18322,7 @@ Use a v-bind binding combined with a v-on listener that emits update:x event ins
           /^else(?:-if)?$/,
           true,
           /* allowEmpty */
-        ))
-      ) {
+        ))) {
         let j = i
         let prev
         while (j--) {
@@ -18499,7 +18497,7 @@ Use a v-bind binding combined with a v-on listener that emits update:x event ins
       }
       const { tag, props } = node
       const isComponent = node.tagType === 1
-      let vnodeTag = isComponent
+      const vnodeTag = isComponent
         ? resolveComponentType(node, context)
         : `"${tag}"`
       const isDynamicComponent
@@ -18744,7 +18742,7 @@ Use a v-bind binding combined with a v-on listener that emits update:x event ins
       const prop = props[i]
       if (prop.type === 6) {
         const { loc, name, nameLoc, value } = prop
-        let isStatic = true
+        const isStatic = true
         if (name === 'ref') {
           hasRef = true
           pushRefVForMarker()
@@ -19191,7 +19189,7 @@ Use a v-bind binding combined with a v-on listener that emits update:x event ins
     if (exp && !exp.content.trim()) {
       exp = void 0
     }
-    let shouldCache = context.cacheHandlers && !exp && !context.inVOnce
+    const shouldCache = context.cacheHandlers && !exp && !context.inVOnce
     if (exp) {
       const isMemberExp = isMemberExpression(exp)
       const isInlineStatement = !(isMemberExp || isFnExpression(exp))

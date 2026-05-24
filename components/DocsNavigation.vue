@@ -146,26 +146,26 @@ onKeyStroke('Escape', () => {
 </script>
 
 <template>
-  <div flex items-center justify-around gap-2 px2 sm:mt0>
+  <div font-mono px2 flex gap-2 items-center justify-around sm:mt0>
     <NuxtLink
       v-if="prev"
       :to="prev.path"
       :title="`Previous: ${prev.title}`"
       hover="bg-active text-primary dark:text-primary-dark op100"
-      z-110 h-full w10 flex items-center justify-center rounded-md text-sm op70
+      text-sm rounded-md op70 flex h-full w10 items-center justify-center z-110
     >
       <div i-carbon-arrow-left />
     </NuxtLink>
     <!-- flex-grow spacer so the absolute child can anchor to the bar position -->
-    <div ref="navRoot" class="nav-bar-anchor group relative z-110 min-w-0 flex-grow">
+    <div ref="navRoot" class="nav-bar-anchor group flex-grow min-w-0 relative z-110">
       <!-- Single bordered box: contains both trigger bar and dropdown panel -->
       <div
-        class="overflow-hidden border rounded-lg transition-colors duration-300 dark:border-bgr-700 hover:border-primary hover:shadow-md dark:hover:border-primary-dark dark:hover-shadow-dark-950"
+        class="border rounded-lg transition-colors duration-300 overflow-hidden dark:border-bgr-700 hover:border-primary hover:shadow-md dark:hover:border-primary-dark dark:hover-shadow-dark-950"
       >
         <!-- Trigger bar -->
         <div
           flex="~ gap-x-2 gap-y-1 items-center wrap"
-          bg-bgr-50 px4 py2 outline-none dark:bg-bgr-800
+          px4 py2 outline-none bg-bgr-50 dark:bg-bgr-800
           role="button"
           tabindex="0"
           @click="toggleDropdownFromNav"
@@ -174,14 +174,14 @@ onKeyStroke('Escape', () => {
         >
           <div i-mynaui-book flex-none />
           <template v-for="bc, idx of breadcrumbs" :key="bc.path">
-            <div v-if="idx !== 0" i-ph-caret-right mx--1 text-sm op50 />
+            <div v-if="idx !== 0" i-mynaui-chevron-right text-sm mx--1 op50 />
             <NuxtLink :to="bc.path" text-sm hover="text-primary dark:text-primary-dark" @click.stop>
               {{ bc.title }}
             </NuxtLink>
           </template>
-          <div h-1em flex-auto />
+          <div flex-auto h-1em />
           <div
-            i-ph-caret-down-duotone text-sm op50 transition duration-400
+            un-transition i-mynaui-chevron-down-solid text-sm op50 duration-400
             :class="ui.isContentDropdownShown ? 'rotate-180' : ''"
           />
         </div>
@@ -196,7 +196,7 @@ onKeyStroke('Escape', () => {
             <div
               border="t base"
               class="bg-bgr/80 dark:bg-bgr-dark/70"
-              max-h-60vh overflow-y-auto py2 text-sm backdrop-blur-md
+              text-sm py2 max-h-60vh overflow-y-auto backdrop-blur-md
             >
               <ContentNavItem
                 v-for="item of navigationItems"
@@ -215,9 +215,9 @@ onKeyStroke('Escape', () => {
       :to="next.path"
       :title="`Next: ${next.title}`"
       hover="bg-active text-primary dark:text-primary-dark op100"
-      z-110 h-full h10 w10 flex items-center justify-center rounded-md text-sm op70
+      text-sm rounded-md op70 flex h-full h10 w10 items-center justify-center z-110
     >
-      <div i-carbon-arrow-right />
+      <div i-mynaui-arrow-right />
     </NuxtLink>
   </div>
 </template>

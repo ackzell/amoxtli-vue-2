@@ -152,16 +152,16 @@ const hiddenCount = computed(() => {
 </script>
 
 <template>
-  <div class="pointer-events-none fixed left-0 right-0 top-0 z-[111]">
+  <div class="pointer-events-none left-0 right-0 top-0 fixed z-[111]">
     <div
-      class="flex flex-col items-center gap-2 p-4 pt-[55px]"
+      class="p-4 pt-[55px] flex flex-col gap-2 items-center"
       @mouseenter="isStackHovered = true"
       @mouseleave="isStackHovered = false"
     >
       <TransitionGroup
         name="toast"
         tag="div"
-        class="flex flex-col items-center gap-2 text-sm font-mono"
+        class="text-sm font-mono flex flex-col gap-2 items-center"
       >
         <div
           v-for="activeToast in visibleToasts"
@@ -171,14 +171,14 @@ const hiddenCount = computed(() => {
           hover="opacity-100 scale-105"
           un-transition="transition-all duration-200 ease-in-out"
           border="~ border-1 rounded-md"
-          class="pointer-events-auto px2 py2 active:scale-98"
+          class="px2 py2 pointer-events-auto active:scale-98"
           :class="getToastClasses(activeToast.type || 'info')"
           @click="handleToastClick(activeToast.id)"
           @mouseenter="pauseAutoDissmiss(activeToast.id)"
           @mouseleave="resumeAutoDissmiss(activeToast.id)"
         >
           <span
-            class="inline-block align-middle text-sm"
+            class="text-sm align-middle inline-block"
             :class="getToastIcon(activeToast.type || 'info')"
           />
           <div class="flex-1">
@@ -198,7 +198,7 @@ const hiddenCount = computed(() => {
 
       <div
         v-if="hiddenCount > 0 && !isStackHovered"
-        class="cursor-pointer text-xs text-bgr dark:text-bgr-400/90"
+        class="text-xs text-bgr cursor-pointer dark:text-bgr-400/90"
         flex="~ items-center gap-1"
       >
         <div i-mynaui-plus inline-block />{{ hiddenCount }}{{ $t(`more`) }}

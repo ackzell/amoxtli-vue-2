@@ -4,7 +4,7 @@ body {
   overflow: hidden;
   --uno: font-sans;
 
-    *::selection {
+  *::selection {
     --uno: 'bg-primary-400/50';
   }
 }

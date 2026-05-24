@@ -6,8 +6,8 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex items-center gap-1.5 border border-b-0 border-base rounded-t-md bg-base px-4 pt-3">
-    <div class="size-4 shrink-0" :class="iconClass" />
+  <div class="px-4 pt-3 border border-b-0 border-base rounded-t-md bg-base flex gap-1.5 items-center">
+    <div class="shrink-0 size-4" :class="iconClass" />
     <span class="text-sm/6" data-filename op80>{{ filename }}</span>
   </div>
 </template>

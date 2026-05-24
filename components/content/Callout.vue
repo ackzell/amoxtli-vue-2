@@ -33,23 +33,23 @@ const variant = computed(() => {
 
 <template>
   <div
-    class="callout-container [&>p]:my-0 [&>p]:leading-1.75em" :class="[
+    class="callout-container [&>p]:leading-1.75em [&>p]:my-0" :class="[
       `bg-${variant.color}/8`,
       `border-${variant.color}`,
     ]"
     border="~ rounded-xl"
     flex="~ gap-4 items-center"
 
-    relative py4 pr2 text-sm text-faded
+    text-sm text-faded py4 pr2 relative
   >
     <div
       :class="[variant.icon, `text-${variant.color}`]"
-      absolute left-1.5 h15 w15 flex-shrink-0 opacity-10
+      opacity-10 flex-shrink-0 h15 w15 left-1.5 absolute
     />
 
     <div
       :class="[variant.icon, `text-${variant.color}`]"
-      mx6 h6.5 w6.5 flex-shrink-0
+      mx6 flex-shrink-0 h6.5 w6.5
     />
 
     <slot />

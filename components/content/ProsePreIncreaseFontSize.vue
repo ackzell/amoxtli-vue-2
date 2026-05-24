@@ -9,10 +9,10 @@ defineEmits<{
     unstyled
     tooltip="Increase font size"
     tooltip-placement="top"
-    class="pointer-events-none z-1 size-7 inline-flex items-center justify-center border border-base rounded-md bg-base op0 transition-opacity duration-200 group-focus-within:pointer-events-auto group-hover:pointer-events-auto group-focus-within:op75 group-hover:op75 hover:op100"
+    class="border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none transition-opacity duration-200 items-center justify-center z-1 group-focus-within:op75 group-hover:op75 hover:op100 group-focus-within:pointer-events-auto group-hover:pointer-events-auto"
     aria-label="Increase font size"
     @click="$emit('increaseFontSize')"
   >
-    <div i-mynaui-a-arrow-up-solid h4 w4 text-bgr-dark dark:text-bgr-50 />
+    <div i-mynaui-a-arrow-up-solid text-bgr-dark h4 w4 dark:text-bgr-50 />
   </IconButton>
 </template>

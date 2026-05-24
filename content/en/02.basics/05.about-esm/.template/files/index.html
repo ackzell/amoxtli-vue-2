@@ -4,19 +4,15 @@
 </div>
 
 <script type="module">
-  import {
-    createApp,
-    ref,
-    version,
-  } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+  import { createApp, ref, version } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
 
   createApp({
     setup() {
-      const message = ref('Hola Vue!');
+      const message = ref('Hola Vue!')
       return {
         version,
         message,
-      };
+      }
     },
-  }).mount('#app');
+  }).mount('#app')
 </script>

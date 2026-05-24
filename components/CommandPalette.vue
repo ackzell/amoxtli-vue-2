@@ -94,34 +94,34 @@ useEventListener('keydown', (e) => {
 <template>
   <div
     v-if="commands.isShown"
-    fixed inset-0 z-index-command-palette flex="~ items-center justify-center"
+    inset-0 fixed z-index-command-palette flex="~ items-center justify-center"
   >
     <div
-      absolute inset-0 z--1 bg-black:75
+      bg-black:75 inset-0 absolute z--1
       @click="commands.isShown = false"
     />
     <div
-      border="~ base rounded" h-100 w-200 of-hidden bg-base
+      border="~ base rounded" bg-base h-100 w-200 of-hidden
       grid="~ rows-[max-content_1fr]"
     >
       <div flex="~ items-center">
-        <div class="i-ph-magnifying-glass-duotone" m4 text-xl />
+        <div class="i-ph-magnifying-glass-duotone" text-xl m4 />
         <input
           ref="input"
           v-model="commands.search"
-          h-full w-full rounded border-none bg-base p4 pl0 outline-none
+          p4 pl0 outline-none rounded border-none bg-base h-full w-full
           :placeholder="$t('search-dots')"
         >
       </div>
 
-      <div border="t base" flex="~ col" of-y-auto py2>
+      <div border="t base" flex="~ col" py2 of-y-auto>
         <component
           :is="c.to ? NuxtLink : 'button'"
           v-for="c, idx of commands.commandsResult"
           :key="c.id || getTitle(c)"
           :ref="(el: Element) => selected === idx && scrollIntoView(el)"
-          :to="c.to" flex="~ gap-2 items-center" mx1 rounded p2
-          px3
+          :to="c.to" flex="~ gap-2 items-center"
+          mx1 p2 px3 rounded
           :class="selected === idx ? 'bg-active' : ''"
           @click="runCommand(c)"
         >

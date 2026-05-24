@@ -25,10 +25,10 @@ function toggle() {
     unstyled
     tooltip="Toggle all code sections"
     tooltip-placement="top"
-    class="pointer-events-none size-7 inline-flex items-center justify-center border border-base rounded-md bg-base op0 transition-opacity duration-200 group-focus-within:pointer-events-auto group-hover:pointer-events-auto group-focus-within:op75 group-hover:op75 hover:op100"
+    class="border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none transition-opacity duration-200 items-center justify-center group-focus-within:op75 group-hover:op75 hover:op100 group-focus-within:pointer-events-auto group-hover:pointer-events-auto"
     aria-label="Toggle all code sections"
     @click="toggle"
   >
-    <div :class="isExpanded ? 'i-mynaui-chevron-down' : 'i-mynaui-chevron-right'" h4 w4 text-bgr-dark dark:text-bgr-50 />
+    <div :class="isExpanded ? 'i-mynaui-chevron-down' : 'i-mynaui-chevron-right'" text-bgr-dark h4 w4 dark:text-bgr-50 />
   </IconButton>
 </template>

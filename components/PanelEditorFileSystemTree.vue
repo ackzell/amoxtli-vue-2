@@ -58,12 +58,12 @@ const folderCaret = computed(() => {
         paddingLeft: `${0.2 + 0.8 * (props.depth)}rem`,
       }"
       :class="isFileSelected ? 'bg-active' : 'text-faded'"
-      w-full flex items-center gap-1 px2 py1 text-left text-sm
+      text-sm px2 py1 text-left flex gap-1 w-full items-center
       @click="handleClick"
     >
-      <div :class="folderCaret" h-4 w-4 flex-none />
+      <div :class="folderCaret" flex-none h-4 w-4 />
       <FileIcon
-        h-4 w-4 flex-none
+        flex-none h-4 w-4
         :path="name"
         :is-directory="!!props.directory"
         :is-directory-open="isDirectoryOpen"

@@ -99,7 +99,7 @@ defineExpose({
     ref="iframe"
     :src="preview.url"
     :class="{ 'pointer-events-none': ui.isPanelDragging }"
-    absolute inset-0 h-full w-full bg-transparent allow="geolocation; microphone; camera; payment; autoplay; serial; cross-origin-isolated"
+    bg-transparent h-full w-full inset-0 absolute allow="geolocation; microphone; camera; payment; autoplay; serial; cross-origin-isolated"
     @load="syncColorMode"
   />
 </template>

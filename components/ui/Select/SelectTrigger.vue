@@ -43,7 +43,7 @@ const forwardedProps = useForwardProps(delegatedProps)
   >
     <slot />
     <SelectIcon as-child>
-      <div i-mynaui-chevron-down class="size-4 opacity-50" />
+      <div i-mynaui-chevron-down class="opacity-50 size-4" />
     </SelectIcon>
   </SelectTrigger>
 </template>

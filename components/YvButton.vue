@@ -25,8 +25,8 @@ const props = defineProps<YvButtonProps>()
       <span
         class="transition-transform duration-200 group-hover:scale-115"
         :class="props.iconClass"
-        size-4e
-        inline-block align-middle
+
+        size-4e align-middle inline-block
       />
     </slot>
     <slot />

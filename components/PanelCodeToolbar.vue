@@ -4,7 +4,7 @@ const fm = useFileManagerStore()
 </script>
 
 <template>
-  <div border="b t base solid" bg-faded px2 py1.5 flex="~ wrap items-center justify-between gap-1.5">
+  <div border="b t base solid" px2 py1.5 bg-faded flex="~ wrap items-center justify-between gap-1.5">
     <div v-if="fm" flex-1>
       <IconButton
         tooltip="Save"

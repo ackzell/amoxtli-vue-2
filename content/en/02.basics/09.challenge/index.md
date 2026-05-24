@@ -1,5 +1,6 @@
 ---
 title: Challenge
+isChallenge: true
 ---
 
 # Challenge!

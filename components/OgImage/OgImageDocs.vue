@@ -21,9 +21,9 @@ defineProps({
 </script>
 
 <template>
-  <div class="h-full w-full flex flex-col justify-center bg-[#020420]">
+  <div class="bg-[#020420] flex flex-col h-full w-full justify-center">
     <svg
-      class="absolute right-0 top-0"
+      class="right-0 top-0 absolute"
       width="629"
       height="593"
       viewBox="0 0 629 593"
@@ -50,11 +50,11 @@ defineProps({
       </defs>
     </svg>
 
-    <div class="w-[700px] pl-[100px]">
-      <p v-if="headline" class="mb-4 text-[24px] text-[#00DC82] font-semibold uppercase">
+    <div class="pl-[100px] w-[700px]">
+      <p v-if="headline" class="text-[24px] text-[#00DC82] font-semibold mb-4 uppercase">
         {{ headline }}
       </p>
-      <h1 class="m-0 mb-4 flex items-center text-[75px] text-white font-semibold">
+      <h1 class="text-[75px] text-white font-semibold m-0 mb-4 flex items-center">
         <span>{{ title }}</span>
       </h1>
       <p class="text-[32px] text-[#E4E4E7] leading-tight">
@@ -62,7 +62,7 @@ defineProps({
       </p>
     </div>
     <svg
-      class="absolute right-[90px] top-[160px]"
+      class="right-[90px] top-[160px] absolute"
       width="340"
       height="340"
       viewBox="0 0 340 340"

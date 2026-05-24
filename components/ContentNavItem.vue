@@ -25,17 +25,17 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
 </script>
 
 <template>
-  <div v-if="resolved && (!(resolved.meta as any)?.unlisted || current?.startsWith(resolved.path))" class="content-nav-item">
+  <div v-if="resolved && (!(resolved.meta as any)?.unlisted || current?.startsWith(resolved.path))" class="content-nav-item font-mono">
     <template v-if="resolved.children?.length">
       <details :open="route.path.includes(resolved.path)">
         <summary>
           <div
-            flex="~ gap-1 items-center" cursor-pointer select-none px1 py0.5
+            flex="~ gap-1 items-center" px1 py0.5 cursor-pointer select-none
             hover="text-primary dark:text-primary-dark bg-active"
             :style="{ paddingLeft }"
           >
-            <div class="caret" i-ph-caret-right-duotone flex-none text-sm op50 transition duration-400 />
-            <div i-mynaui-folder-solid flex-none opacity-50 />
+            <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op50 flex-none duration-400 />
+            <div i-mynaui-folder-solid opacity-50 flex-none />
             <div ml1>
               {{ resolved.title }}
             </div>
@@ -61,8 +61,9 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
       hover="text-primary dark:text-primary-dark bg-active" px1 py0.5
       @click="ui.isContentDropdownShown = false"
     >
-      <div class="caret" i-ph-caret-right-duotone flex-none text-sm op0 />
-      <div i-mynaui-file flex-none />
+      <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op0 flex-none duration-400 />
+      <div v-if="resolved.meta.isChallenge" i-mynaui-lightning-solid text-challenge op50 flex-none />
+      <div v-else i-mynaui-file-solid op50 flex-none />
       <div ml1>
         {{ resolved.title }}
       </div>

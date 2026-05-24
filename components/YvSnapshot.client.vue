@@ -74,13 +74,13 @@ const fileDiffs = computed(() =>
     :animate="{ opacity: 1, scale: 1 }"
     :exit="{ opacity: 0, scale: 0 }"
     :transition="props.disableAnimation ? { duration: 0 } : { duration: 0.25, ease: 'easeOut' }"
-    layout h-28 px-4
+    layout px-4 h-28
     class="group/snapshot hover-bg-bgr-100/40 dark:hover-bg-bgr-dark"
   >
     <div flex="~ items-center justify-between" mb-1>
-      <div flex items-center gap-0>
+      <div flex gap-0 items-center>
         <div
-          mr-2 mt-0.5 size-2.5 rounded-full
+          mr-2 mt-0.5 rounded-full size-2.5
           un-transition="all duration-150 ease-in-out"
           outline="0 offset-0"
           class="group-hover/snapshot:outline-1 group-hover/snapshot:outline-offset-2"
@@ -176,18 +176,18 @@ const fileDiffs = computed(() =>
     <div
       flex="~ col gap-6"
 
-      class="before:absolute before:inset-y-0 before:w-px before:origin-top before:scale-y-0 before:transition-transform before:duration-300 before:content-[''] before:-left-px group-hover/snapshot:before:scale-y-100"
+      class="before:w-px before:content-[''] before:origin-top before:scale-y-0 before:transition-transform before:duration-300 before:inset-y-0 before:absolute group-hover/snapshot:before:scale-y-100 before:-left-px"
       :class="typeColors.line"
-      relative ml-1 border-l border-l-bgr-100 pb-3 pl-5 dark:border-l-bgr-600
+      ml-1 pb-3 pl-5 border-l border-l-bgr-100 relative dark:border-l-bgr-600
     >
       <p text-xs class="text-bgr-400 dark:text-bgr-200/60">
         {{ props.snapshot.message }}
       </p>
 
       <div h-full>
-        <div h-full flex gap-4>
+        <div flex gap-4 h-full>
           <YvButton
-            class="active:bg-teal-400/50 hover:bg-teal-400/20 active:text-teal-900 hover:text-teal-600"
+            class="active:text-teal-900 hover:text-teal-600 active:bg-teal-400/50 hover:bg-teal-400/20"
             dark="hover:bg-teal-300/10 hover:text-teal-300 active:bg-teal-300/20 active:text-teal-500"
             icon-class="i-carbon:rotate group-hover:-rotate-40"
             @click="fm.restoreSnapshot(props.snapshot)"
@@ -197,7 +197,7 @@ const fileDiffs = computed(() =>
           <UiPopover>
             <UiPopoverTrigger>
               <YvButton
-                class="active:bg-red-400/50 hover:bg-red-500/20 active:text-red-900 hover:text-red-800"
+                class="active:text-red-900 hover:text-red-800 active:bg-red-400/50 hover:bg-red-500/20"
                 dark="bg-input/30 hover:bg-red-700/20 hover:text-red-400 active:bg-red-400/20 active:text-red-500"
                 icon-class="i-carbon:trash-can"
                 @click.shift.alt.prevent.stop="fm.deleteSnapshot(props.snapshot.id)"
@@ -208,7 +208,7 @@ const fileDiffs = computed(() =>
 
             <UiPopoverContent w-auto>
               <YvButton
-                class="bg-bgr-200/50 active:bg-red-400/50 hover:bg-red-500/20 active:text-red-900 hover:text-red-800"
+                class="bg-bgr-200/50 active:text-red-900 hover:text-red-800 active:bg-red-400/50 hover:bg-red-500/20"
                 dark="bg-input/30 hover:bg-red-700/20 hover:text-red-400 active:bg-red-400/20 active:text-red-500"
                 @click="fm.deleteSnapshot(props.snapshot.id)"
               >

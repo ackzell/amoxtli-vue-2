@@ -10,7 +10,7 @@ const play = usePlaygroundStore()
       draggable="true"
       flex="~ gap-2 items-center"
       border="b base dashed"
-      bg-faded p2 pl4
+      p2 pl4 bg-faded
     >
       <div i-carbon-terminal />
       <span text-sm>{{ $t('terminal.name') }}</span>

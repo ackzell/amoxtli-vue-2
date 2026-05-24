@@ -44,8 +44,8 @@ router.beforeEach(() => {
 </script>
 
 <template>
-  <div relative h-full of-hidden>
-    <article ref="docsEl" class="prose" h-full of-auto p6>
+  <div h-full relative of-hidden>
+    <article ref="docsEl" class="prose" p6 h-full of-auto>
       <ContentRenderer v-if="page" :key="page.id" :value="page" class="m-auto max-w-3xl" />
       <div mt8 py2 grid="~ cols-[1fr_1fr] gap-4" class="m-auto max-w-3xl">
         <div>
@@ -66,7 +66,7 @@ router.beforeEach(() => {
             :description="next.description as string"
             subheader="Next section"
             icon="i-ph-arrow-right"
-            items-end text-right
+            text-right items-end
           />
         </div>
       </div>

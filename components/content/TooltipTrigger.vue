@@ -210,7 +210,7 @@ onUnmounted(() => {
 
 <template>
   <span
-    class="cursor-help underline decoration-dotted"
+    class="underline decoration-dotted cursor-help"
     @mouseenter="showTooltip"
     @mouseleave="scheduleHide"
     @mousemove="updateMousePosition"
@@ -218,14 +218,8 @@ onUnmounted(() => {
     <slot />
 
     <span
-      i-mynaui-star-solid
-      ml-0.5
-      inline-block
-      h2
-      w2
-      text-xs
-      text-primary
-      dark:text-primary-dark
+
+      i-mynaui-star-solid text-xs text-primary ml-0.5 h2 w2 inline-block dark:text-primary-dark
     />
   </span>
 

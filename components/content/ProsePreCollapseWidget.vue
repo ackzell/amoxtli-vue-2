@@ -33,7 +33,7 @@ const label = computed(() => {
     @click="$emit('toggle')"
   >
     <div
-      class="h3.5 w3.5 shrink-0"
+      class="shrink-0 h3.5 w3.5"
       :class="expanded ? expandedIconClass : collapsedIconClass"
       aria-hidden="true"
     />
@@ -46,7 +46,7 @@ const label = computed(() => {
     :class="[widgetClass, { 'is-collapsed': !expanded }]"
   >
     <div
-      class="h3.5 w3.5 shrink-0"
+      class="shrink-0 h3.5 w3.5"
       :class="expanded ? expandedIconClass : collapsedIconClass"
       aria-hidden="true"
     />

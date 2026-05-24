@@ -68,7 +68,7 @@ function getTextClass(status: PlaygroundStatus) {
         title="Restart terminal"
         flex="~ gap-1 items-center"
         hover="bg-active text-blue op100"
-        mx--1 rounded px1 op50
+        mx--1 px1 rounded op50
         @click="getPlaygroundStore().restartServer()"
       >
         <div i-carbon-rotate-360 text-lg />

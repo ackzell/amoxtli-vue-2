@@ -41,13 +41,13 @@ const canEmbed = import.meta.client
       ${props.class}
     `"
   >
-    <div i-mynaui-video-solid class="h-16 w-16 flex-shrink-0 text-bgr-500" />
+    <div i-mynaui-video-solid class="text-bgr-500 flex-shrink-0 h-16 w-16" />
 
     <div class="min-w-0">
-      <h4 class="mb-1 text-sm text-bgr-900 font-semibold leading-tight dark:text-bgr-100">
+      <h4 class="text-sm text-bgr-900 leading-tight font-semibold mb-1 dark:text-bgr-100">
         {{ title }}
       </h4>
-      <p class="mb-2 text-xs text-bgr-600 leading-snug dark:text-bgr-300">
+      <p class="text-xs text-bgr-600 leading-snug mb-2 dark:text-bgr-300">
         <slot>{{ $t('yt-player.description-goes-here') }}</slot>
       </p>
 
@@ -56,10 +56,10 @@ const canEmbed = import.meta.client
           :href="`https://www.youtube.com/watch?v=${videoId}`"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex flex-shrink-0 items-center rounded bg-red-600 px-3 py-1.5 text-xs text-white font-medium no-underline transition-colors duration-200 hover:bg-red-700"
+          class="text-xs text-white font-medium px-3 py-1.5 rounded bg-red-600 no-underline inline-flex flex-shrink-0 transition-colors duration-200 items-center hover:bg-red-700"
         >
           <span>{{ $t('yt-player.watch') }}</span>
-          <span v-if="duration" class="ml-1 text-red-200">{{ `(${duration})` }}</span>
+          <span v-if="duration" class="text-red-200 ml-1">{{ `(${duration})` }}</span>
         </a>
       </div>
     </div>
