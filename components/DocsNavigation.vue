@@ -146,7 +146,7 @@ onKeyStroke('Escape', () => {
 </script>
 
 <template>
-  <div font-mono px2 flex gap-2 items-center justify-around sm:mt0>
+  <div px1 flex gap-2 items-center justify-around sm:mt0>
     <NuxtLink
       v-if="prev"
       :to="prev.path"
@@ -160,12 +160,14 @@ onKeyStroke('Escape', () => {
     <div ref="navRoot" class="nav-bar-anchor group flex-grow min-w-0 relative z-110">
       <!-- Single bordered box: contains both trigger bar and dropdown panel -->
       <div
-        class="border rounded-lg transition-colors duration-300 overflow-hidden dark:border-bgr-700 hover:border-primary hover:shadow-md dark:hover:border-primary-dark dark:hover-shadow-dark-950"
+        class="dark:border-bgr-700 hover:border-primary hover:shadow-md dark:hover:border-primary-dark dark:hover-shadow-dark-950"
+        border rounded-lg transition-colors duration-300 overflow-hidden
       >
         <!-- Trigger bar -->
         <div
-          flex="~ gap-x-2 gap-y-1 items-center wrap"
-          px4 py2 outline-none bg-bgr-50 dark:bg-bgr-800
+          flex="~ gap-x-1 gap-y-1 items-center"
+
+          px4 py2 outline-none bg-bgr-50 overflow-hidden dark:bg-bgr-800
           role="button"
           tabindex="0"
           @click="toggleDropdownFromNav"
@@ -174,9 +176,17 @@ onKeyStroke('Escape', () => {
         >
           <div i-mynaui-book flex-none />
           <template v-for="bc, idx of breadcrumbs" :key="bc.path">
-            <div v-if="idx !== 0" i-mynaui-chevron-right text-sm mx--1 op50 />
-            <NuxtLink :to="bc.path" text-sm hover="text-primary dark:text-primary-dark" @click.stop>
-              {{ bc.title }}
+            <div v-if="idx !== 0" i-mynaui-chevron-right text-sm op50 flex-none />
+            <NuxtLink
+              :to="bc.path"
+              hover="text-primary dark:text-primary-dark"
+              text-sm shrink min-w-0
+              class="group/bc hover:shrink-0 hover:min-w-0"
+              @click.stop
+            >
+              <div whitespace-nowrap text-ellipsis overflow-hidden class="group-hover/bc:overflow-visible">
+                {{ bc.title }}
+              </div>
             </NuxtLink>
           </template>
           <div flex-auto h-1em />

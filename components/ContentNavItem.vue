@@ -62,7 +62,7 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
       @click="ui.isContentDropdownShown = false"
     >
       <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op0 flex-none duration-400 />
-      <div v-if="resolved.meta.isChallenge" i-mynaui-lightning-solid text-challenge op50 flex-none />
+      <div v-if="resolved.meta.isChallenge" i-mynaui-lightning-solid text-challenge op90 flex-none />
       <div v-else i-mynaui-file-solid op50 flex-none />
       <div ml1>
         {{ resolved.title }}
