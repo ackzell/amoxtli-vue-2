@@ -16,34 +16,35 @@ const isSplitMode = computed(() => effectiveMainViewMode.value === 'split')
 const isCodeOnlyMode = computed(() => effectiveMainViewMode.value === 'code')
 const isDocsOnlyMode = computed(() => effectiveMainViewMode.value === 'docs')
 
-const mainFlexDirection = computed(() => {
-  if (ui.mainLayoutOrientation === 'horizontal')
-    return ui.mainLayoutReverse ? 'row-reverse' : 'row'
-  return ui.mainLayoutReverse ? 'column-reverse' : 'column'
+// When reversed, code panel comes first physically; panels array order must match template order.
+const isReversed = computed(() => ui.mainLayoutReverse)
+
+const mainPanels = computed(() => {
+  const docs = { id: 'docs-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 }
+  const code = { id: 'code-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 }
+  return isReversed.value ? [code, docs] : [docs, code]
 })
 
-const mainPanels = [
-  { id: 'docs-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 },
-  { id: 'code-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 },
-]
+const embeddedPanels = computed(() => {
+  const docsPart = { id: 'embedded-docs-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 }
+  const spacer = { id: 'embedded-spacer-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 }
+  return isReversed.value ? [spacer, docsPart] : [docsPart, spacer]
+})
 
-const embeddedPanels = [
-  { id: 'embedded-docs-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 },
-  { id: 'embedded-spacer-panel', minSize: 0, maxSize: 100, collapsible: true, collapsedSize: 0 },
-]
-
+// mainSizes index 0 always corresponds to the first panel in mainPanels.
+// When not reversed: [0] = docs size, [1] = code size.
+// When reversed:     [0] = code size, [1] = docs size.
 const mainSizes = computed<number[]>({
   get() {
-    if (isCodeOnlyMode.value)
-      return [0, 100]
-    if (isDocsOnlyMode.value)
-      return [100, 0]
-    return [ui.panelDocs, Math.max(0, 100 - ui.panelDocs)]
+    const docsSize = isCodeOnlyMode.value ? 0 : isDocsOnlyMode.value ? 100 : ui.panelDocs
+    const codeSize = Math.max(0, 100 - docsSize)
+    return isReversed.value ? [codeSize, docsSize] : [docsSize, codeSize]
   },
   set(value) {
     if (!isSplitMode.value)
       return
-    ui.panelDocs = value[0] ?? 0
+    // value[0] is always the first physical panel.
+    ui.panelDocs = isReversed.value ? (value[1] ?? 0) : (value[0] ?? 0)
   },
 })
 
@@ -389,12 +390,13 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
 </script>
 
 <template>
+  <!-- Normal order: docs | resize | code -->
   <Splitter.Root
-    :key="effectiveMainViewMode"
+    v-if="!isReversed"
+    :key="`${effectiveMainViewMode}-normal`"
     :panels="mainPanels"
     :orientation="ui.mainLayoutOrientation"
     :size="mainSizes"
-    :style="{ flexDirection: mainFlexDirection }"
     h-full of-hidden
     @resize-start="onResizeStart"
     @resize="onMainResize"
@@ -433,9 +435,55 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
     </Splitter.Panel>
   </Splitter.Root>
 
+  <!-- Reversed order: code | resize | docs -->
+  <Splitter.Root
+    v-else
+    :key="`${effectiveMainViewMode}-reversed`"
+    :panels="mainPanels"
+    :orientation="ui.mainLayoutOrientation"
+    :size="mainSizes"
+    h-full of-hidden
+    @resize-start="onResizeStart"
+    @resize="onMainResize"
+    @resize-end="onMainResizeEnd"
+  >
+    <Splitter.Panel id="code-panel">
+      <div v-if="!isDocsOnlyMode" h-full grid="~ rows-[max-content_1fr]">
+        <PanelCodeToolbar />
+        <div
+          min-h-0 relative of-hidden
+          :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
+        >
+          <PlaygroundCodeDockNode
+            :node="visibleLayout"
+            :dragged-panel-id="draggedPanelId"
+            :active-drop-zone="activeDropZone"
+            :sizes-map="codeSizesMap"
+            :show-preview="ui.showPreview"
+            :show-console="ui.showConsole"
+            :show-terminal="ui.showTerminal"
+            @drag-start="onDragStart"
+            @drag-end="onDragEnd"
+            @drop-zone-enter="onDropZoneEnter"
+            @drop-zone-leave="onDropZoneLeave"
+            @zone-drop="onZoneDrop"
+            @split-resize="onCodeSplitResize"
+          />
+        </div>
+      </div>
+    </Splitter.Panel>
+
+    <Splitter.ResizeTrigger v-if="isSplitMode" id="code-panel:docs-panel" />
+
+    <Splitter.Panel id="docs-panel">
+      <PanelDocs v-if="!isCodeOnlyMode" :key="route.path" />
+    </Splitter.Panel>
+  </Splitter.Root>
+
   <Transition name="slide-fade">
+    <!-- Normal embedded docs order: docs iframe | resize | spacer -->
     <Splitter.Root
-      v-if="guide.embeddedDocs"
+      v-if="guide.embeddedDocs && !isReversed"
       :panels="embeddedPanels"
       :size="mainSizes"
       inset-0 fixed z-embedded-docs
@@ -443,10 +491,7 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
       @resize="onEmbeddedResize"
       @resize-end="onEmbeddedResizeEnd"
     >
-      <Splitter.Panel
-        id="embedded-docs-panel"
-        relative
-      >
+      <Splitter.Panel id="embedded-docs-panel" relative>
         <iframe
           :class="{ 'pointer-events-none': ui.isPanelDragging }"
           :src="guide.embeddedDocs"
@@ -457,10 +502,7 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
 
       <Splitter.ResizeTrigger id="embedded-docs-panel:embedded-spacer-panel" />
 
-      <Splitter.Panel
-        id="embedded-spacer-panel"
-        relative important-of-visible
-      >
+      <Splitter.Panel id="embedded-spacer-panel" relative important-of-visible>
         <div
           border="~ base"
           rounded-full bg-base h-8 w-8 left--4 top-4 absolute z-embedded-docs-close of-hidden
@@ -475,6 +517,45 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
             <div i-ph-caret-left-bold h-4 w-4 />
           </IconButton>
         </div>
+      </Splitter.Panel>
+    </Splitter.Root>
+
+    <!-- Reversed embedded docs order: spacer | resize | docs iframe -->
+    <Splitter.Root
+      v-else-if="guide.embeddedDocs && isReversed"
+      :panels="embeddedPanels"
+      :size="mainSizes"
+      inset-0 fixed z-embedded-docs
+      @resize-start="onResizeStart"
+      @resize="onEmbeddedResize"
+      @resize-end="onEmbeddedResizeEnd"
+    >
+      <Splitter.Panel id="embedded-spacer-panel" relative important-of-visible>
+        <div
+          border="~ base"
+          rounded-full bg-base h-8 w-8 right--4 top-4 absolute z-embedded-docs-close of-hidden
+        >
+          <IconButton
+            tooltip="Close embedded docs"
+            tooltip-placement="right"
+            padding="sm"
+            class="flex h-full w-full items-center justify-center"
+            @click="guide.embeddedDocs = ''"
+          >
+            <div i-ph-caret-right-bold h-4 w-4 />
+          </IconButton>
+        </div>
+      </Splitter.Panel>
+
+      <Splitter.ResizeTrigger id="embedded-spacer-panel:embedded-docs-panel" />
+
+      <Splitter.Panel id="embedded-docs-panel" relative>
+        <iframe
+          :class="{ 'pointer-events-none': ui.isPanelDragging }"
+          :src="guide.embeddedDocs"
+          crossorigin="anonymous" allow="cross-origin-isolated"
+          credentialless h-full w-full inset-0
+        />
       </Splitter.Panel>
     </Splitter.Root>
   </Transition>
