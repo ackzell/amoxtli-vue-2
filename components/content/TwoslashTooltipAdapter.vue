@@ -8,7 +8,14 @@ defineProps<{
 </script>
 
 <template>
-  <TooltipTrigger :id="id" no-icon no-follow :default-shown="persisted">
+  <TooltipTrigger
+    :id="id"
+    no-icon
+    no-follow
+    no-easing
+    :default-shown="persisted"
+    :hide-timeout="0"
+  >
     <span class="twoslash-token-content" v-html="tokenHtml" />
   </TooltipTrigger>
   <TooltipContent :id="id">

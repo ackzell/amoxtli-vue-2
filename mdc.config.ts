@@ -1,8 +1,8 @@
 import { defineConfig } from '@nuxtjs/mdc/config'
 import { createTransformerFactory } from '@shikijs/twoslash/core'
-import { createTwoslasher } from 'twoslash-vue'
 import langPug from 'shiki/langs/pug.mjs'
 import langScss from 'shiki/langs/scss.mjs'
+import { createTwoslasher } from 'twoslash-vue'
 import { parseEcInfo } from './composables/useEcParser'
 import { rendererAmoxtli } from './shiki/renderer'
 
@@ -17,6 +17,22 @@ export default defineConfig({
       await shiki.loadLanguage(langPug)
     },
     transformers: [
+
+      // Must run before the twoslash transformer: override this.codeToHast so
+      // that highlightPopupContent inside rendererRich uses "typescript" lang
+      // for popup type text instead of "vue" (which doesn't tokenize TS syntax).
+      {
+        name: 'ec-fix-popup-code-lang',
+        preprocess() {
+          const original = this.codeToHast.bind(this)
+          this.codeToHast = (code: string, opts: any) => {
+            const lang = opts?.lang
+            if (lang === 'vue')
+              opts = { ...opts, lang: 'typescript' }
+            return original(code, opts)
+          }
+        },
+      },
 
       createTransformerFactory(
         createTwoslasher({}),

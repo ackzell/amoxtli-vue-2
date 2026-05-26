@@ -7,9 +7,24 @@ import {
   shift,
 } from '@floating-ui/dom'
 
-const { id, noIcon = false, defaultShown = false, noFollow = false } = defineProps<{ id: string; noIcon?: boolean; defaultShown?: boolean; noFollow?: boolean }>()
+interface TooltipTriggerProps {
+  id: string
+  noIcon?: boolean
+  defaultShown?: boolean
+  noFollow?: boolean
+  hideTimeout?: number
+  noEasing?: boolean
+}
 
-const isShown = ref(defaultShown)
+const props = withDefaults(defineProps<TooltipTriggerProps>(), {
+  noIcon: false,
+  defaultShown: false,
+  noFollow: false,
+  hideTimeout: 600,
+  noEasing: false,
+})
+
+const isShown = ref(props.defaultShown)
 
 const tooltipEl = ref<HTMLElement | null>(null)
 const triggerEl = ref<HTMLElement>()
@@ -24,9 +39,8 @@ let hideTimer: ReturnType<typeof setTimeout> | null = null
 let animationFrameId: number | null = null
 let scrollCleanup: (() => void) | null = null
 
-const FOLLOW_EASING = 0.28
+const FOLLOW_EASING = props.noEasing ? 1 : 0.28
 const FOLLOW_THRESHOLD = 0.25
-const HIDE_TIMER_DELAY = 600
 const ARROW_MIN_PADDING = 18
 
 const tooltipStyle = computed(() => {
@@ -73,20 +87,28 @@ function stopScrollTracking() {
 }
 
 function getAnchorRect() {
-  if (noFollow && triggerEl.value) {
+  if (props.noFollow && triggerEl.value) {
     const r = triggerEl.value.getBoundingClientRect()
     return {
-      x: r.left, y: r.bottom,
-      top: r.top, left: r.left,
-      right: r.right, bottom: r.bottom,
-      width: r.width, height: r.height,
+      x: r.left,
+      y: r.bottom,
+      top: r.top,
+      left: r.left,
+      right: r.right,
+      bottom: r.bottom,
+      width: r.width,
+      height: r.height,
     }
   }
   return {
-    x: mousePosition.x, y: mousePosition.y,
-    top: mousePosition.y, left: mousePosition.x,
-    right: mousePosition.x, bottom: mousePosition.y,
-    width: 0, height: 0,
+    x: mousePosition.x,
+    y: mousePosition.y,
+    top: mousePosition.y,
+    left: mousePosition.x,
+    right: mousePosition.x,
+    bottom: mousePosition.y,
+    width: 0,
+    height: 0,
   }
 }
 
@@ -100,9 +122,9 @@ async function updateFloatingPosition() {
   }
 
   const { x, y, placement } = await computePosition(virtualReference, tooltipEl.value, {
-    placement: noFollow ? 'bottom-start' : 'bottom-start',
+    placement: props.noFollow ? 'bottom-start' : 'bottom-start',
     middleware: [
-      offset(noFollow ? 6 : 18),
+      offset(props.noFollow ? 6 : 18),
       flip({ fallbackPlacements: ['top-start', 'top', 'bottom'] }),
       shift({ padding: 12 }),
     ],
@@ -150,7 +172,7 @@ async function updateMousePosition(event: MouseEvent) {
 
 async function showTooltip(event?: MouseEvent) {
   clearHideTimer()
-  if (!noFollow && event)
+  if (!props.noFollow && event)
     await updateMousePosition(event)
   isShown.value = true
   await nextTick()
@@ -160,7 +182,7 @@ async function showTooltip(event?: MouseEvent) {
     tooltipPosition.y = targetPosition.y
   }
   ensureAnimation()
-  if (noFollow)
+  if (props.noFollow)
     startScrollTracking()
 }
 
@@ -170,7 +192,7 @@ function scheduleHide() {
     isShown.value = false
     ensureAnimation()
     stopScrollTracking()
-  }, HIDE_TIMER_DELAY)
+  }, props.hideTimeout)
 }
 
 function handleTooltipClick(event: MouseEvent) {
@@ -182,8 +204,8 @@ function handleTooltipClick(event: MouseEvent) {
 }
 
 onMounted(async () => {
-  if (defaultShown && triggerEl.value) {
-    if (!noFollow) {
+  if (props.defaultShown && triggerEl.value) {
+    if (!props.noFollow) {
       const rect = triggerEl.value.getBoundingClientRect()
       mousePosition.x = rect.left + rect.width / 2
       mousePosition.y = rect.top
@@ -205,10 +227,10 @@ onUnmounted(() => {
     class="underline decoration-dotted cursor-help"
     @mouseenter="showTooltip"
     @mouseleave="scheduleHide"
-    @mousemove="noFollow ? undefined : updateMousePosition"
+    @mousemove="props.noFollow ? undefined : updateMousePosition"
   >
     <slot />
-    <span v-if="!noIcon" i-mynaui-star-solid text-xs text-primary ml-0.5 h2 w2 inline-block dark:text-primary-dark />
+    <span v-if="!props.noIcon" i-mynaui-star-solid text-xs text-primary ml-0.5 h2 w2 inline-block dark:text-primary-dark />
   </span>
 
   <Teleport to="body">
