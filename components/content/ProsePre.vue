@@ -7,7 +7,10 @@ const props = defineProps<{
 }>()
 
 const attrs = useAttrs()
+
 const preEl = ref<HTMLElement>()
+
+useTwoslashTooltips(preEl)
 
 // console.log('[ProsePre] meta is:', props.meta)
 
@@ -87,6 +90,10 @@ const preAttrs = computed(() => {
 
 const preClass = computed(() => (attrs as Record<string, unknown>).class)
 
+// const isInsideTwoslash = computed(() =>
+//   !!preEl.value?.closest('.twoslash-popup-code'),
+// )
+
 const { applyEcDecorations, resetDecorations, collapseRanges, expandAll, collapseAll } = useEcDecorations(preEl, parsedEc)
 const { copied, copyCode } = useCodeCopy()
 
@@ -118,7 +125,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
 </script>
 
 <template>
-  <div class="group" my-5 max-w-4xl transition-filter relative hover:filter-drop-shadow-md>
+  <div class="group/avPre" my-5 max-w-4xl transition-filter relative hover:filter-drop-shadow-md>
     <ProsePreHeader
       v-if="inferredFilename"
       :filename="inferredFilename"
@@ -147,8 +154,10 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
     </div>
 
     <div
-
-      :class="{ 'rounded-t-md': !inferredFilename }" py-4 border border-t-0 border-base rounded-b-md bg-base flex w-full justify-center dark:bg-bgr-dark
+      :class="{ 'rounded-t-md': !inferredFilename }"
+      py-4
+      border border-t-0 border-base rounded-b-md
+      bg-base flex w-full justify-center dark:bg-bgr-dark
     >
       <pre
         ref="preEl"
@@ -184,6 +193,7 @@ pre {
   display: block;
   min-height: 1.5rem;
   padding-left: 2.5rem;
+  padding-right: 1rem;
   position: relative;
   overflow-wrap: break-word;
 }

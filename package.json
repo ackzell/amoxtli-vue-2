@@ -17,6 +17,7 @@
     "@ark-ui/vue": "catalog:frontend",
     "@shikijs/core": "catalog:frontend",
     "@shikijs/monaco": "catalog:frontend",
+    "@shikijs/twoslash": "catalog:frontend",
     "@volar/monaco": "catalog:frontend",
     "@vue/language-service": "catalog:frontend",
     "@webcontainer/api": "catalog:frontend",
@@ -39,6 +40,7 @@
     "shiki-magic-move": "catalog:frontend",
     "strip-json-comments": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
+    "twoslash-vue": "catalog:frontend",
     "vscode-uri": "catalog:frontend",
     "vue": "catalog:frontend",
     "vue-router": "catalog:frontend"
@@ -68,6 +70,7 @@
     "@unocss/extractor-mdc": "catalog:nuxt",
     "@unocss/nuxt": "catalog:nuxt",
     "@vueuse/nuxt": "catalog:nuxt",
+    "better-sqlite3": "catalog:dev",
     "eslint": "catalog:dev",
     "eslint-plugin-format": "catalog:dev",
     "execa": "catalog:dev",

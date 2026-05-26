@@ -13,7 +13,7 @@ const emit = defineEmits<{
     unstyled
     tooltip="Copy code to clipboard"
     tooltip-placement="top"
-    class="border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none transition-opacity duration-200 items-center justify-center z-1 group-focus-within:op75 group-hover:op75 hover:op100 group-focus-within:pointer-events-auto group-hover:pointer-events-auto"
+    class="border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none transition-opacity duration-200 items-center justify-center z-1 group-focus-within/avPre:op75 group-hover/avPre:op75 hover:op100 group-focus-within/avPre:pointer-events-auto group-hover/avPre:pointer-events-auto"
     aria-label="Copy code to clipboard"
     @click="emit('copy')"
   >

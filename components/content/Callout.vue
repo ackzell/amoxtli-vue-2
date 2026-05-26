@@ -52,12 +52,20 @@ const variant = computed(() => {
       mx6 flex-shrink-0 h6.5 w6.5
     />
 
-    <slot />
+    <div class="callout-text-container" w-full text-wrap>
+      <slot />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .callout-container {
   corner-shape: squircle;
+}
+
+:deep(.callout-text-container) {
+  p {
+    --uno: 'line-height-loose';
+  }
 }
 </style>

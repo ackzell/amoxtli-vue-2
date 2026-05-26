@@ -185,6 +185,11 @@ export default defineNuxtConfig({
       if (!file.id.endsWith('.md'))
         return
 
+      const twoslashBlocks = file.body.match(/^`{3}[^\n]*twoslash[^\n]*/gm)
+      if (twoslashBlocks) {
+        console.log('[beforeParse] twoslash blocks found:', twoslashBlocks)
+      }
+
       // console.log(`[content:file.body:beforeParse]: ${file.body}`)
 
       // Infer language from file extension when none is specified

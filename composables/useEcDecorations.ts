@@ -43,7 +43,6 @@ export function useEcDecorations(
         while (content.firstChild) line.insertBefore(content.firstChild, content)
         content.remove()
       }
-      line.normalize()
     })
   }
 
@@ -52,8 +51,28 @@ export function useEcDecorations(
     if (!content) {
       content = document.createElement('span')
       content.className = 'ec-annotated-content'
-      while (line.firstChild) content.appendChild(line.firstChild)
-      line.appendChild(content)
+
+      const twoslashNodes: ChildNode[] = []
+      while (line.firstChild) {
+        const child = line.firstChild
+        if (
+          child instanceof Element
+          && child.classList.contains('twoslash-hover')
+        ) {
+          twoslashNodes.push(child)
+        }
+        else {
+          content.appendChild(child)
+        }
+      }
+
+      if (twoslashNodes.length > 0) {
+        line.append(...twoslashNodes)
+        line.insertBefore(content, line.firstChild)
+      }
+      else {
+        line.appendChild(content)
+      }
     }
     return content
   }

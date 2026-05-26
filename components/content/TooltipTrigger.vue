@@ -7,59 +7,35 @@ import {
   shift,
 } from '@floating-ui/dom'
 
-const { id } = defineProps<{ id: string }>()
+const { id, noIcon = false, defaultShown = false, noFollow = false } = defineProps<{ id: string; noIcon?: boolean; defaultShown?: boolean; noFollow?: boolean }>()
 
-const isShown = ref(false)
+const isShown = ref(defaultShown)
 
 const tooltipEl = ref<HTMLElement | null>(null)
+const triggerEl = ref<HTMLElement>()
 
-const mousePosition = reactive({
-  x: 0,
-  y: 0,
-})
-
-const targetPosition = reactive({
-  x: 0,
-  y: 0,
-})
-
-const tooltipPosition = reactive({
-  x: 0,
-  y: 0,
-})
+const mousePosition = reactive({ x: 0, y: 0 })
+const targetPosition = reactive({ x: 0, y: 0 })
+const tooltipPosition = reactive({ x: 0, y: 0 })
 
 const floatingPlacement = ref<Placement>('bottom-start')
 
 let hideTimer: ReturnType<typeof setTimeout> | null = null
 let animationFrameId: number | null = null
+let scrollCleanup: (() => void) | null = null
 
 const FOLLOW_EASING = 0.28
 const FOLLOW_THRESHOLD = 0.25
 const HIDE_TIMER_DELAY = 600
 const ARROW_MIN_PADDING = 18
 
-function contentFn() {
-  if (typeof document === 'undefined')
-    return ''
-
-  const el = document.querySelector(`[data-tooltip-id="${id}"]`)
-
-  return el ? el.innerHTML : ''
-}
-
 const tooltipStyle = computed(() => {
   const tooltipWidth = tooltipEl.value?.offsetWidth ?? 0
-
   const rawArrowX = mousePosition.x - tooltipPosition.x
-
   const clampedArrowX = Math.max(
     ARROW_MIN_PADDING,
-    Math.min(
-      tooltipWidth - ARROW_MIN_PADDING,
-      rawArrowX,
-    ),
+    Math.min(tooltipWidth - ARROW_MIN_PADDING, rawArrowX),
   )
-
   return {
     'left': `${tooltipPosition.x}px`,
     'top': `${tooltipPosition.y}px`,
@@ -81,47 +57,58 @@ function stopAnimation() {
   }
 }
 
+function startScrollTracking() {
+  stopScrollTracking()
+  const onScroll = () => {
+    if (isShown.value)
+      updateFloatingPosition()
+  }
+  window.addEventListener('scroll', onScroll, { passive: true, capture: true })
+  scrollCleanup = () => window.removeEventListener('scroll', onScroll, { capture: true })
+}
+
+function stopScrollTracking() {
+  scrollCleanup?.()
+  scrollCleanup = null
+}
+
+function getAnchorRect() {
+  if (noFollow && triggerEl.value) {
+    const r = triggerEl.value.getBoundingClientRect()
+    return {
+      x: r.left, y: r.bottom,
+      top: r.top, left: r.left,
+      right: r.right, bottom: r.bottom,
+      width: r.width, height: r.height,
+    }
+  }
+  return {
+    x: mousePosition.x, y: mousePosition.y,
+    top: mousePosition.y, left: mousePosition.x,
+    right: mousePosition.x, bottom: mousePosition.y,
+    width: 0, height: 0,
+  }
+}
+
 async function updateFloatingPosition() {
   if (!tooltipEl.value)
     return
 
+  const rect = getAnchorRect()
   const virtualReference: VirtualElement = {
-    getBoundingClientRect() {
-      return {
-        x: mousePosition.x,
-        y: mousePosition.y,
-        top: mousePosition.y,
-        left: mousePosition.x,
-        right: mousePosition.x,
-        bottom: mousePosition.y,
-        width: 0,
-        height: 0,
-      }
-    },
+    getBoundingClientRect() { return rect },
   }
 
-  const { x, y, placement } = await computePosition(
-    virtualReference,
-    tooltipEl.value,
-    {
-      placement: 'bottom-start',
-      middleware: [
-        offset(18),
-        flip({
-          fallbackPlacements: [
-            'top',
-            'bottom',
-          ],
-        }),
-        shift({
-          padding: 12,
-        }),
-      ],
-    },
-  )
+  const { x, y, placement } = await computePosition(virtualReference, tooltipEl.value, {
+    placement: noFollow ? 'bottom-start' : 'bottom-start',
+    middleware: [
+      offset(noFollow ? 6 : 18),
+      flip({ fallbackPlacements: ['top-start', 'top', 'bottom'] }),
+      shift({ padding: 12 }),
+    ],
+  })
 
   floatingPlacement.value = placement
-
   targetPosition.x = x
   targetPosition.y = y
 }
@@ -130,10 +117,7 @@ function animateToTarget() {
   const dx = targetPosition.x - tooltipPosition.x
   const dy = targetPosition.y - tooltipPosition.y
 
-  if (
-    Math.abs(dx) < FOLLOW_THRESHOLD
-    && Math.abs(dy) < FOLLOW_THRESHOLD
-  ) {
+  if (Math.abs(dx) < FOLLOW_THRESHOLD && Math.abs(dy) < FOLLOW_THRESHOLD) {
     tooltipPosition.x = targetPosition.x
     tooltipPosition.y = targetPosition.y
   }
@@ -160,86 +144,84 @@ function ensureAnimation() {
 async function updateMousePosition(event: MouseEvent) {
   mousePosition.x = event.clientX
   mousePosition.y = event.clientY
-
   await updateFloatingPosition()
-
   ensureAnimation()
 }
 
 async function showTooltip(event?: MouseEvent) {
   clearHideTimer()
-
-  if (event)
+  if (!noFollow && event)
     await updateMousePosition(event)
-
   isShown.value = true
-
   await nextTick()
-
   await updateFloatingPosition()
-
   if (!tooltipPosition.x && !tooltipPosition.y) {
     tooltipPosition.x = targetPosition.x
     tooltipPosition.y = targetPosition.y
   }
-
   ensureAnimation()
+  if (noFollow)
+    startScrollTracking()
 }
 
 function scheduleHide() {
   clearHideTimer()
-
   hideTimer = setTimeout(() => {
     isShown.value = false
     ensureAnimation()
+    stopScrollTracking()
   }, HIDE_TIMER_DELAY)
 }
 
 function handleTooltipClick(event: MouseEvent) {
   const target = event.target as HTMLElement | null
-
-  if (target?.closest('a'))
+  if (target?.closest('a')) {
     isShown.value = false
+    stopScrollTracking()
+  }
 }
+
+onMounted(async () => {
+  if (defaultShown && triggerEl.value) {
+    if (!noFollow) {
+      const rect = triggerEl.value.getBoundingClientRect()
+      mousePosition.x = rect.left + rect.width / 2
+      mousePosition.y = rect.top
+    }
+    await showTooltip()
+  }
+})
 
 onUnmounted(() => {
   clearHideTimer()
   stopAnimation()
+  stopScrollTracking()
 })
 </script>
 
 <template>
   <span
+    ref="triggerEl"
     class="underline decoration-dotted cursor-help"
     @mouseenter="showTooltip"
     @mouseleave="scheduleHide"
-    @mousemove="updateMousePosition"
+    @mousemove="noFollow ? undefined : updateMousePosition"
   >
     <slot />
-
-    <span
-
-      i-mynaui-star-solid text-xs text-primary ml-0.5 h2 w2 inline-block dark:text-primary-dark
-    />
+    <span v-if="!noIcon" i-mynaui-star-solid text-xs text-primary ml-0.5 h2 w2 inline-block dark:text-primary-dark />
   </span>
 
   <Teleport to="body">
     <div
-      v-if="isShown"
       ref="tooltipEl"
       class="guide-tooltip-popper"
-      :class="{
-        'is-bottom': floatingPlacement.startsWith('top'),
-      }"
-      :style="tooltipStyle"
+      :class="{ 'is-bottom': floatingPlacement.startsWith('top') }"
+      :style="[tooltipStyle, { display: isShown ? '' : 'none' }]"
       @mouseenter="showTooltip()"
       @mouseleave="scheduleHide"
       @click="handleTooltipClick"
     >
-      <span
-        class="tooltip-content"
-        v-html="contentFn()"
-      />
+      <span class="tooltip-content" :data-tooltip-content-target="id" />
     </div>
   </Teleport>
 </template>
@@ -259,7 +241,7 @@ onUnmounted(() => {
   position: fixed;
   z-index: 300;
 
-  max-width: 400px;
+  max-width: 70%;
 
   border-radius: var(--r);
   border: 1px solid var(--amv-highlight);

@@ -74,6 +74,16 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
     return ''
   })
 
+  // Fallback: parse raw {"text":lines} annotations (when beforeParse encoding didn't run)
+  const rawAnnotationRe = /\{"([^"]+)":([0-9,\- ]+)\}/g
+  let rawMatch: RegExpExecArray | null
+  while ((rawMatch = rawAnnotationRe.exec(workingString)) !== null) {
+    const text = rawMatch[1]
+    const rangesStr = rawMatch[2]
+    if (text && rangesStr)
+      result.annotations.push({ text, lines: parseRanges(rangesStr) })
+  }
+
   workingString = workingString.replace(/(?:^|\s)file:(\S+)/, (_, val) => { result.file = val; return '' })
   workingString = workingString.replace(/(?:^|\s)title="([^"]+)"/, (_, val) => { result.title = val; return '' })
   // workingString = workingString.replace(/(?:^|\s)collapse=\{([^}]+)\}/, (_, val) => {

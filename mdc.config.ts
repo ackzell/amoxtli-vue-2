@@ -1,7 +1,10 @@
 import { defineConfig } from '@nuxtjs/mdc/config'
+import { createTransformerFactory } from '@shikijs/twoslash/core'
+import { createTwoslasher } from 'twoslash-vue'
 import langPug from 'shiki/langs/pug.mjs'
 import langScss from 'shiki/langs/scss.mjs'
 import { parseEcInfo } from './composables/useEcParser'
+import { rendererAmoxtli } from './shiki/renderer'
 
 function escapeRegExp(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -10,23 +13,28 @@ function escapeRegExp(s: string) {
 export default defineConfig({
   shiki: {
     async setup(shiki) {
-      // console.log('[ec-highlight] setup called')
-
       await shiki.loadLanguage(langScss)
       await shiki.loadLanguage(langPug)
-
-      // console.log('[mdc shiki] loaded langs:', shiki.getLoadedLanguages())
     },
     transformers: [
+
+      createTransformerFactory(
+        createTwoslasher({}),
+        rendererAmoxtli({}),
+      )({
+        // Only process blocks that explicitly have "twoslash" in the meta
+        explicitTrigger: true,
+        // Include vue for Vue SFC twoslash support via twoslash-vue
+        langs: ['ts', 'tsx', 'vue'],
+      }),
+
       {
         name: 'ec-highlight',
         preprocess(code, options) {
-          const meta = (options.meta as any)?.__raw ?? ''
+          const meta = typeof options.meta === 'string'
+            ? options.meta
+            : (options.meta as any)?.__raw ?? ''
           const parsed = parseEcInfo(meta)
-
-          console.log('[ec-highlight] lang:', options.lang) // add this
-          console.log('[ec-highlight] meta:', meta)
-          console.log('[ec-highlight] highlights:', JSON.stringify(parsed.highlights))
 
           if (!parsed.highlights.length)
             return
@@ -49,7 +57,9 @@ export default defineConfig({
             })
           }
         },
+
       },
+
     ],
   },
 })

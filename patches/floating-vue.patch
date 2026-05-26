@@ -1,0 +1,34 @@
+diff --git a/dist/floating-vue.mjs b/dist/floating-vue.mjs
+index d54beb90f1fd341fb0aa41e1503afdbbece12cbb..1401a59086a827a11252dd79acaf3d7ea1df393c 100644
+--- a/dist/floating-vue.mjs
++++ b/dist/floating-vue.mjs
+@@ -4,6 +4,12 @@ function ye(e, t) {
+   for (const o in t)
+     Object.prototype.hasOwnProperty.call(t, o) && (typeof t[o] == "object" && e[o] ? ye(e[o], t[o]) : e[o] = t[o]);
+ }
++
++let uid = 0
++function getPopperId() {
++  return `popper_${uid++}`
++}
++
+ const h = {
+   // Disable popper components
+   disabled: !1,
+@@ -382,7 +388,7 @@ const q = "__floating-vue__popper", Q = () => O({
+         },
+         transformOrigin: null
+       },
+-      randomId: `popper_${[Math.random(), Date.now()].map((e) => e.toString(36).substring(2, 10)).join("_")}`,
++      randomId: `popper_${getPopperId()}`,
+       shownChildren: /* @__PURE__ */ new Set(),
+       lastAutoHide: !0,
+       pendingHide: !1,
+@@ -457,6 +463,7 @@ const q = "__floating-vue__popper", Q = () => O({
+     this.autoMinSize && console.warn('[floating-vue] `autoMinSize` option is deprecated. Use `autoSize="min"` instead.'), this.autoMaxSize && console.warn("[floating-vue] `autoMaxSize` option is deprecated. Use `autoBoundaryMaxSize` instead.");
+   },
+   mounted() {
++    console.log('[floating-vue] patched version mounted, id of the popper is now deterministic');
+     this.init(), this.$_detachPopperNode();
+   },
+   activated() {
