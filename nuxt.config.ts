@@ -235,6 +235,40 @@ export default defineNuxtConfig({
         annotationRe.lastIndex = 0
       }
 
+      // Encode bare {"text"} annotations (without line numbers) so Shiki doesn't
+      // try to parse them as decoration specs and fail
+      const beforeBare = file.body
+      file.body = file.body.replace(
+        /^(`{3}[^\n]*)\{"([^"]+)"\}(?=\s|$)/gm,
+        (_, before, text) => {
+          const hex = Buffer.from(text).toString('hex')
+          console.log(`[beforeParse] ENCODING bare label "${text}" as __ELBL_${hex}__`)
+          return `${before}__ELBL_${hex}__`
+        },
+      )
+      if (file.body !== beforeBare) {
+        console.log(`[beforeParse] Label encoding modified: ${file.id}`)
+      }
+
+      // Encode { and } inside /pattern/ highlight specs so MDC does not
+      // interpret them as highlight range tokens (e.g. {1,3-5}).
+      file.body = file.body.replace(
+        /^(`{3}[^\n]*)$/gm,
+        (fullLine) => {
+          return fullLine.replace(
+            /\/([^/]+)\/(?=[\s\d,\-]|$)/g,
+            (match, pattern) => {
+              if (!/[{}]/.test(pattern))
+                return match
+              const encoded = pattern
+                .replace(/\{/g, '__ECLB__')
+                .replace(/\}/g, '__ECRB__')
+              return `/${encoded}/`
+            },
+          )
+        },
+      )
+
       // Handle multiple annotations on the same line by running until no more matches
       // (the above replace handles one per call, but g flag handles all on same line)
 

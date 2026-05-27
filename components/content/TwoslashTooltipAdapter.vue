@@ -12,9 +12,8 @@ defineProps<{
     :id="id"
     no-icon
     no-follow
-    no-easing
     :default-shown="persisted"
-    :hide-timeout="0"
+    :hide-timeout="100"
   >
     <span class="twoslash-token-content" v-html="tokenHtml" />
   </TooltipTrigger>

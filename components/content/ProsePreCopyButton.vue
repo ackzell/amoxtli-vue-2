@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { AnimatePresence, Motion } from 'motion-v'
+
 defineProps<{
   copied: boolean
 }>()
@@ -17,6 +19,29 @@ const emit = defineEmits<{
     aria-label="Copy code to clipboard"
     @click="emit('copy')"
   >
-    <div :class="copied ? 'i-mynaui-check size-3.5' : 'i-mynaui-copy '" text-bgr-dark h4 w4 dark:text-bgr-50 />
+    <div class="h4 w4 relative">
+      <AnimatePresence mode="wait">
+        <Motion
+          v-if="!copied"
+          key="copy"
+          as="div"
+          :initial="{ opacity: 0, scale: 0.5 }"
+          :animate="{ opacity: 1, scale: 1 }"
+          :exit="{ opacity: 0, scale: 0.5 }"
+          :transition="{ duration: 0.15, ease: 'easeInOut' }"
+          class="i-mynaui-copy text-bgr-dark inset-0 absolute dark:text-bgr-50"
+        />
+        <Motion
+          v-else
+          key="check"
+          as="div"
+          :initial="{ opacity: 0, scale: 0.5 }"
+          :animate="{ opacity: 1, scale: 1 }"
+          :exit="{ opacity: 0, scale: 0.5 }"
+          :transition="{ duration: 0.15, ease: 'backOut' }"
+          class="i-mynaui-check text-bgr-dark size-3.5 inset-0 absolute dark:text-bgr-50"
+        />
+      </AnimatePresence>
+    </div>
   </IconButton>
 </template>

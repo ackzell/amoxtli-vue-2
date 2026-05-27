@@ -126,39 +126,46 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
 
 <template>
   <div class="group/avPre" my-5 max-w-4xl transition-filter relative hover:filter-drop-shadow-md>
-    <ProsePreHeader
-      v-if="inferredFilename"
-      :filename="inferredFilename"
-      :icon-class="iconClass"
-    />
-
-    <div flex="~ justify-around gap-2" right-4 top-4 absolute z-1>
-      <ProsePreCollapseAllButton
-        :has-ranges="collapseRanges.length > 0"
-        @expand-all="expandAll"
-        @collapse-all="collapseAll"
-      />
-
-      <ProsePreDecreaseFontSize
-        @decrease-font-size="handleDecreaseFontSize"
-      />
-
-      <ProsePreIncreaseFontSize
-        @increase-font-size="handleIncreaseFontSize"
-      />
-
-      <ProsePreCopyButton
-        :copied="copied"
-        @copy="handleCopy"
-      />
-    </div>
-
     <div
-      :class="{ 'rounded-t-md': !inferredFilename }"
-      py-4
-      border border-t-0 border-base rounded-b-md
-      bg-base flex w-full justify-center dark:bg-bgr-dark
+
+      border="~ base rounded-b-md dark:bgr-700/60"
+      bg="base dark:bgr-dark"
+      flex=" justify-center"
+      pb2 rounded-t-md w-full
+      :class="{ pt2: !inferredFilename }"
     >
+      <ProsePreHeader
+        v-if="inferredFilename"
+        :filename="inferredFilename"
+        :icon-class="iconClass"
+      />
+
+      <div h-0 top-2 sticky z-1 :class="{ 'top-8': inferredFilename }">
+        <div
+          flex="~ justify-around gap-2" right-4 absolute z-1
+          :class="{ '-top-6': inferredFilename }"
+        >
+          <ProsePreCollapseAllButton
+            :has-ranges="collapseRanges.length > 0"
+            @expand-all="expandAll"
+            @collapse-all="collapseAll"
+          />
+
+          <ProsePreDecreaseFontSizeButton
+            @decrease-font-size="handleDecreaseFontSize"
+          />
+
+          <ProsePreIncreaseFontSizeButton
+            @increase-font-size="handleIncreaseFontSize"
+          />
+
+          <ProsePreCopyButton
+            :copied="copied"
+            @copy="handleCopy"
+          />
+        </div>
+      </div>
+
       <pre
         ref="preEl"
         mt-0 w-full
@@ -225,10 +232,16 @@ pre {
 }
 
 :deep(code .ec-collapse-range) {
-  margin: 0.2rem 0.25rem;
+  margin: 0.5rem;
   border-radius: 0.375rem;
   border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
   background: color-mix(in oklab, currentColor 5%, transparent);
+}
+
+:deep(code .ec-collapse-range) {
+  span.line::before {
+    width: 1.5rem;
+  }
 }
 
 :deep(code .ec-collapse-range.is-collapsed) {
@@ -265,7 +278,7 @@ pre {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);
+  background: color-mix(in oklab, var(--amv-highlight) 60%, transparent);
 }
 
 :deep(code .ec-annotation-row) {
@@ -276,7 +289,13 @@ pre {
   line-height: 1.3rem;
   width: fit-content;
   max-width: calc(100% - 2.75rem);
-  background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);
+  background: color-mix(in oklab, var(--amv-highlight) 60%, transparent);
+
+  --uno: 'font-mono';
+
+  &:hover {
+    background: color-mix(in oklab, var(--amv-highlight) 80%, transparent);
+  }
 }
 
 :deep(pre.ec-hide-line-numbers code .ec-annotation-row) {
@@ -293,7 +312,7 @@ pre {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: color-mix(in oklab, var(--amv-highlight) 70%, transparent);
+  background: color-mix(in oklab, var(--amv-highlight) 60%, transparent);
 }
 
 :deep(code .line.ec-annotation-inline) {

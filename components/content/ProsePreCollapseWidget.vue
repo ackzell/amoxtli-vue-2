@@ -59,7 +59,7 @@ const label = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  width: calc(100% - 0.5rem);
+  width: 100%;
   min-height: 1.45rem;
   padding: 0.2rem 0.45rem;
   font-size: 0.75rem;

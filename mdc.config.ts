@@ -6,10 +6,6 @@ import { createTwoslasher } from 'twoslash-vue'
 import { parseEcInfo } from './composables/useEcParser'
 import { rendererAmoxtli } from './shiki/renderer'
 
-function escapeRegExp(s: string) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
 export default defineConfig({
   shiki: {
     async setup(shiki) {
@@ -55,22 +51,68 @@ export default defineConfig({
           if (!parsed.highlights.length)
             return
 
+          // Cache parsed info so the line hook can use it
+          this.meta.__ec = parsed
+
           options.decorations ??= []
           const lines = code.split('\n')
 
           for (const { pattern, lines: targetLines } of parsed.highlights) {
-            const regex = new RegExp(escapeRegExp(pattern), 'g')
+            let regex: RegExp
+            try {
+              regex = new RegExp(pattern, 'g')
+            }
+            catch {
+              continue
+            }
             lines.forEach((lineText, lineIndex) => {
               if (targetLines && !targetLines.includes(lineIndex + 1))
                 return
               for (const match of lineText.matchAll(regex)) {
+                const matchEnd = match.index! + match[0].length
+                // The mdc:newline transformer appends \n to the last child
+                // of each line element. applyLineSection accumulates text
+                // via stringify which includes that \n, so we adjust the end
+                // character by +1 when the match runs to the end of the line.
+                const endCh = matchEnd === lineText.length
+                  ? matchEnd + 1
+                  : matchEnd
                 options.decorations!.push({
                   start: { line: lineIndex, character: match.index! },
-                  end: { line: lineIndex, character: match.index! + match[0].length },
+                  end: { line: lineIndex, character: endCh },
                   properties: { class: 'ec-highlight' },
                 })
               }
             })
+          }
+        },
+
+        line(lineNode, lineIndex) {
+          const ec = (this as any).meta?.__ec as ParsedEcInfo | undefined
+          if (!ec?.highlights?.length)
+            return
+          const addCls = (this as any).addClassToHast as (el: any, cls: string) => void
+
+          for (let i = 0; i < lineNode.children.length; i++) {
+            const child = lineNode.children[i]
+            if (child.type !== 'element' || child.tagName !== 'span')
+              continue
+            const textNode = child.children?.[0]
+            if (textNode?.type !== 'text')
+              continue
+            const text = textNode.value
+
+            for (const { pattern, lines: targetLines } of ec.highlights) {
+              if (targetLines && !targetLines.includes(lineIndex))
+                continue
+              let regex: RegExp
+              try { regex = new RegExp(pattern) }
+              catch { continue }
+              if (regex.test(text)) {
+                addCls(child, 'ec-highlight')
+                break
+              }
+            }
           }
         },
 

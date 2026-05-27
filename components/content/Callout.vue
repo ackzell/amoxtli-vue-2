@@ -67,5 +67,9 @@ const variant = computed(() => {
   p {
     --uno: 'line-height-loose';
   }
+
+  code {
+    text-wrap: wrap;
+  }
 }
 </style>

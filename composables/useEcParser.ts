@@ -21,6 +21,7 @@ export interface ParsedEcInfo {
   collapseLines: number[]
   annotations: Annotation[]
   highlights: Highlight[]
+  labels: string[]
 }
 
 export function parseRanges(input: string): number[] {
@@ -60,6 +61,7 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
     collapseLines: [],
     annotations: [],
     highlights: [],
+    labels: [],
   }
 
   if (!input)
@@ -68,7 +70,17 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
   // console.group('--- [EC PARSER DEBUG] ---')
   // console.log('Raw input:', input)
 
-  let workingString = input.replace(/__EANN_([0-9a-f]+)_L_([\d_]+)__/g, (_, hex, lines) => {
+  let workingString = input
+
+  // Decode bare {"text"} labels (no line numbers) and strip them.
+  // The text is stored in result.labels for potential future use.
+  workingString = workingString.replace(/__ELBL_([0-9a-f]+)__/g, (_, hex) => {
+    const text = (hex.match(/.{2}/g) ?? []).map((b: string) => String.fromCharCode(Number.parseInt(b, 16))).join('')
+    result.labels.push(text)
+    return ''
+  })
+
+  workingString = workingString.replace(/__EANN_([0-9a-f]+)_L_([\d_]+)__/g, (_, hex, lines) => {
     const text = (hex.match(/.{2}/g) ?? []).map((b: string) => String.fromCharCode(Number.parseInt(b, 16))).join('')
     result.annotations.push({ text, lines: parseRanges(lines.replace(/_/g, ',')) })
     return ''
@@ -112,7 +124,8 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
 
   while (hMatch !== null) {
     if (hMatch[1]) {
-      const pattern = hMatch[1].trim()
+      let pattern = hMatch[1].trim()
+      pattern = pattern.replace(/__ECLB__/g, '{').replace(/__ECRB__/g, '}')
       const rawLines = hMatch[2]?.trim()
 
       // FIX: Only parse if rawLines actually has content,

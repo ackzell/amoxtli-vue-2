@@ -42,6 +42,7 @@ let scrollCleanup: (() => void) | null = null
 const FOLLOW_EASING = props.noEasing ? 1 : 0.28
 const FOLLOW_THRESHOLD = 0.25
 const ARROW_MIN_PADDING = 18
+const GAP_GRACE_MS = 150
 
 const tooltipStyle = computed(() => {
   const tooltipWidth = tooltipEl.value?.offsetWidth ?? 0
@@ -124,7 +125,7 @@ async function updateFloatingPosition() {
   const { x, y, placement } = await computePosition(virtualReference, tooltipEl.value, {
     placement: props.noFollow ? 'bottom-start' : 'bottom-start',
     middleware: [
-      offset(props.noFollow ? 6 : 18),
+      offset(props.noFollow ? 6 : 8),
       flip({ fallbackPlacements: ['top-start', 'top', 'bottom'] }),
       shift({ padding: 12 }),
     ],
@@ -186,6 +187,13 @@ async function showTooltip(event?: MouseEvent) {
     startScrollTracking()
 }
 
+function hideNow() {
+  clearHideTimer()
+  isShown.value = false
+  ensureAnimation()
+  stopScrollTracking()
+}
+
 function scheduleHide() {
   clearHideTimer()
   hideTimer = setTimeout(() => {
@@ -201,6 +209,19 @@ function handleTooltipClick(event: MouseEvent) {
     isShown.value = false
     stopScrollTracking()
   }
+}
+
+function handleTriggerLeave(event: MouseEvent) {
+  const to = event.relatedTarget as Node | null
+  if (tooltipEl.value?.contains(to) || tooltipEl.value === to) {
+    return
+  }
+  clearHideTimer()
+  hideTimer = setTimeout(() => {
+    isShown.value = false
+    ensureAnimation()
+    stopScrollTracking()
+  }, GAP_GRACE_MS)
 }
 
 onMounted(async () => {
@@ -226,8 +247,8 @@ onUnmounted(() => {
     ref="triggerEl"
     class="underline decoration-dotted cursor-help"
     @mouseenter="showTooltip"
-    @mouseleave="scheduleHide"
-    @mousemove="props.noFollow ? undefined : updateMousePosition"
+    @mouseleave="handleTriggerLeave"
+    @mousemove="(e) => !props.noFollow && updateMousePosition(e)"
   >
     <slot />
     <span v-if="!props.noIcon" i-mynaui-star-solid text-xs text-primary ml-0.5 h2 w2 inline-block dark:text-primary-dark />

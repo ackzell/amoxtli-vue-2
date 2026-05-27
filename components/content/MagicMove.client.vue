@@ -172,12 +172,12 @@ function handleCopy() {
 
     <!-- Animated code block -->
     <div class="shiki-magic-move-container group text-sm min-h-20 relative">
-      <ProsePreDecreaseFontSize
+      <ProsePreDecreaseFontSizeButton
         right-18 top-2 absolute
         @decrease-font-size="handleDecreaseFontSize"
       />
 
-      <ProsePreIncreaseFontSize
+      <ProsePreIncreaseFontSizeButton
         right-10 top-2 absolute
         @increase-font-size="handleIncreaseFontSize"
       />
