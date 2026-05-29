@@ -284,7 +284,7 @@ onUnmounted(() => {
   position: fixed;
   z-index: 300;
 
-  max-width: 70%;
+  max-width: 500px;
 
   border-radius: var(--r);
   border: 1px solid var(--amv-highlight);
@@ -368,7 +368,11 @@ onUnmounted(() => {
 }
 
 .guide-tooltip-popper p code {
-  color: var(--code-color);
+  --uno: 'border  px2 bg-bgr-50 border-bgr-100 rounded  text-primary-700 text-sm font-code';
+}
+
+.dark .guide-tooltip-popper p code {
+  --uno: 'bg-bgr-900 border-dark rounded  text-primary-dark-300 text-sm';
 }
 
 .guide-tooltip-popper blockquote {

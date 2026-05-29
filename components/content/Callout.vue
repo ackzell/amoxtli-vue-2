@@ -37,7 +37,7 @@ const variant = computed(() => {
       `bg-${variant.color}/8`,
       `border-${variant.color}`,
     ]"
-    border="~ rounded-xl"
+    border="~ rounded-4xl"
     flex="~ gap-4 items-center"
 
     text-sm text-faded py4 pr2 relative
