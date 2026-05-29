@@ -1,5 +1,6 @@
 import type { FileNode, WebContainer } from '@webcontainer/api'
 import { dirname } from 'pathe'
+import { isBinaryFile } from '~/utils/binary'
 
 export class VirtualFile {
   /**
@@ -22,6 +23,8 @@ export class VirtualFile {
     return {
       file: {
         get contents() {
+          if (isBinaryFile(self.filepath))
+            return Uint8Array.from(atob(self._content), c => c.charCodeAt(0))
           return self.fsTransform ? self.fsTransform(self._content) : self._content
         },
       },
@@ -34,9 +37,15 @@ export class VirtualFile {
 
   async write(content: string) {
     this._content = content
-    const fsContent = this.fsTransform ? this.fsTransform(content) : content
     await this.wc.fs.mkdir(dirname(this.filepath), { recursive: true })
-    await this.wc.fs.writeFile(this.filepath, fsContent, 'utf-8')
+    if (isBinaryFile(this.filepath)) {
+      const binary = Uint8Array.from(atob(content), c => c.charCodeAt(0))
+      await this.wc.fs.writeFile(this.filepath, binary)
+    }
+    else {
+      const fsContent = this.fsTransform ? this.fsTransform(content) : content
+      await this.wc.fs.writeFile(this.filepath, fsContent, 'utf-8')
+    }
   }
 
   async remove() {

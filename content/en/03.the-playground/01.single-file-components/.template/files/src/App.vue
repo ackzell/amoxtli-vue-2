@@ -30,10 +30,6 @@ export default {
   --foreground-color: whitesmoke;
 }
 
-body {
-  padding: 1rem;
-}
-
 .box {
   width: 60%;
   height: 200px;

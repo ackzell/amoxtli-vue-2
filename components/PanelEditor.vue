@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Splitter } from '@ark-ui/vue'
+import { extname } from 'pathe'
 import Toasts from '@/components/Toasts/Toasts.vue'
 import { filesToVirtualFsTree } from '~/templates/utils'
+import { isBinaryFile } from '~/utils/binary'
 
 const ui = useUiState()
 const guide = useGuideStore()
@@ -33,6 +35,36 @@ const input = ref<string>('')
 // written to via the HMR path so we can force the editor-content watch
 // to re-evaluate even though the VirtualFile reference didn't change.
 const contentVersion = ref(0)
+
+const IMAGE_MIME: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+  '.avif': 'image/avif',
+}
+
+const displayType = computed(() => {
+  const file = play.value?.fileSelected
+  if (!file)
+    return 'none'
+  if (!isBinaryFile(file.filepath))
+    return 'text'
+  return extname(file.filepath).toLowerCase() in IMAGE_MIME ? 'image' : 'binary'
+})
+
+const imageDataUrl = computed(() => {
+  const file = play.value?.fileSelected
+  if (!file)
+    return ''
+  const ext = extname(file.filepath).toLowerCase()
+  const mime = IMAGE_MIME[ext]
+  if (!mime)
+    return ''
+  return `data:${mime};base64,${file.read()}`
+})
 
 /**
  * Rebuild the files list from the playground store.
@@ -184,13 +216,33 @@ const sizes = computed<number[]>({
           />
         </div>
         <ClientOnly>
-          <LazyPanelEditorMonaco
-            v-if="play.fileSelected"
-            v-model="input"
-            :filepath="play.fileSelected.filepath"
-            h-full w-full
-            @change="onTextInput"
-          />
+          <template v-if="play.fileSelected">
+            <div
+              v-if="displayType === 'image'"
+              flex="~ col items-center justify-center" p8 h-full
+            >
+              <img
+                :src="imageDataUrl"
+                :alt="play.fileSelected.filepath"
+                max-h-full max-w-full of-auto
+              >
+            </div>
+            <div
+              v-else-if="displayType === 'binary'"
+              flex="~ col items-center justify-center"
+              text-sm op50 h-full
+            >
+              <div i-ph-file-duotone text-4xl mb2 />
+              <span>{{ $t('binary-no-preview') }}</span>
+            </div>
+            <LazyPanelEditorMonaco
+              v-else
+              v-model="input"
+              :filepath="play.fileSelected.filepath"
+              h-full w-full
+              @change="onTextInput"
+            />
+          </template>
         </ClientOnly>
       </PanelSnapshotsSidebar>
     </Splitter.Panel>

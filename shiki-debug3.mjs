@@ -1,4 +1,4 @@
-import { createHighlighterCore, createPositionConverter, splitTokens } from '@shikijs/core'
+import { createHighlighterCore, createPositionConverter } from '@shikijs/core'
 import { createJavaScriptRegexEngine } from '@shikijs/engine-javascript'
 import { transformerNotationDiff, transformerNotationErrorLevel, transformerNotationFocus, transformerNotationHighlight } from '@shikijs/transformers'
 import langVue from 'shiki/langs/vue.mjs'

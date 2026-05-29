@@ -250,20 +250,17 @@ export default defineNuxtConfig({
         console.log(`[beforeParse] Label encoding modified: ${file.id}`)
       }
 
-      // Encode { and } inside /pattern/ highlight specs so MDC does not
-      // interpret them as highlight range tokens (e.g. {1,3-5}).
+      // Encode entire /pattern/ highlight specs as opaque hex tokens so MDC
+      // never sees { }, [ ], or other special characters inside them.
+      // Require leading whitespace so we don't match / in file: paths.
       file.body = file.body.replace(
         /^(`{3}[^\n]*)$/gm,
         (fullLine) => {
           return fullLine.replace(
-            /\/([^/]+)\/(?=[\s\d,\-]|$)/g,
-            (match, pattern) => {
-              if (!/[{}]/.test(pattern))
-                return match
-              const encoded = pattern
-                .replace(/\{/g, '__ECLB__')
-                .replace(/\}/g, '__ECRB__')
-              return `/${encoded}/`
+            /(?<=\s)\/([^/]+)\/(?=[\s\d,\-]|$)/g,
+            (_match) => {
+              const hex = Buffer.from(_match).toString('hex')
+              return `__ECPT_${hex}__`
             },
           )
         },
@@ -294,6 +291,16 @@ export default defineNuxtConfig({
         /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
         (_, before, val) => `${before}collapse=__ECOL_${val}__`,
       )
+    },
+
+    'content:file:afterParse': function (ctx) {
+      const { content } = ctx as { content: { path?: string } }
+      if (content.path) {
+        const cleaned = content.path.split('/').map(part => part.replace(/^\d+[a-z]*\./i, '')).join('/')
+        if (cleaned !== content.path) {
+          content.path = cleaned
+        }
+      }
     },
 
   },

@@ -258,76 +258,81 @@ addCommands(
           </IconButton>
         </template>
 
-        <VDropdown v-else :distance="6">
+        <template v-else>
           <IconButton
-            tooltip="Layout Options"
+            class="layout-menu-item"
+            tooltip="Code Focus"
             tooltip-placement="bottom"
-            :active="hasCustomLayoutApplied"
+            :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : ''"
+            @click="toggleCodeOnly"
+          >
+            <div i-mynaui-code text-xl />
+          </IconButton>
+          <IconButton
+            class="layout-menu-item"
+            tooltip="Docs Focus"
+            tooltip-placement="bottom"
+            :class="isDocsFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : ''"
+            @click="toggleDocsOnly"
           >
             <div
-              class="transition-all duration-200"
-              text-xl
-              :class="hasCustomLayoutApplied
-                ? 'i-mynaui:layout-solid'
-                : 'i-mynaui:layout hover:i-mynaui:layout-solid'"
+              i-mynaui-book-open
+              text-xl hover:i-mynaui-book-open-solid
+              :class="{ 'i-mynaui-book-open-solid': isDocsFocusApplied }"
             />
           </IconButton>
-          <template #popper>
-            <div class="layout-menu-panel" p2>
-              <div class="layout-menu-list" flex="~ col gap-1">
-                <IconButton
-                  class="layout-menu-item"
-                  tooltip="Code Focus"
-                  tooltip-placement="left"
-                  :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
-                  @click="toggleCodeOnly"
-                >
-                  <div i-mynaui-code text-xl />
-                </IconButton>
-                <IconButton
-                  class="layout-menu-item"
-                  tooltip="Docs Focus"
-                  tooltip-placement="left"
-                  :class="isDocsFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op60'"
-                  @click="toggleDocsOnly"
-                >
-                  <div i-mynaui-book-open text-xl hover:i-mynaui-book-open-solid />
-                </IconButton>
-                <template v-if="isSplitMode">
-                  <IconButton
-                    class="layout-menu-item op70"
-                    :tooltip="`Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'} layout`"
-                    tooltip-placement="left"
-                    @click="ui.toggleMainLayoutOrientation()"
-                  >
-                    <div
-                      class="transition-transform duration-200"
-                      text-xl
-                      :class="ui.mainLayoutOrientation === 'horizontal'
-                        ? 'i-mynaui:rectangle hover:i-mynaui:rectangle-solid'
-                        : 'i-mynaui:rectangle-vertical hover:i-mynaui:rectangle-vertical-solid'"
-                    />
-                  </IconButton>
-                  <IconButton
-                    class="layout-menu-item"
-                    :tooltip="`${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} ${ui.mainLayoutOrientation === 'horizontal' ? 'left/right' : 'top/bottom'} order`"
-                    tooltip-placement="left"
-                    :class="isReverseLayoutApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op70'"
-                    @click="ui.toggleMainLayoutReverse()"
-                  >
-                    <div
-                      class="transition-transform duration-200"
-                      text-xl
-                      :class="ui.mainLayoutOrientation === 'horizontal'
-                        ? 'i-mynaui:arrow-left-right hover:i-mynaui:arrow-left-right-solid'
-                        : 'i-mynaui:arrow-up-down hover:i-mynaui:arrow-up-down-solid'"
-                    />
-                  </IconButton>
-                </template>
+
+          <VDropdown theme="layout-dropdown">
+            <IconButton
+              tooltip="Layout Options"
+              tooltip-placement="bottom"
+              :disabled="!isSplitMode"
+            >
+              <div
+                i-mynaui-layout
+                class="transition-all duration-200 hover:i-mynaui:layout-solid"
+                text-xl
+              />
+            </IconButton>
+            <template #popper>
+              <div class="layout-menu-panel" p2>
+                <div class="layout-menu-list" flex="~ col gap-1">
+                  <template v-if="isSplitMode">
+                    <IconButton
+                      class="layout-menu-item op70"
+                      :tooltip="`Switch to ${ui.mainLayoutOrientation === 'horizontal' ? 'vertical' : 'horizontal'} layout`"
+                      tooltip-placement="left"
+                      @click="ui.toggleMainLayoutOrientation()"
+                    >
+                      <div
+                        class="transition-transform duration-200"
+                        text-xl
+                        :class="ui.mainLayoutOrientation === 'horizontal'
+                          ? 'i-mynaui:rectangle hover:i-mynaui:rectangle-solid'
+                          : 'i-mynaui:rectangle-vertical hover:i-mynaui:rectangle-vertical-solid'"
+                      />
+                    </IconButton>
+                    <IconButton
+                      class="layout-menu-item"
+                      :tooltip="`${ui.mainLayoutReverse ? 'Normal' : 'Reverse'} ${ui.mainLayoutOrientation === 'horizontal' ? 'left/right' : 'top/bottom'} order`"
+                      tooltip-placement="left"
+                      :class="isReverseLayoutApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : 'op70'"
+                      @click="ui.toggleMainLayoutReverse()"
+                    >
+                      <div
+                        class="transition-transform duration-200"
+                        text-xl
+                        :class="ui.mainLayoutOrientation === 'horizontal'
+                          ? 'i-mynaui:arrow-left-right hover:i-mynaui:arrow-left-right-solid'
+                          : 'i-mynaui:arrow-up-down hover:i-mynaui:arrow-up-down-solid'"
+                      />
+                    </IconButton>
+                  </template>
+                </div>
               </div>
-            </div>
-          </template>
-        </VDropdown>
+            </template>
+          </VDropdown>
+        </template>
       </ClientOnly>
       <ColorSchemeToggle />
     </div>
@@ -336,3 +341,21 @@ addCommands(
     <DocsNavigation />
   </div>
 </template>
+
+<style>
+/* Style */
+.v-popper--theme-layout-dropdown .v-popper__inner {
+  --uno: 'p0 bg-bgr-50 text-dark rounded-md shadow-md border border-bgr-200';
+}
+
+.dark .v-popper--theme-layout-dropdown .v-popper__inner {
+  color: var(--av-text-primary);
+  --uno: 'p0 bg-bgr-dark  rounded-md shadow-md border border-bgr-600';
+}
+
+.v-popper--theme-layout-dropdown .v-popper__arrow-container,
+.v-popper--theme-layout-dropdown .v-popper__arrow-outer,
+.v-popper--theme-layout-dropdown .v-popper__arrow-inner {
+  display: none;
+}
+</style>

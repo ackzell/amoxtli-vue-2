@@ -117,15 +117,22 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
     (_, val) => { result.showLineNumbers = val !== 'false'; return '' },
   )
 
-  const highlightRegex = /\/(.+?)\/(?=[\s\d,\-]|$)/g
+  // Decode whole /pattern/ highlight specs from hex encoding
+  workingString = workingString.replace(/__ECPT_([0-9a-f]+)__/g, (_, hex) => {
+    const raw = (hex.match(/.{2}/g) ?? []).map(
+      (b: string) => String.fromCharCode(Number.parseInt(b, 16)),
+    ).join('')
+    return raw
+  })
+
+  const highlightRegex = /\/([^/]+)\/(?=[\s\d,\-]|$)/g
   let hMatch: RegExpExecArray | null
 
   hMatch = highlightRegex.exec(workingString)
 
   while (hMatch !== null) {
     if (hMatch[1]) {
-      let pattern = hMatch[1].trim()
-      pattern = pattern.replace(/__ECLB__/g, '{').replace(/__ECRB__/g, '}')
+      const pattern = hMatch[1].trim()
       const rawLines = hMatch[2]?.trim()
 
       // FIX: Only parse if rawLines actually has content,

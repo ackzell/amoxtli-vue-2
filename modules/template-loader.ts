@@ -8,6 +8,7 @@ import { watch } from 'chokidar'
 import fg from 'fast-glob'
 import { join, relative, resolve } from 'pathe'
 import { TEMPLATE_TYPES } from '~/types/guides'
+import { isBinaryFile } from '../utils/binary'
 
 export default defineNuxtModule({
   meta: {
@@ -45,7 +46,9 @@ export default defineNuxtModule({
         // 1. READ RAW CONTENT FOR WEBCONTAINER
         let content = ''
         try {
-          content = await fs.readFile(path, 'utf-8')
+          content = isBinaryFile(path)
+            ? (await fs.readFile(path)).toString('base64')
+            : await fs.readFile(path, 'utf-8')
         }
         catch {
           if (event !== 'unlink')
@@ -150,7 +153,9 @@ export default defineNuxtModule({
           const filesMap: Record<string, string> = {}
           await Promise.all(
             files.sort().map(async (filename) => {
-              const content = await fs.readFile(filename, 'utf-8')
+              const content = isBinaryFile(filename)
+                ? (await fs.readFile(filename)).toString('base64')
+                : await fs.readFile(filename, 'utf-8')
               filesMap[relative(dir, filename)] = content
             }),
           )
@@ -187,7 +192,9 @@ export default defineNuxtModule({
           await Promise.all(
             files.sort().map(async (filename) => {
               const fullPath = resolve(dir, filename)
-              const content = await fs.readFile(fullPath, 'utf-8')
+              const content = isBinaryFile(fullPath)
+                ? (await fs.readFile(fullPath)).toString('base64')
+                : await fs.readFile(fullPath, 'utf-8')
               // console.warn('reading:', fullPath, content.slice(0, 50))
               filesMap[filename] = content
             }),

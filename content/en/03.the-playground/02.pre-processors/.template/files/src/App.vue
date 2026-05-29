@@ -33,10 +33,6 @@ $foreground-color: whitesmoke;
   align-items: center;
 }
 
-body {
-  padding: 1rem;
-}
-
 .box {
   width: 60%;
   height: 200px;

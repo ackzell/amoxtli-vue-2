@@ -9,13 +9,13 @@ const templatesMap = Object.fromEntries(
       key
         .replace(/^\/content/, '')
         .replace(/\/\.template\/index\.ts$/, '')
-        .replace(/\/\d+\./g, '/'),
+        .replace(/\/\d+[a-z]*\./gi, '/'),
       loader,
     ]),
 )
 
 function normalizePath(path: string) {
-  return path.replace(/\/$/, '')
+  return path.replace(/\/$/, '').replace(/\/\d+[a-z]*\./gi, '/')
 }
 
 async function loadGuideMeta(path: string) {

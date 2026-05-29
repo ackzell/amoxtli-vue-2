@@ -1,5 +1,6 @@
 import type { WebContainer } from '@webcontainer/api'
 import type { StringOrRegExp } from '~/types/guides'
+import { isBinaryFile } from '~/utils/binary'
 
 export async function downloadZip(wc: WebContainer, ignoredFiles?: StringOrRegExp[]) {
   if (!import.meta.client)
@@ -19,8 +20,15 @@ export async function downloadZip(wc: WebContainer, ignoredFiles?: StringOrRegEx
 
         if (file.isFile()) {
           // TODO: If it's package.json, we modify to remove some fields
-          const content = await wc.fs.readFile(`${dir}/${file.name}`, 'utf8')
-          zip.file(file.name, content)
+          const filepath = `${dir}/${file.name}`
+          if (isBinaryFile(filepath)) {
+            const buffer = await wc.fs.readFile(filepath)
+            zip.file(file.name, buffer)
+          }
+          else {
+            const content = await wc.fs.readFile(filepath, 'utf8')
+            zip.file(file.name, content)
+          }
         }
         else if (file.isDirectory()) {
           const folder = zip.folder(file.name)!

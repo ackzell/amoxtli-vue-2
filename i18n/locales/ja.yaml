@@ -28,4 +28,5 @@ preview: プレビュー
 built: ビルド
 vueVersion: Vueバージョン
 nuxtVersion: Nuxtバージョン
+binary-no-preview: バイナリファイル — プレビュー不可
 editor: エディタ

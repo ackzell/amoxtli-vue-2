@@ -11,7 +11,7 @@ export function useTwoslashTooltips(containerEl: Ref<HTMLElement | undefined>) {
   if (import.meta.server)
     return
 
-  let mountedComponents: Array<{ mount: HTMLElement; vnode: VNode }> = []
+  let mountedComponents: Array<{ mount: HTMLElement, vnode: VNode }> = []
 
   function wire(container: HTMLElement) {
     mountedComponents.forEach(({ mount, vnode }) => {

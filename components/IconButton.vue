@@ -39,6 +39,7 @@ const tooltipOptions = computed<IconButtonTooltipOptions | undefined>(() => {
   <button
     v-tooltip="tooltipOptions"
     type="button"
+    class="disabled:op50 disabled:pointer-events-none"
     :aria-label="props.ariaLabel || props.tooltip"
     :class="[
       props.unstyled ? '' : 'rounded hover:bg-active',

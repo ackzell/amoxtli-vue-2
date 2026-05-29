@@ -349,28 +349,6 @@ function splitChildrenWithIndex(node: SpikeLayoutNode) {
   min-height: 0;
 }
 
-.dock-resize-trigger {
-  z-index: 20;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.dock-resize-trigger[data-orientation='horizontal'] {
-  width: 12px;
-  margin: 0 -6px;
-  cursor: col-resize;
-}
-
-.dock-resize-trigger[data-orientation='vertical'] {
-  height: 12px;
-  margin: -6px 0;
-  cursor: row-resize;
-}
-
-.dock-resize-indicator {
-  background: rgba(148, 163, 184, 0.55);
-}
-
 .dock-panel {
   position: relative;
   width: 100%;

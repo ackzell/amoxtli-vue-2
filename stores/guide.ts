@@ -53,10 +53,6 @@ export const useGuideStore = defineStore('guide', () => {
       ui.showConsole = true
     else if (features.value.console === false)
       ui.showConsole = false
-
-    if (features.value.defaultLayout) {
-      ui.setMainViewMode(features.value.defaultLayout)
-    }
   })
 
   async function mount(guide?: GuideMeta, withSolution = false) {

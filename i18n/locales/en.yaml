@@ -45,6 +45,7 @@ no-changes: no changes
 restore: Restore
 delete: Delete
 confirm: Confirm
+binary-no-preview: Binary file — cannot preview
 one-file: 1 file
 file: file
 loading: Loading…
