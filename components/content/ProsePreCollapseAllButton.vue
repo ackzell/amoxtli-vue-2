@@ -25,7 +25,10 @@ function toggle() {
     unstyled
     tooltip="Toggle all code sections"
     tooltip-placement="top"
-    class="border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none transition-opacity duration-200 items-center justify-center group-focus-within:op75 group-hover:op75 hover:op100 group-focus-within:pointer-events-auto group-hover:pointer-events-auto"
+    border border-base rounded-md bg-base op0
+    inline-flex size-7 pointer-events-none
+    items-center justify-center z-1
+    class="transition-opacity duration-200 group-focus-within/avPre:op75 group-hover/avPre:op75 hover:op100 group-focus-within/avPre:pointer-events-auto group-hover/avPre:pointer-events-auto"
     aria-label="Toggle all code sections"
     @click="toggle"
   >
