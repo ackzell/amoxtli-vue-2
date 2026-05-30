@@ -33,14 +33,17 @@ const variant = computed(() => {
 
 <template>
   <div
-    class="callout-container [&>p]:leading-1.75em [&>p]:my-0" :class="[
+    class="callout-container [&>p]:leading-1.75em [&>p]:my-0"
+    :class="[
       `bg-${variant.color}/8`,
       `border-${variant.color}`,
+      `text-${variant.color}-700`,
+      `dark:text-${variant.color}-400`,
     ]"
     border="~ rounded-4xl"
     flex="~ gap-4 items-center"
 
-    text-sm text-faded py4 pr2 relative
+    text-sm py4 pr2 relative
   >
     <div
       :class="[variant.icon, `text-${variant.color}`]"
