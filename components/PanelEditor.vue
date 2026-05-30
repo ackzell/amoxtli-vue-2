@@ -207,6 +207,7 @@ const sizes = computed<number[]>({
           flex="~ gap-2 items-center"
           border="b base dashed"
           px4 py2 bg-faded
+          class="active:cursor-grabbing"
         >
           <FileIcon :path="play.fileSelected?.filepath || ''" />
           <span text-sm flex-auto>{{ play.fileSelected?.filepath || $t('editor') }}</span>

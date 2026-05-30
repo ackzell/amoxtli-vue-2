@@ -109,7 +109,7 @@ watch(
       {
         model: currentModel,
         theme: theme.value,
-        fontSize: 14,
+        fontSize: 12,
         bracketPairColorization: { enabled: false },
         glyphMargin: false,
         automaticLayout: true,

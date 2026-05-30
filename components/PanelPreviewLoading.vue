@@ -75,7 +75,7 @@ function getTextClass(status: PlaygroundStatus) {
         {{ $t('restart-server') }}
       </button>
     </template>
-    <div v-else grid="~ cols-[max-content_1fr] gap-2 items-center justify-center" text-sm font-mono>
+    <div v-else grid="~ cols-[max-content_1fr] gap-2 items-center justify-center" font-terminal text-sm>
       <div :class="getStatusIcon('init')" />
       <span :class="getTextClass('init')">{{ $t('steps.initializing-webcontainer') }}</span>
       <div :class="getStatusIcon('mount')" />

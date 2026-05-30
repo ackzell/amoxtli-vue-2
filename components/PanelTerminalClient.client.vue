@@ -36,6 +36,7 @@ if (!globalTerminal) {
     allowTransparency: true,
     theme: theme.value,
     fontFamily: 'DM Mono, monospace',
+    fontSize: 12,
   })
   globalFitAddon = new FitAddon()
   globalTerminal.loadAddon(globalFitAddon)

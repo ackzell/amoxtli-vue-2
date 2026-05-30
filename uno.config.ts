@@ -250,6 +250,10 @@ export default defineConfig({
           name: 'Ubuntu Mono',
           weights: [400, 700],
         },
+        terminal: {
+          name: 'Share Tech Mono',
+          weights: [200, 400, 500, 600, 700],
+        },
 
         // sans: 'Work Sans:400,500,600,700',
         // mono: 'Space Mono:400,500,600,700',

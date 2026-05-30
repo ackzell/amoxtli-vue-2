@@ -68,6 +68,7 @@ watch(
       draggable="true"
       flex="~ items-center gap-2"
       border="b base dashed" pl1 pr2 bg-faded
+      class="active:cursor-grabbing"
     >
       <div
         flex="~ auto gap-2 items-center"

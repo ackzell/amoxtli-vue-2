@@ -97,7 +97,7 @@
 }
 
 .terminal.xterm .xterm-rows {
-  --uno: font-mono;
+  --uno: font-terminal;
 }
 
 /* Floating Vue */

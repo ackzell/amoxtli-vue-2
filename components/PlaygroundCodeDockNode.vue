@@ -395,7 +395,7 @@ function splitChildrenWithIndex(node: LayoutNode) {
   height: 100%;
   min-width: 0;
   min-height: 0;
-  border: 1px solid rgba(100, 116, 139, 0.45);
+  /* border: 1px solid rgba(100, 116, 139, 0.45); */
   border-radius: 0;
   overflow: hidden;
 }
@@ -427,21 +427,46 @@ function splitChildrenWithIndex(node: LayoutNode) {
 .zone {
   position: absolute;
   pointer-events: auto;
-  border: 1px dashed rgba(56, 189, 248, 0.15);
+  border: none;
   transition: all 100ms ease;
+  width: 0;
+  height: 0;
 }
 
 .zone-active {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(14, 165, 233, 0.6);
-  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+  --uno: 'backdrop-blur-xs border-1 bg-primary-300/20 dark:bg-primary-dark-600/20';
+  transition: backdrop-filter 200ms ease-in-out;
+}
+
+.panel-zones-overlay .zone-top.zone-active,
+.split-zones-overlay .zone-top.zone-active {
+  border-bottom: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
+}
+
+.panel-zones-overlay .zone-bottom.zone-active,
+.split-zones-overlay .zone-bottom.zone-active {
+  border-top: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
+}
+
+.panel-zones-overlay .zone-left.zone-active,
+.split-zones-overlay .zone-left.zone-active {
+  border-right: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
+}
+
+.panel-zones-overlay .zone-right.zone-active,
+.split-zones-overlay .zone-right.zone-active {
+  border-left: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
 }
 
 .lane-zone {
   position: absolute;
   pointer-events: auto;
-  border: 1px solid rgba(165, 248, 56, 0.35);
   transition: all 100ms ease;
+  border: none;
 }
 
 .lane-zone-top {
@@ -462,6 +487,26 @@ function splitChildrenWithIndex(node: LayoutNode) {
 .lane-zone-right {
   right: 0;
   width: 32px;
+}
+
+.lane-zone-top.zone-active {
+  border-bottom: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
+}
+
+.lane-zone-bottom.zone-active {
+  border-top: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
+}
+
+.lane-zone-left.zone-active {
+  border-right: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
+}
+
+.lane-zone-right.zone-active {
+  border-left: 1px solid var(--amv-highlight);
+  --uno: 'dark:border-primary-dark-700';
 }
 
 .panel-zones-overlay .zone-top {

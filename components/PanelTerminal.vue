@@ -11,9 +11,10 @@ const play = usePlaygroundStore()
       flex="~ gap-2 items-center"
       border="b base dashed"
       p2 pl4 bg-faded
+      class="active:cursor-grabbing"
     >
       <div i-carbon-terminal />
-      <span text-sm>{{ $t('terminal.name') }}</span>
+      <span text-xs font-mono>{{ $t('terminal.name') }}</span>
       <div flex-auto />
       <IconButton
         v-if="play.status !== 'init' && play.status !== 'mount'"

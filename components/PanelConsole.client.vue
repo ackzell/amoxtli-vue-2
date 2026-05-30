@@ -243,6 +243,7 @@ function deserializeMessage(arg: any): any {
       flex="~ gap-2 items-center"
       border="b base dashed"
       p2 pl4 bg-faded
+      class="active:cursor-grabbing"
     >
       <div i-carbon-cics-program />
       <span text-sm>{{ $t('console-output.name') }}</span>
