@@ -212,9 +212,31 @@ function handleCopy() {
 
     <!-- bottom bar -->
     <div
-      class="px-4 py-3 flex gap-1.5 justify-center"
+      class="px-4 py-3 flex gap-1.5 items-center justify-between"
       bg="~ bgr-100/40 dark:bgr-dark"
     >
+      <div>
+        <IconButton
+          tooltip-placement="bottom"
+          :disabled="isFirst"
+          aria-label="Previous step"
+          tooltip="Previous step"
+          @click="prev"
+        >
+          <div i-mynaui-chevron-left h4 w4 />
+        </IconButton>
+
+        <IconButton
+          tooltip-placement="bottom"
+          :disabled="isLast"
+          aria-label="Next step"
+          tooltip="Next step"
+          @click="next"
+        >
+          <div i-mynaui-chevron-right h4 w4 />
+        </IconButton>
+      </div>
+
       <span class="text-xs tracking-wide font-mono">
         {{ currentStep + 1 }}<span class="mx-1 opacity-40" />{{ $t('slash') }} {{ steps.length }}
       </span>
