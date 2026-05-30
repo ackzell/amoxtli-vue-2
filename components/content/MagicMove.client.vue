@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ShikiMagicMove } from 'shiki-magic-move/vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import 'shiki-magic-move/dist/style.css'
 
 const props = defineProps<{
@@ -38,7 +38,7 @@ function getPreEl(): HTMLElement | null {
 }
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
-onMounted(async () => {
+async function initializeSteps() {
   const preEls = slotRef.value?.querySelectorAll('pre') ?? []
   const labelEls = slotRef.value?.querySelectorAll('[data-filename]') ?? []
 
@@ -47,15 +47,27 @@ onMounted(async () => {
     label: labelEls[i]?.textContent?.trim() ?? '',
   }))
 
-  if (steps.value.length === 0) {
-    console.warn(
-      '[MagicMove] No <pre><code> blocks found inside ::magic-move. '
-      + 'Make sure you are using fenced code blocks inside the component.',
-    )
-    return
+  if (steps.value.length > 0 && !highlighter.value) {
+    highlighter.value = await useMagicMoveHighlighter()
   }
+}
 
-  highlighter.value = await useMagicMoveHighlighter()
+onMounted(initializeSteps)
+
+// Observe slot DOM content changes (handles HMR when the parent re-renders slot content)
+useMutationObserver(slotRef, initializeSteps, {
+  childList: true,
+  subtree: true,
+})
+
+// Clamp currentStep when steps change
+watch(steps, (newSteps) => {
+  if (newSteps.length === 0) {
+    currentStep.value = 0
+  }
+  else if (currentStep.value >= newSteps.length) {
+    currentStep.value = newSteps.length - 1
+  }
 })
 
 // ─── Controls ────────────────────────────────────────────────────────────────
@@ -209,8 +221,8 @@ function handleCopy() {
     </div>
   </div>
 
-  <!-- Loading state: shown while highlighter initialises -->
-  <div v-else-if="steps.length === 0 && !isReady" class="text-sm font-mono py-8 text-center">
+  <!-- Loading state: shown while steps are parsed or highlighter initialises -->
+  <div v-else class="text-sm font-mono py-8 text-center">
     {{ $t('loading') }}
   </div>
 </template>
