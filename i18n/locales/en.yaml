@@ -50,3 +50,7 @@ one-file: 1 file
 file: file
 loading: Loading…
 slash: /
+composition-api: Composition API
+options-api: Options API
+script-setup: Script setup
+no-script-setup: No script setup

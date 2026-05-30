@@ -212,6 +212,8 @@ const sizes = computed<number[]>({
           <FileIcon :path="play.fileSelected?.filepath || ''" />
           <span text-sm flex-auto>{{ play.fileSelected?.filepath || $t('editor') }}</span>
           <ButtonShowSolution
+            :show-solution-message="$t(guide.buttonSolutionMessage)"
+            :reset-message="$t(guide.buttonResetMessage)"
             text-sm my--1 mr--3 px2 py1 rounded op50 flex-none
             hover="bg-active op100"
           />

@@ -35,6 +35,9 @@ export const useGuideStore = defineStore('guide', () => {
 
   const ignoredFiles = computed(() => transformGuideIgnoredFiles(currentGuide.value?.ignoredFiles))
 
+  const buttonSolutionMessage = computed(() => currentGuide.value?.buttonSolutionMessage ?? $t('show-solution'))
+  const buttonResetMessage = computed(() => currentGuide.value?.buttonResetMessage ?? $t('reset-challenge'))
+
   watch(features, () => {
     if (features.value.fileTree === true) {
       if (ui.panelFileTree <= 0)
@@ -122,6 +125,9 @@ export const useGuideStore = defineStore('guide', () => {
     embeddedDocs,
     openEmbeddedDocs,
     ignoredFiles,
+
+    buttonSolutionMessage,
+    buttonResetMessage,
   }
 })
 

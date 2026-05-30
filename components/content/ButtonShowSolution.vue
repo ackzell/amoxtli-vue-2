@@ -1,4 +1,8 @@
 <script setup lang="ts">
+const props = defineProps<{
+  showSolutionMessage?: string
+  resetMessage?: string
+}>()
 const guide = useGuideStore()
 </script>
 
@@ -15,6 +19,6 @@ const guide = useGuideStore()
   >
     <div v-if="!guide.showingSolution " i-carbon-idea />
     <div v-else i-carbon-rotate-360 />
-    {{ guide.showingSolution ? $t('reset-challenge') : $t('show-solution') }}
+    {{ guide.showingSolution ? (props.resetMessage ?? $t(guide.buttonResetMessage)) : (props.showSolutionMessage ?? $t(guide.buttonSolutionMessage)) }}
   </button>
 </template>

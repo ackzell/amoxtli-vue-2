@@ -1,15 +1,15 @@
 import type { GuideMeta } from '~/types/guides'
 
 export const meta: GuideMeta = {
+  template: 'vue',
+  startingFile: 'src/App.vue',
   features: {
     defaultLayout: 'split',
     fileTree: false,
     terminal: true,
   },
-  sessionName: 'script-setup',
-  template: 'vue-sass',
-  startingFile: 'src/App.vue',
   ignoredFiles: ['package.json', 'main.js', 'tsconfig.node.json', 'vite.config.ts', 'App.vue', 'index.html', 'src/main.ts'],
-  buttonSolutionMessage: 'script-setup',
-  buttonResetMessage: 'no-script-setup',
+  sessionName: 'composition-vs-options-api',
+  buttonSolutionMessage: 'composition-api',
+  buttonResetMessage: 'options-api',
 }

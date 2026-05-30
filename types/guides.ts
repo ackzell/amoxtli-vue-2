@@ -47,6 +47,9 @@ export interface GuideMeta {
    */
   sessionName?: string
 
+  buttonSolutionMessage?: string
+  buttonResetMessage?: string
+
 }
 
 export interface PlaygroundFeatures {
