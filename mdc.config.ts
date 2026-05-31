@@ -51,9 +51,6 @@ export default defineConfig({
           if (!parsed.highlights.length)
             return
 
-          // Cache parsed info so the line hook can use it
-          this.meta.__ec = parsed
-
           options.decorations ??= []
           const lines = code.split('\n')
 
@@ -84,35 +81,6 @@ export default defineConfig({
                 })
               }
             })
-          }
-        },
-
-        line(lineNode, lineIndex) {
-          const ec = (this as any).meta?.__ec as ParsedEcInfo | undefined
-          if (!ec?.highlights?.length)
-            return
-          const addCls = (this as any).addClassToHast as (el: any, cls: string) => void
-
-          for (let i = 0; i < lineNode.children.length; i++) {
-            const child = lineNode.children[i]
-            if (child.type !== 'element' || child.tagName !== 'span')
-              continue
-            const textNode = child.children?.[0]
-            if (textNode?.type !== 'text')
-              continue
-            const text = textNode.value
-
-            for (const { pattern, lines: targetLines } of ec.highlights) {
-              if (targetLines && !targetLines.includes(lineIndex))
-                continue
-              let regex: RegExp
-              try { regex = new RegExp(pattern) }
-              catch { continue }
-              if (regex.test(text)) {
-                addCls(child, 'ec-highlight')
-                break
-              }
-            }
           }
         },
 

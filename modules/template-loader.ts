@@ -8,7 +8,7 @@ import { watch } from 'chokidar'
 import fg from 'fast-glob'
 import { join, relative, resolve } from 'pathe'
 import { TEMPLATE_TYPES } from '~/types/guides'
-import { isBinaryFile } from '../utils/binary'
+import { isBinaryFile } from '../lib/binary'
 
 export default defineNuxtModule({
   meta: {

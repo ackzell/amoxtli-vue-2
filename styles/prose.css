@@ -89,7 +89,7 @@
 
 .prose blockquote {
   margin: 0.5em 0;
-  padding-left: 2em;
+  padding-inline: 2em;
   padding-block: 0.5em;
   border-left: 2px solid var(--amv-highlight);
   --uno: 'bg-bgr-50 dark:bg-bgr-dark/80 dark:text-bgr-300';

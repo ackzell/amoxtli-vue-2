@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { isBinaryFile } from '~/utils/binary'
+import { isBinaryFile } from '~/lib/binary'
 
 export default defineEventHandler((event) => {
   const query = getQuery(event)

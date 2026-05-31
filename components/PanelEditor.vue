@@ -2,8 +2,8 @@
 import { Splitter } from '@ark-ui/vue'
 import { extname } from 'pathe'
 import Toasts from '@/components/Toasts/Toasts.vue'
-import { filesToVirtualFsTree } from '~/templates/utils'
-import { isBinaryFile } from '~/utils/binary'
+import { isBinaryFile } from '@/lib/binary'
+import { filesToVirtualFsTree } from '@/templates/utils'
 
 const ui = useUiState()
 const guide = useGuideStore()

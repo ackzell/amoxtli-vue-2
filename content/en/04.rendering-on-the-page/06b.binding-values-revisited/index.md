@@ -41,7 +41,7 @@ Now throws an error that won't let your app run. Something similar to:
 
 ```
 
-Of course you now how to fix it by now 😉
+Of course you know how to fix it by now 😉
 
 ::tooltip-content{id='developer-experience'}
 Developer Experience. Read more about it [here](https://about.gitlab.com/topics/devops/what-is-developer-experience/)

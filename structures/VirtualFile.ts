@@ -1,6 +1,6 @@
 import type { FileNode, WebContainer } from '@webcontainer/api'
 import { dirname } from 'pathe'
-import { isBinaryFile } from '~/utils/binary'
+import { isBinaryFile } from '~/lib/binary'
 
 export class VirtualFile {
   /**

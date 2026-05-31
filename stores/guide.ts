@@ -17,6 +17,7 @@ function toPlain<T>(value: T): T {
 
 export const useGuideStore = defineStore('guide', () => {
   let play: ReturnType<typeof usePlaygroundStore> | null = null
+  const { t } = useI18n()
 
   function getPlaygroundStore() {
     if (!play) {
@@ -35,8 +36,8 @@ export const useGuideStore = defineStore('guide', () => {
 
   const ignoredFiles = computed(() => transformGuideIgnoredFiles(currentGuide.value?.ignoredFiles))
 
-  const buttonSolutionMessage = computed(() => currentGuide.value?.buttonSolutionMessage ?? $t('show-solution'))
-  const buttonResetMessage = computed(() => currentGuide.value?.buttonResetMessage ?? $t('reset-challenge'))
+  const buttonSolutionMessage = computed(() => currentGuide.value?.buttonSolutionMessage ?? t('show-solution'))
+  const buttonResetMessage = computed(() => currentGuide.value?.buttonResetMessage ?? t('reset-challenge'))
 
   watch(features, () => {
     if (features.value.fileTree === true) {

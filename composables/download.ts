@@ -1,6 +1,6 @@
 import type { WebContainer } from '@webcontainer/api'
 import type { StringOrRegExp } from '~/types/guides'
-import { isBinaryFile } from '~/utils/binary'
+import { isBinaryFile } from '~/lib/binary'
 
 export async function downloadZip(wc: WebContainer, ignoredFiles?: StringOrRegExp[]) {
   if (!import.meta.client)

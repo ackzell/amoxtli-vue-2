@@ -45,4 +45,13 @@ export default antfu(
         'unused-imports/no-unused-vars': 'off',
       },
     },
+    {
+      files: [
+        'content/**/05.reactivity/03-ref/index.md',
+        'content/**/05.reactivity/03-ref/index.md/**',
+      ],
+      rules: {
+        'vue/no-ref-as-operand': 'off',
+      },
+    },
   )
