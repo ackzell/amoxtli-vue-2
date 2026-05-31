@@ -257,6 +257,24 @@ pre {
   opacity: 0.4;
 }
 
+.group\/avPre {
+  --ec-ann-bg: 8%;
+  --ec-ann-border: 15%;
+  --ec-ann-row: 20%;
+  --ec-ann-inline-opacity: 0.3;
+  --ec-ann-hl-border: 40%;
+  --ec-ann-hl-bg: 10%;
+}
+
+.group\/avPre:hover {
+  --ec-ann-bg: 25%;
+  --ec-ann-border: 60%;
+  --ec-ann-row: 60%;
+  --ec-ann-inline-opacity: 0.75;
+  --ec-ann-hl-border: 100%;
+  --ec-ann-hl-bg: 15%;
+}
+
 :deep(code .line.ec-annotated) {
   background: transparent;
 }
@@ -264,9 +282,10 @@ pre {
 :deep(code .line.ec-annotated > .ec-annotated-content) {
   padding-left: 0.25rem;
   display: block;
-  background: color-mix(in oklab, var(--amv-highlight) 25%, transparent);
+  background: color-mix(in oklab, var(--amv-highlight) var(--ec-ann-bg), transparent);
   min-height: 1.5rem;
   margin-right: 1rem;
+  transition: background 0.2s ease;
 }
 
 :deep(code .line.ec-annotated > .ec-annotated-content::before) {
@@ -278,7 +297,8 @@ pre {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: color-mix(in oklab, var(--amv-highlight) 60%, transparent);
+  background: color-mix(in oklab, var(--amv-highlight) var(--ec-ann-border), transparent);
+  transition: background 0.2s ease;
 }
 
 :deep(code .ec-annotation-row) {
@@ -289,13 +309,10 @@ pre {
   line-height: 1.3rem;
   width: fit-content;
   max-width: calc(100% - 2.75rem);
-  background: color-mix(in oklab, var(--amv-highlight) 60%, transparent);
+  background: color-mix(in oklab, var(--amv-highlight) var(--ec-ann-row), transparent);
+  transition: background 0.2s ease;
 
   --uno: 'font-mono';
-
-  &:hover {
-    background: color-mix(in oklab, var(--amv-highlight) 80%, transparent);
-  }
 }
 
 :deep(pre.ec-hide-line-numbers code .ec-annotation-row) {
@@ -312,7 +329,8 @@ pre {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: color-mix(in oklab, var(--amv-highlight) 60%, transparent);
+  background: color-mix(in oklab, var(--amv-highlight) var(--ec-ann-border), transparent);
+  transition: background 0.2s ease;
 }
 
 :deep(code .line.ec-annotation-inline) {
@@ -331,15 +349,17 @@ pre {
   border-radius: 0.375rem;
   max-width: min(20rem, 65%);
   white-space: normal;
-  opacity: 0.75;
+  opacity: var(--ec-ann-inline-opacity);
   background: color-mix(in oklab, currentColor 14%, transparent);
+  transition: opacity 0.2s ease;
 }
 
 :deep(.ec-highlight) {
   color: inherit;
-  border: 1px solid var(--amv-highlight);
-  background-color: color-mix(in oklab, var(--amv-highlight) 15%, transparent);
+  border: 1px solid color-mix(in oklab, var(--amv-highlight) var(--ec-ann-hl-border), transparent);
+  background-color: color-mix(in oklab, var(--amv-highlight) var(--ec-ann-hl-bg), transparent);
   border-radius: 0.25rem;
   padding-block: 0.2rem;
+  transition: border 0.2s ease, background-color 0.2s ease;
 }
 </style>
