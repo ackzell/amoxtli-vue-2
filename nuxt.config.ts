@@ -39,7 +39,7 @@ export default defineNuxtConfig({
   },
 
   site: {
-    url: 'https://amoxtli-vue.netlify.app',
+    url: 'https://preview.amoxtli-vue.ackzell.dev',
   },
 
   colorMode: {
@@ -81,7 +81,7 @@ export default defineNuxtConfig({
     public: {
       buildTime: Date.now(),
       gitSha: execaSync('git', ['rev-parse', 'HEAD']).stdout.trim(),
-      repoUrl: 'https://github.com/nuxt/learn.nuxt.com',
+      repoUrl: 'https://github.com/ackzell/amoxtli-vue-2',
     },
     devtools: {
       iframeProps: {
@@ -102,6 +102,13 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2024-04-03',
   nitro: {
+    preset: 'cloudflare-pages',
+    storage: {
+      invites: {
+        driver: 'cloudflare-kv-binding',
+        binding: 'AMOXTILVI_KV',
+      },
+    },
     routeRules: {
       '/**': {
         headers: {

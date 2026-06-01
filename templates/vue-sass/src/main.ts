@@ -5,7 +5,7 @@ import App from './App.vue'
 
 const app = createApp(App)
 
-// Initialize RPC bridge to communicate with parent frame (learn.nuxt.com)
+// Initialize RPC bridge to communicate with parent frame (amoxtli-vue)
 const functions: FrameFunctions = {
   onColorModeChange(mode) {
     document.documentElement.classList.toggle('dark', mode === 'dark')

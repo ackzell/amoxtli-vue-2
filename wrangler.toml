@@ -1,0 +1,7 @@
+name = "amoxtli-vue"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = ".output/public"
+
+[[kv_namespaces]]
+binding = "AMOXTILVI_KV"
+id = "b9f605b548ca4b7b8bd1055c274bd9db"
