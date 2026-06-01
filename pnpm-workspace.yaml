@@ -87,3 +87,4 @@ allowBuilds:
   unrs-resolver: true
   v-code-diff: true
   vue-demi: true
+  workerd: true
