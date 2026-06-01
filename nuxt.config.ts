@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer'
 import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import process from 'node:process'
 import { execaSync } from 'execa'
 
@@ -109,8 +109,9 @@ export default defineNuxtConfig({
         binding: 'AMOXTILVI_KV',
       },
     },
-    externals: {
-      inline: ['monaco-editor-core', 'monaco-editor'],
+    alias: {
+      'monaco-editor-core': resolve('stubs/monaco-editor-core.mjs'),
+      '@volar/monaco': resolve('stubs/@volar-monaco.mjs'),
     },
     routeRules: {
       '/**': {
