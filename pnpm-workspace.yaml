@@ -77,16 +77,13 @@ catalogs:
     nuxt: ^4.4.6
     pinia: ^3.0.4
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - better-sqlite3
-  - esbuild
-  - sharp
-  - unrs-resolver
-  - v-code-diff
-  - vue-demi
-
 shamefullyHoist: true
 
 allowBuilds:
+  '@parcel/watcher': true
   better-sqlite3: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  v-code-diff: true
+  vue-demi: true
