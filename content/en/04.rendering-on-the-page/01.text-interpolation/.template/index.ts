@@ -10,4 +10,6 @@ export const meta: GuideMeta = {
   startingFile: 'src/App.vue',
   ignoredFiles: ['package.json', 'main.js', 'tsconfig.node.json', 'vite.config.ts', 'App.vue', 'index.html', 'src/main.ts'],
   sessionName: 'text-interpolation',
+  buttonSolutionMessage: 'show-compilation-error',
+  buttonResetMessage: 'working-example',
 }

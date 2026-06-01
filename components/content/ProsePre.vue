@@ -360,6 +360,8 @@ pre {
   background-color: color-mix(in oklab, var(--amv-highlight) var(--ec-ann-hl-bg), transparent);
   border-radius: 0.25rem;
   padding-block: 0.2rem;
-  transition: border 0.2s ease, background-color 0.2s ease;
+  transition:
+    border 0.2s ease,
+    background-color 0.2s ease;
 }
 </style>

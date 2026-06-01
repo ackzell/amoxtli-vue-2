@@ -54,3 +54,5 @@ composition-api: Composition API
 options-api: Options API
 script-setup: Script setup
 no-script-setup: No script setup
+show-compilation-error: Show compilation error
+working-example: Working example
