@@ -109,6 +109,9 @@ export default defineNuxtConfig({
         binding: 'AMOXTILVI_KV',
       },
     },
+    externals: {
+      inline: ['monaco-editor-core', 'monaco-editor'],
+    },
     routeRules: {
       '/**': {
         headers: {
