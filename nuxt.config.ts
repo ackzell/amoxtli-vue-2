@@ -58,6 +58,7 @@ export default defineNuxtConfig({
           },
         },
         highlight: {
+          engine: 'javascript',
           langs: [
             'pug',
             'vue',
@@ -112,6 +113,8 @@ export default defineNuxtConfig({
     alias: {
       'monaco-editor-core': resolve('stubs/monaco-editor-core.mjs'),
       '@volar/monaco': resolve('stubs/@volar-monaco.mjs'),
+      'shiki/engine/oniguruma': resolve('stubs/shiki-engine-oniguruma.mjs'),
+      'shiki/wasm': resolve('stubs/shiki-wasm.mjs'),
     },
     routeRules: {
       '/**': {

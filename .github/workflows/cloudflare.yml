@@ -27,6 +27,18 @@ jobs:
         env:
           NODE_OPTIONS: "--max-old-space-size=6144"
 
+      - name: Prune Worker bundle (WASM, maps, unused Shiki grammars)
+        run: |
+          rm -rf dist/_worker.js/wasm
+          find dist/_worker.js -name '*.map' -delete
+          cd dist/_worker.js/chunks/_
+          for f in *.mjs; do
+            case "$f" in
+              css.mjs|html-derivative.mjs|html.mjs|javascript.mjs|json.mjs|pug.mjs|scss.mjs|shellscript.mjs|typescript.mjs|vue.mjs) ;;
+              *) rm -f "$f" ;;
+            esac
+          done
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
