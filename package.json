@@ -83,16 +83,5 @@
     "unocss-preset-animations": "catalog:dev",
     "v-code-diff": "catalog:frontend",
     "vue-tsc": "catalog:dev"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "better-sqlite3",
-      "esbuild",
-      "sharp",
-      "unrs-resolver",
-      "v-code-diff",
-      "vue-demi"
-    ]
   }
 }
