@@ -82,6 +82,7 @@
     "typescript": "catalog:dev",
     "unocss-preset-animations": "catalog:dev",
     "v-code-diff": "catalog:frontend",
-    "vue-tsc": "catalog:dev"
+    "vue-tsc": "catalog:dev",
+    "wrangler": "^4.95.0"
   }
 }
