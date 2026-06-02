@@ -5,3 +5,8 @@ pages_build_output_dir = ".output/public"
 [[kv_namespaces]]
 binding = "AMOXTILVI_KV"
 id = "b9f605b548ca4b7b8bd1055c274bd9db"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "amoxtli-vue-content"
+database_id = "83677281-e8d8-463a-b0df-f4723a41a040"
