@@ -14,7 +14,7 @@
     "format": "eslint . --fix",
     "generate-invites": "npx tsx scripts/generate-invites.ts invites.yaml",
     "generate-invites:append": "npx tsx scripts/generate-invites.ts invites.yaml --append",
-    "publish-invites": "wrangler kv:bulk put --binding AMVI_KV invites-batch.json"
+    "publish-invites": "npx wrangler kv bulk put --binding AMVI_KV invites-batch.json --remote"
   },
   "dependencies": {
     "@ark-ui/vue": "catalog:frontend",
@@ -86,6 +86,6 @@
     "unocss-preset-animations": "catalog:dev",
     "v-code-diff": "catalog:frontend",
     "vue-tsc": "catalog:dev",
-    "wrangler": "^4.95.0"
+    "wrangler": "catalog:dev"
   }
 }

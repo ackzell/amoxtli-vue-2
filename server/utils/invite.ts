@@ -27,8 +27,18 @@ async function getHmacKey(secret: string): Promise<CryptoKey> {
   return key
 }
 
+function toBase64url(buf: Buffer): string {
+  return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+function fromBase64url(str: string): Buffer {
+  const base64 = str.replace(/-/g, '+').replace(/_/g, '/')
+  const pad = base64.length % 4
+  return Buffer.from(pad ? base64 + '='.repeat(4 - pad) : base64, 'base64')
+}
+
 export async function signSession(data: SessionData, secret: string): Promise<string> {
-  const payload = Buffer.from(JSON.stringify(data)).toString('base64url')
+  const payload = toBase64url(Buffer.from(JSON.stringify(data)))
   const key = await getHmacKey(secret)
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload))
   return `${payload}.${Buffer.from(sig).toString('hex')}`
@@ -50,7 +60,7 @@ export async function verifySession(cookie: string, secret: string): Promise<Ses
   if (sig.length !== expected.length || sig !== expected) return null
 
   try {
-    return JSON.parse(Buffer.from(payload, 'base64url').toString())
+    return JSON.parse(fromBase64url(payload).toString())
   } catch {
     return null
   }

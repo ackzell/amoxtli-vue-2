@@ -4,6 +4,18 @@ overrides:
   '@emmetio/css-parser': 0.4.1
 patchedDependencies:
   floating-vue: patches/floating-vue.patch
+shamefullyHoist: true
+
+allowBuilds:
+  '@parcel/watcher': true
+  better-sqlite3: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  v-code-diff: true
+  vue-demi: true
+  workerd: true
+
 catalogs:
   dev:
     '@antfu/eslint-config': ^5.4.1
@@ -18,6 +30,7 @@ catalogs:
     typescript: ^5.9.3
     unocss-preset-animations: ^1.3.0
     vue-tsc: ^3.3.0
+    wrangler: ^4.95.0
   frontend:
     '@ark-ui/vue': ^5.36.2
     '@shikijs/core': ^3.23.0
@@ -76,17 +89,3 @@ catalogs:
     nuxi: ^3.35.2
     nuxt: ^4.4.6
     pinia: ^3.0.4
-
-shamefullyHoist: true
-
-allowBuilds:
-  '@parcel/watcher': true
-  better-sqlite3: true
-  esbuild: true
-  sharp: true
-  unrs-resolver: true
-  v-code-diff: true
-  vue-demi: true
-  workerd: true
-catalog:
-  wrangler: ^4.95.0
