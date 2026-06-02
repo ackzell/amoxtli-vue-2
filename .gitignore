@@ -28,3 +28,8 @@ logs
 
 # Cloudflare
 .wrangler
+
+# Generated invite codes
+invites-batch.json
+
+data/invites

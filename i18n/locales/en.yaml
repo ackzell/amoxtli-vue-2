@@ -56,3 +56,11 @@ script-setup: Script setup
 no-script-setup: No script setup
 show-compilation-error: Show compilation error
 working-example: Working example
+interactive-book-about-vue: An interactive book about Vue.js
+your-name: Your name
+invite-code: Invite code
+this-is-a-private-preview-you-need-an-invite-code-to-access-it: This is a private preview. You need an invite code to access it.
+invite-code-required: This is a private preview. You need an invite code to access it.
+enter: Enter
+entering: Entering
+hang-on-a-sec: hang on a sec

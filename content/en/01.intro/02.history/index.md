@@ -23,7 +23,7 @@ Some things that stood out to me from this talk:
 - Vue is no longer the new kid in town:
 
 - The origins of the technology officially start on 2014:
-  - I can only wonder about _what would it have been of Vue if MDG backed Evan on his efforts back then?_
+  - I can only wonder about _what would it have been of Vue if :tooltip-trigger{id="mdg"}[MDG] backed Evan on his efforts back then?_
 
 - How much does Vue give to you in order to build your projects?
 
@@ -38,3 +38,7 @@ Today, Vue 2 is deprecated. I used it professionally for a couple years and was 
 Fortunately, like I said: the essence was kept, the syntax evolved as we'll see in later chapters and lessons, but even the "old way" (called Options API) to write Vue code is supported to this day. Great news!
 
 We didn't end up at a Python2 vs Python3 situation.
+
+::tooltip-content{id="mdg"}
+Meteor Development Group. They were a company that was building a fullstack framework called [Meteor](<https://en.wikipedia.org/wiki/Meteor_(web_framework)>) and they were pioneers in a bunch of implementation patterns for really cool stuff in JS, but they ended up backing React for the UI layer.
+::

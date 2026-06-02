@@ -11,7 +11,10 @@
     "typecheck": "nuxt typecheck",
     "prepare": "nuxt prepare",
     "lint": "eslint .",
-    "format": "eslint . --fix"
+    "format": "eslint . --fix",
+    "generate-invites": "npx tsx scripts/generate-invites.ts invites.yaml",
+    "generate-invites:append": "npx tsx scripts/generate-invites.ts invites.yaml --append",
+    "publish-invites": "wrangler kv:bulk put --binding AMVI_KV invites-batch.json"
   },
   "dependencies": {
     "@ark-ui/vue": "catalog:frontend",

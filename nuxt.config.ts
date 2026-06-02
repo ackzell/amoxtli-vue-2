@@ -83,13 +83,14 @@ export default defineNuxtConfig({
       buildTime: Date.now(),
       gitSha: execaSync('git', ['rev-parse', 'HEAD']).stdout.trim(),
       repoUrl: 'https://github.com/ackzell/amoxtli-vue-2',
+      inviteOnly: true,
     },
+    inviteSecret: '',
     devtools: {
       iframeProps: {
         allow: 'cross-origin-isolated',
         credentialless: true,
       },
-
     },
   },
 
@@ -107,7 +108,13 @@ export default defineNuxtConfig({
     storage: {
       invites: {
         driver: 'cloudflare-kv-binding',
-        binding: 'AMOXTILVI_KV',
+        binding: 'AMVI_KV',
+      },
+    },
+    devStorage: {
+      invites: {
+        driver: 'fs',
+        base: join(process.cwd(), 'data', 'invites'),
       },
     },
     alias: {

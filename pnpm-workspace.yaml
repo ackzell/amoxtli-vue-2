@@ -88,3 +88,5 @@ allowBuilds:
   v-code-diff: true
   vue-demi: true
   workerd: true
+catalog:
+  wrangler: ^4.95.0
