@@ -57,7 +57,9 @@ async function agree() {
         </p>
         <p class="text-sm mt-2">
           {{ t('invite.agreement.note') }}
+          <span i-ph-chat-circle-duotone text-xl text-primary inline-block dark:text-primary-dark />
         </p>
+
         <p class="text-sm mt-2">
           {{ t('invite.agreement.note2') }}
         </p>

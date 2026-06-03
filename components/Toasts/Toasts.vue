@@ -187,7 +187,7 @@ const hiddenCount = computed(() => {
             </div>
             <div
               v-if="activeToast.description"
-              class="text-bgr dark:text-bgr-400/90"
+              class="text-bgr-400 dark:text-bgr-400/90"
               :class="{ 'mt-1': activeToast.title }"
             >
               {{ activeToast.description }}

@@ -167,6 +167,8 @@ addCommands(
     },
   },
 )
+
+const isFeedbackOpen = ref(false)
 </script>
 
 <template>
@@ -341,6 +343,16 @@ addCommands(
         </template>
       </ClientOnly>
       <ColorSchemeToggle />
+      <ClientOnly>
+        <FeedbackWidget v-model:open="isFeedbackOpen">
+          <IconButton
+            tooltip="Give feedback"
+            tooltip-placement="bottom"
+          >
+            <div i-ph-chat-circle-duotone text-xl text-primary dark:text-primary-dark />
+          </IconButton>
+        </FeedbackWidget>
+      </ClientOnly>
     </div>
   </nav>
   <div class="py-3 flex flex-col h-full block md:hidden">

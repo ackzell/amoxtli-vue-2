@@ -161,6 +161,8 @@ export default defineNuxtConfig({
         'dexie',
         'fuse.js',
         'jszip', // CJS
+        'licia/toEl', // CJS
+        'luna-console',
         'monaco-editor-core',
         'monaco-editor-core/esm/vs/editor/editor.api',
         'monaco-editor-core/esm/vs/editor/editor.worker',

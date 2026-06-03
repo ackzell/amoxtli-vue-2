@@ -75,7 +75,7 @@ invite:
       shared it with you because I really value your opinion and I believe you
       would give me some raw and honest feedback. So thank you very much for
       being here. It is still a Work in Progress, but I think I can share what I
-      already have to start steering in the right direction.
+      already have to start steering in the right direction. Please use the "give feedback" button on the top right, it looks like this
     note2: >-
       The contents are mainly in English.. I haven't translated them but since the capability is there, I just wanted to signal that I have it in my plans to have a Spanish version too.
     continue: Continue
@@ -85,3 +85,35 @@ en: en
 es_mx: es_mx
 english: English
 espanol-mexico: Español (MX)
+
+feedback:
+  button-tooltip: Give feedback
+  heading: "Got any feedback? I'd love to hear it!"
+  prompts: "A few things I'm curious about: your experience with the platform — what stood out (good or bad), technical hiccups, design thoughts. Or the content — was it easy to follow? Did it feel like progression?"
+  p-s: "P.S. I'm thinking about adding more challenges, progress tracking, live workshops, videos per lesson… but I'd love to hear your thoughts first."
+  your-name: Your name
+  optional: optional
+  optional-label: (optional)
+  placeholder-name: Anonymous
+  category: Category
+  category-platform-ux: Platform / UX
+  category-content: Content
+  category-features: Features
+  category-technical: Technical
+  category-design: Design
+  category-other: Other
+  category-general: General
+  prompt-platform-ux: What stood out? Any technical hiccups? Design thoughts?
+  prompt-content: Was it easy to follow? Did it feel like progression?
+  prompt-features: What would you like to see added?
+  prompt-technical: Any bugs, slowness, or browser issues?
+  prompt-design: Opinions on the look and feel?
+  prompt-general: Anything else on your mind? Open space for whatever you want to share.
+  your-message: Your thoughts
+  placeholder-message: Tell me anything…
+  send: Send feedback
+  sending: Sending…
+  toast-success: Thank you!
+  toast-success-desc: I really appreciate you taking the time to share your thoughts.
+  toast-error: Something went wrong
+  toast-error-desc: Could not submit feedback. Please try again.

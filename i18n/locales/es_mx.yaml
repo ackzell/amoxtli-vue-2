@@ -74,7 +74,7 @@ invite:
       Ya enserio, esta es una preview  privada de este proyecto. Lo
       compartí contigo porque de verdad valoro tu opinión y espero que me cuentes lo que realmente piensas. Así que muchas gracias por estar aquí. Aún
       está en progreso, pero creo que puedo compartir lo que ya tengo para empezar
-      a orientarlo en la dirección correcta.
+      a orientarlo en la dirección correcta. Por favor usa el botón de "enviar comentarios" en la parte superior derecha, se ve así
     note2: >-
       El contenido está principalmente en inglés. No lo he traducido, pero dado que el feature existe, solo quería mostrarte que tengo en mis planes tener una versión en español también.
     continue: Continuar
@@ -84,3 +84,36 @@ en: en
 es_mx: es_mx
 english: English
 espanol-mexico: Español (MX)
+
+feedback:
+  button-tooltip: Enviar comentarios
+  heading: ¿Comentarios? Me encantaría escucharlos.
+  prompts: 'Algunas cosas sobre las que tengo curiosidad: tu experiencia con la plataforma — ¿qué te gustó o no?, problemas técnicos, opiniones de diseño. O el contenido — ¿fue fácil de seguir? ¿Se sintió como un progreso?'
+  p-s: 'P.D. Estoy pensando en challenges, seguimiento de progreso, talleres en vivo, videos por lección… pero primero me encantaría escuchar lo que piensas.'
+  your-name: Tu nombre
+  optional: opcional
+  optional-label: (opcional)
+  placeholder-name: Anónimo
+  category: Categoría
+  placeholder-category: Selecciona una categoría…
+  category-platform-ux: Plataforma / UX
+  category-content: Contenido
+  category-features: Funcionalidades
+  category-technical: Técnico
+  category-design: Diseño
+  category-other: Otro
+  category-general: General
+  prompt-platform-ux: ¿Qué te llamó la atención? ¿Problemas técnicos? ¿Opiniones de diseño?
+  prompt-content: ¿Fue fácil de seguir? ¿Se sintió como un progreso?
+  prompt-features: ¿Qué te gustaría que agregara?
+  prompt-technical: ¿Problemas de rendimiento, errores, o algo del navegador?
+  prompt-design: ¿Opiniones sobre el diseño y la apariencia?
+  prompt-general: ¿Algo más en tu mente? Espacio libre para lo que quieras compartir.
+  your-message: Tus comentarios
+  placeholder-message: Cuéntame lo que sea…
+  send: Enviar comentarios
+  sending: Enviando…
+  toast-success: ¡Gracias!
+  toast-success-desc: De verdad aprecio que te hayas tomado el tiempo de compartir tu opinión.
+  toast-error: Algo salió mal
+  toast-error-desc: No se pudo enviar el comentario. Intenta de nuevo.
