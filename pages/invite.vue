@@ -108,7 +108,7 @@ onBeforeMount(async () => {
               hidden: { opacity: 0, y: -10, scale: 0.95 },
               visible: { opacity: 1, y: 0, scale: 1 },
             }"
-            class="text-sm text-negative-700 p-3 border border-negative/30 rounded-md bg-negative/10 dark:text-negative-300"
+            class="sc-error-message"
           >
             {{ error }}
           </motion.div>

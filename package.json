@@ -4,10 +4,10 @@
   "private": true,
   "packageManager": "pnpm@11.2.2",
   "scripts": {
-    "build": "nuxt build",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=6144\" nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "npx wrangler pages dev dist",
     "typecheck": "nuxt typecheck",
     "prepare": "nuxt prepare",
     "lint": "eslint .",

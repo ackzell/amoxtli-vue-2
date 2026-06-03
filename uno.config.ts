@@ -44,6 +44,8 @@ export default defineConfig({
     'border-input': 'border-bgr-500/30',
     'bg-popover': 'bg-bgr-50 dark:bg-bgr-dark border-bgr-500/30',
     'bg-input': 'bg-bgr-100/50 dark:bg-bgr-800',
+
+    'sc-error-message': 'text-sm text-negative-700 p-3 border border-negative/30 rounded-md bg-negative/10 dark:text-negative-300',
   },
   safelist: [
     'bg-info/8',

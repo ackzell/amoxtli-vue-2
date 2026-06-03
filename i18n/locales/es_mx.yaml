@@ -114,7 +114,7 @@ feedback:
   placeholder-message: Cuéntame lo que sea…
   send: Enviar comentarios
   sending: Enviando…
-  toast-success: ¡Gracias!
+  toast-success: ¡Gracias! 🙏
   toast-success-desc: De verdad aprecio que te hayas tomado el tiempo de compartir tu opinión.
   toast-error: Algo salió mal
   toast-error-desc: No se pudo enviar el comentario. Intenta de nuevo.

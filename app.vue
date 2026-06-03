@@ -8,7 +8,7 @@ import './styles/twoslash.css'
 const config = useRuntimeConfig()
 const route = useRoute()
 const showAgreement = ref(false)
-let alias = ref('')
+const alias = ref('')
 useThemeTransition()
 
 const INVITE_PATHS = ['/en/invite', '/es_mx/invite']
@@ -33,8 +33,11 @@ async function checkAgreement() {
 onMounted(checkAgreement)
 
 watch(() => route.path, () => {
-  if (showAgreement.value) return
+  if (showAgreement.value)
+    return
   checkAgreement()
+}, {
+  immediate: true,
 })
 
 function onAgreementClose() {

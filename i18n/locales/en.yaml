@@ -114,7 +114,7 @@ feedback:
   placeholder-message: Tell me anything…
   send: Send feedback
   sending: Sending…
-  toast-success: Thank you!
+  toast-success: Thank you! 🙏
   toast-success-desc: I really appreciate you taking the time to share your thoughts.
   toast-error: Something went wrong
   toast-error-desc: Could not submit feedback. Please try again.

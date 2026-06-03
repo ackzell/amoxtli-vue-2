@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useToastsStore } from '@/components/Toasts/useToastsStore'
-
 export interface FeedbackSections {
   'platform-ux': string
   'content': string
@@ -11,12 +9,13 @@ export interface FeedbackSections {
 }
 
 const { t } = useI18n()
-const { toast } = useToastsStore()
 
 const isOpen = defineModel<boolean>('open', { default: false })
 
 const name = ref('')
 const sending = ref(false)
+const submitted = ref(false)
+const error = ref('')
 
 const sections = reactive<FeedbackSections>({
   'platform-ux': '',
@@ -25,6 +24,17 @@ const sections = reactive<FeedbackSections>({
   'technical': '',
   'design': '',
   'general': '',
+})
+
+watch(isOpen, (val) => {
+  if (!val) {
+    submitted.value = false
+    error.value = ''
+    sending.value = false
+    for (const key of Object.keys(sections)) {
+      (sections as Record<string, string>)[key] = ''
+    }
+  }
 })
 
 interface SectionDef {
@@ -68,23 +78,16 @@ async function submit() {
     return
 
   sending.value = true
+  error.value = ''
   try {
     await $fetch('/api/feedback', {
       method: 'POST',
       body: { name: name.value || null, sections: nonEmpty },
     })
-    toast.success(`${t('feedback.toast-success')} 🙏`, {
-      description: t('feedback.toast-success-desc'),
-    })
-    isOpen.value = false
-    for (const key of Object.keys(sections)) {
-      (sections as Record<string, string>)[key] = ''
-    }
+    submitted.value = true
   }
   catch {
-    toast.error(t('feedback.toast-error'), {
-      description: t('feedback.toast-error-desc'),
-    })
+    error.value = t('feedback.toast-error')
   }
   finally {
     sending.value = false
@@ -98,7 +101,7 @@ async function submit() {
       <slot />
     </UiDialogTrigger>
     <UiDialogContent class="sm:max-w-xl">
-      <UiDialogHeader>
+      <UiDialogHeader v-if="!submitted && !sending">
         <div sticky>
           <UiDialogTitle>{{ $t('feedback.heading') }}</UiDialogTitle>
           <UiDialogDescription>
@@ -107,13 +110,25 @@ async function submit() {
         </div>
       </UiDialogHeader>
 
-      <div v-if="sending">
-        <p my-8 text-center>
-          {{ $t('feedback.sending') }}
+      <div v-if="submitted" my-8 text-center>
+        <p text-lg text-positive font-medium dark:text-positive-300>
+          {{ $t('feedback.toast-success') }}
+        </p>
+        <p text-sm mt-2 op70>
+          {{ $t('feedback.toast-success-desc') }}
+        </p>
+      </div>
+
+      <div v-else-if="sending">
+        <p my-8 text-center flex gap2 items-center justify-center>
+          <span i-svg-spinners-pulse-multiple h6 inline-block />{{ $t('feedback.sending') }}
         </p>
       </div>
 
       <form v-else @submit.prevent="submit">
+        <div v-if="error" class="sc-error-message">
+          {{ error }}
+        </div>
         <UiScrollArea class="max-h-[50vh]" flex="~ col" px4>
           <div flex="~ col gap-4">
             <div>
@@ -151,9 +166,10 @@ async function submit() {
           </div>
         </UiScrollArea>
         <button
-          type="button"
+          type="submit"
           sticky
-          class="text-sm text-white font-medium my-4 py-2 rounded-md bg-primary w-full transition-opacity dark:bg-primary-dark disabled:opacity-40 hover:opacity-90 disabled:pointer-events-none"
+          un-disabled="op40  pointer-events-none bg-bgr-200 dark:bg-bgr-700"
+          class="text-sm text-white font-medium my-4 py-2 rounded-md w-full transition-opacity bg-primary! hover:opacity-90 dark:bg-primary-dark!"
           :disabled="sending || isFormEmpty"
           @click="submit"
         >
