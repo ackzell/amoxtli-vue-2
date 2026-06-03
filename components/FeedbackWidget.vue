@@ -118,7 +118,7 @@ async function submit() {
           <div flex="~ col gap-4">
             <div>
               <label for="name" class="dark:text-bgr-300-dark/70 text-xs text-bgr-300/70 font-medium block">
-                {{ $t('feedback.your-name') }} <span class="text-bgr-300/40">{{ $t('feedback.optional-label') }}</span>
+                {{ $t('feedback.your-name') }}
               </label>
               <input
                 id="name"

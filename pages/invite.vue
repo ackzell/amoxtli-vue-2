@@ -124,7 +124,7 @@ onBeforeMount(async () => {
                 id="name"
                 v-model="name"
                 type="text"
-                placeholder="Enter your name"
+                :placeholder="$t('your-name.placeholder')"
                 class="placeholder:text-faded/50 rounded-lg bg-bgr-100/20 transition focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/90 dark:border-primary-dark! dark:focus:ring-primary-dark/90"
                 :disabled="loading"
 

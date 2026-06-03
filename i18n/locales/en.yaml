@@ -60,6 +60,7 @@ interactive-book-about-vue: An interactive book about Vue.js
 your-name:
   label: Your name
   prompt: This is just for the welcome message, you can put anything you want here.
+  placeholder: Enter your name
 invite-code: Invite code
 this-is-a-private-preview-you-need-an-invite-code-to-access-it: This is a private preview. You need an invite code to access it.
 invite-code-required: This is a private preview. You need an invite code to access it.
@@ -88,8 +89,8 @@ espanol-mexico: Español (MX)
 
 feedback:
   button-tooltip: Give feedback
-  heading: "Got any feedback? I'd love to hear it!"
-  prompts: "A few things I'm curious about: your experience with the platform — what stood out (good or bad), technical hiccups, design thoughts. Or the content — was it easy to follow? Did it feel like progression?"
+  heading: "Got any feedback? I'd love to hear it 🤓"
+  prompts: "A few things I'm curious about your experience with the platform I split them into categories. Feel free to answer any or all of them, or just share whatever is on your mind. You can send multiple feedback entries if you want to share more thoughts later on."
   p-s: "P.S. I'm thinking about adding more challenges, progress tracking, live workshops, videos per lesson… but I'd love to hear your thoughts first."
   your-name: Your name
   optional: optional

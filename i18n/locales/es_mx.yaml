@@ -60,9 +60,10 @@ interactive-book-about-vue: Un libro interactivo acerca de Vue.js
 your-name:
   label: Tu nombre
   prompt: Esto es solo para el mensaje de bienvenida, puedes poner lo que quieras aquí.
+  placeholder: Escribe tu nombre
 invite-code: Código de invitación
 this-is-a-private-preview-you-need-an-invite-code-to-access-it: Esta es una vista previa privada. Necesitas un código de invitación para acceder.
-invite-code-required: Se requiere un código de invitación
+invite-code-required: Esta es una preview privada. Se requiere un código de invitación
 enter: Entrar
 entering: Entrando
 hang-on-a-sec: espera un poco...
@@ -87,9 +88,9 @@ espanol-mexico: Español (MX)
 
 feedback:
   button-tooltip: Enviar comentarios
-  heading: ¿Comentarios? Me encantaría escucharlos.
-  prompts: 'Algunas cosas sobre las que tengo curiosidad: tu experiencia con la plataforma — ¿qué te gustó o no?, problemas técnicos, opiniones de diseño. O el contenido — ¿fue fácil de seguir? ¿Se sintió como un progreso?'
-  p-s: 'P.D. Estoy pensando en challenges, seguimiento de progreso, talleres en vivo, videos por lección… pero primero me encantaría escuchar lo que piensas.'
+  heading: ¿Tienes comentarios? Me encantaría escucharlos 🤓
+  prompts: 'Algunas cosas sobre las que tengo curiosidad acerca de tu experiencia con la plataforma las dividí en categorías. Siéntete libre de responder cualquiera o todas, o simplemente compartir lo que tengas en mente. Puedes enviar múltiples comentarios si quieres compartir más feedback después.'
+  p-s: 'P.D. Estoy pensando en challenges, seguimiento de progreso, talleres en vivo, videos por lección… pero primero me encantaría escuchar lo que opinas.'
   your-name: Tu nombre
   optional: opcional
   optional-label: (opcional)

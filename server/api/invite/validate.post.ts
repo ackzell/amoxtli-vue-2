@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Name and invite code are required' })
   }
 
-  const trimmedCode = code.trim().toUpperCase()
+  const trimmedCode = code.trim()
 
   const storage = getInviteStorage()
   const key = makeInviteKey(trimmedCode)
