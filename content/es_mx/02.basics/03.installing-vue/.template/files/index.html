@@ -1,0 +1,20 @@
+<script src="vue-3.5.22.js"></script>
+
+<div id="app">
+  <p>{{ message }}</p>
+  <code>version: {{ version }}</code>
+</div>
+
+<script>
+  const { createApp, ref, version } = Vue
+
+  createApp({
+    setup() {
+      const message = ref('Hola Vue!')
+      return {
+        version,
+        message,
+      }
+    },
+  }).mount('#app')
+</script>
