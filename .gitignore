@@ -31,5 +31,6 @@ logs
 
 # Generated invite codes
 invites-batch.json
+invites-in-remote.json
 
 data/invites

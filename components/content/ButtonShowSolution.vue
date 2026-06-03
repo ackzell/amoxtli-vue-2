@@ -19,6 +19,6 @@ const guide = useGuideStore()
   >
     <div v-if="!guide.showingSolution " i-carbon-idea />
     <div v-else i-carbon-rotate-360 />
-    {{ guide.showingSolution ? (props.resetMessage ?? $t(guide.buttonResetMessage)) : (props.showSolutionMessage ?? $t(guide.buttonSolutionMessage)) }}
+    {{ guide.showingSolution ? (props.resetMessage ?? guide.buttonResetMessage) : (props.showSolutionMessage ?? guide.buttonSolutionMessage) }}
   </button>
 </template>

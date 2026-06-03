@@ -151,6 +151,7 @@ async function submit() {
           </div>
         </UiScrollArea>
         <button
+          type="button"
           sticky
           class="text-sm text-white font-medium my-4 py-2 rounded-md bg-primary w-full transition-opacity dark:bg-primary-dark disabled:opacity-40 hover:opacity-90 disabled:pointer-events-none"
           :disabled="sending || isFormEmpty"
