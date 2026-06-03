@@ -67,7 +67,8 @@ watch(
       data-dock-drag-handle="true"
       draggable="true"
       flex="~ items-center gap-2"
-      border="b base dashed" pl1 pr2 bg-faded
+      border="b base dashed" pl1 pr2
+      bg="dark:bgr-dark bgr-50"
       class="active:cursor-grabbing"
     >
       <div

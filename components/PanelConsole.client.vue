@@ -242,7 +242,8 @@ function deserializeMessage(arg: any): any {
       draggable="true"
       flex="~ gap-2 items-center"
       border="b base dashed"
-      p2 pl4 bg-faded
+      p2 pl4
+      bg="dark:bgr-dark bgr-50"
       class="active:cursor-grabbing"
     >
       <div i-carbon-cics-program />

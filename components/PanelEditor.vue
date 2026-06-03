@@ -178,7 +178,8 @@ const sizes = computed<number[]>({
         <div
           flex="~ gap-2 items-center"
           border="b base dashed"
-          px4 py2 bg-faded
+          px4 py2
+          bg="dark:bgr-dark bgr-50"
         >
           <div i-ph-tree-structure-duotone flex-none />
           <span text-sm>{{ $t('files') }}</span>
@@ -206,7 +207,8 @@ const sizes = computed<number[]>({
           draggable="true"
           flex="~ gap-2 items-center"
           border="b base dashed"
-          px4 py2 bg-faded
+          px4 py2
+          bg="dark:bgr-dark bgr-50"
           class="active:cursor-grabbing"
         >
           <FileIcon :path="play.fileSelected?.filepath || ''" />
