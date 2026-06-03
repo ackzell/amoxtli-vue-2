@@ -30,7 +30,7 @@ async function checkAgreement() {
   catch {}
 }
 
-onMounted(checkAgreement)
+onBeforeMount(checkAgreement)
 
 watch(() => route.path, () => {
   if (showAgreement.value)
