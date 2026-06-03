@@ -69,7 +69,7 @@ entering: Entering
 hang-on-a-sec: hang on a sec
 invite:
   agreement:
-    title: Thank you so much, {name}!
+    title: Welcome to the private preview, {name}!
     body: Gotcha! I in fact, did not one shot it and it will hopefully show 😅😅
     note: >-
       In a more serious note, this is a private preview of this project. I

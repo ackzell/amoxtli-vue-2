@@ -69,7 +69,7 @@ entering: Entrando
 hang-on-a-sec: espera un poco...
 invite:
   agreement:
-    title: ¡Muchísimas gracias, {name}!
+    title: ¡Bienvenida(o) a la preview privada, {name}!
     body: Noscierto, no lo hice en un sólo prompt, pero ojalá que eso se note 😅😅
     note: >-
       Ya enserio, esta es una preview  privada de este proyecto. Lo

@@ -346,7 +346,7 @@ const isFeedbackOpen = ref(false)
       <ClientOnly>
         <FeedbackWidget v-model:open="isFeedbackOpen">
           <IconButton
-            tooltip="Give feedback"
+            :tooltip="$t('feedback.button-tooltip')"
             tooltip-placement="bottom"
           >
             <div i-ph-chat-circle-duotone text-xl text-primary dark:text-primary-dark />

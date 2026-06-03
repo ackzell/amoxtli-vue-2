@@ -6,7 +6,7 @@ import './styles/overrides.css'
 import './styles/twoslash.css'
 
 const config = useRuntimeConfig()
-const route = useRoute()
+const router = useRouter()
 const showAgreement = ref(false)
 const alias = ref('')
 useThemeTransition()
@@ -18,7 +18,8 @@ function isInvitePath(path: string) {
 }
 
 async function checkAgreement() {
-  if (!config.public.inviteOnly || isInvitePath(route.path))
+  const path = useRoute().path
+  if (!config.public.inviteOnly || isInvitePath(path))
     return
   try {
     const res = await $fetch<{ valid: boolean, agreed?: boolean, alias?: string }>('/api/invite/status')
@@ -30,14 +31,12 @@ async function checkAgreement() {
   catch {}
 }
 
-onBeforeMount(checkAgreement)
+onMounted(checkAgreement)
 
-watch(() => route.path, () => {
+router.afterEach(() => {
   if (showAgreement.value)
     return
   checkAgreement()
-}, {
-  immediate: true,
 })
 
 function onAgreementClose() {
