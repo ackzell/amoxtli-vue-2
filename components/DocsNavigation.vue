@@ -15,7 +15,7 @@ function isNavInstanceVisible() {
   return !!navRoot.value && navRoot.value.offsetParent !== null
 }
 
-const collection = computed(() => locale.value === 'ja' ? 'ja' : 'en')
+const collection = computed(() => locale.value === 'es_mx' ? 'es_mx' : 'en')
 const routePath = computed(() => route.path)
 
 const { data: page } = useAsyncData(
@@ -152,12 +152,12 @@ onKeyStroke('Escape', () => {
       :to="prev.path"
       :title="`Previous: ${prev.title}`"
       hover="bg-active text-primary dark:text-primary-dark op100"
-      text-sm rounded-md op70 flex h10 w10 items-center justify-center z-110
+      class="z-docs-nav text-sm rounded-md op70 flex h10 w10 items-center justify-center"
     >
       <div i-carbon-arrow-left />
     </NuxtLink>
     <!-- flex-grow spacer so the absolute child can anchor to the bar position -->
-    <div ref="navRoot" class="nav-bar-anchor group flex-grow min-w-0 relative z-110">
+    <div ref="navRoot" class="nav-bar-anchor group z-docs-nav flex-grow min-w-0 relative">
       <!-- Single bordered box: contains both trigger bar and dropdown panel -->
       <div
         class="dark:border-bgr-700 hover:border-primary hover:shadow-md dark:hover:border-primary-dark dark:hover-shadow-dark-950"
@@ -225,7 +225,7 @@ onKeyStroke('Escape', () => {
       :to="next.path"
       :title="`Next: ${next.title}`"
       hover="bg-active text-primary dark:text-primary-dark op100"
-      text-sm rounded-md op70 flex h10 w10 items-center justify-center z-110
+      z-docs-nav text-sm rounded-md op70 flex h10 w10 items-center justify-center
     >
       <div i-mynaui-arrow-right />
     </NuxtLink>

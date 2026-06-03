@@ -156,14 +156,14 @@ addCommands(
     },
   },
   {
-    id: 'language-ja',
-    title: '日本語に切り替える',
+    id: 'language-es_mx',
+    title: 'Cambiar a Español (MX)',
     handler: () => {
-      i18n.setLocale('ja')
+      i18n.setLocale('es_mx')
     },
     icon: 'i-ph-translate-duotone',
     visible: () => {
-      return i18n.locale.value !== 'ja'
+      return i18n.locale.value !== 'es_mx'
     },
   },
 )
@@ -189,7 +189,7 @@ addCommands(
       :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
     >
       <ClientOnly>
-        <VDropdown :distance="6">
+        <VDropdown theme="layout-dropdown">
           <IconButton
             tooltip="Languages"
             tooltip-placement="bottom"
@@ -197,16 +197,22 @@ addCommands(
             <div i-ph-translate-duotone text-xl />
           </IconButton>
           <template #popper>
-            <div flex="~ col gap-y-1" p2>
-              <button
-                v-for="locale of i18n.locales.value" :key="locale.code"
-                px2 py1 rounded
-                hover="bg-active"
-                :class="locale.code === i18n.locale.value ? 'text-primary' : ''"
-                @click="i18n.setLocale(locale.code)"
-              >
-                {{ locale.name }}
-              </button>
+            <div class="layout-menu-panel">
+              <div flex="~ col gap-y-1" p2 class="layout-menu-list">
+                <button
+                  v-for="locale of i18n.locales.value"
+                  :key="locale.code"
+                  class="layout-menu-item"
+                  px2 py1 rounded
+                  hover="bg-active"
+                  :class="locale.code === i18n.locale.value ? 'text-primary dark:text-primary-dark' : ''"
+                  @click="i18n.setLocale(locale.code)"
+                >
+                  <div transition-transform duration-200>
+                    {{ locale.name }}
+                  </div>
+                </button>
+              </div>
             </div>
           </template>
         </VDropdown>

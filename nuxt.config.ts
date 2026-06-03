@@ -343,9 +343,9 @@ export default defineNuxtConfig({
         file: 'en.yaml',
       },
       {
-        name: '日本語',
-        code: 'ja',
-        file: 'ja.yaml',
+        name: 'Español (MX)',
+        code: 'es_mx',
+        file: 'es_mx.yaml',
       },
     ],
     strategy: 'prefix',

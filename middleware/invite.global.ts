@@ -1,6 +1,6 @@
 let cachedValid = false
 
-const INVITE_PATHS = ['/en/invite', '/ja/invite']
+const INVITE_PATHS = ['/en/invite', '/es_mx/invite']
 const DEFAULT_LOCALE = '/en'
 
 export default defineNuxtRouteMiddleware(async (to) => {
@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return
   }
 
-  if (to.path.startsWith('/api') || INVITE_PATHS.some(p => to.path === p || to.path.startsWith(p + '/'))) {
+  if (to.path.startsWith('/api') || INVITE_PATHS.some(p => to.path === p || to.path.startsWith(`${p}/`))) {
     return
   }
 
@@ -34,7 +34,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
       }
       return
     }
-  } catch {
+  }
+  catch {
     // API unavailable — redirect to be safe
   }
 

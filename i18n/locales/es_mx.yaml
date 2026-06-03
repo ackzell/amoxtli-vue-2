@@ -1,0 +1,86 @@
+guide: Guía
+edit-this-page: Editar esta página
+terminal:
+  name: Terminal
+  restart: Reiniciar terminal
+  hide: Ocultar terminal
+  toggle: Mostrar/Ocultar terminal
+download-zip: Descargar playground como zip
+work-in-progress: En progreso
+search: Buscar
+color-mode:
+  to-dark: Cambiar a modo oscuro
+  to-light: Cambiar a modo claro
+coming-soon: Próximamente
+reset-challenge: Reiniciar desafío
+show-solution: Mostrar solución
+search-dots: Buscar...
+steps:
+  initializing-webcontainer: Inicializando WebContainer
+  mounting-files: Montando archivos
+  installing-dependencies: Instalando dependencias
+  starting-dev-server: Iniciando el servidor de desarrollo
+  waiting-for-dev-server: Esperando al servidor de desarrollo
+restart-server: Reiniciar el servidor
+interactive-terminal-mode: Modo terminal interactivo
+files: Archivos
+preview: Vista previa
+built: Construido
+vueVersion: VVersión de Vue
+editor: Editor
+console-output:
+  name: Salida de la consola
+  clear: Limpiar
+  hide-vite: Ocultar logs de [vite]
+  show-vite: Mostrar logs de [vite]
+a-book-about-vue: Un libro acerca de Vue
+amoxtli-vue: Amoxtli Vue
+yt-player:
+  description-goes-here: Aquí va la descripción
+  watch: Ver
+more: más
+no-snapshots-saved-in-this-session: No se han guardado snapshots en esta sesión
+updated: Actualizado
+no-changes: Sin cambios
+restore: Restaurar
+delete: Eliminar
+confirm: Confirmar
+binary-no-preview: Archivo binario — no se puede previsualizar
+one-file: 1 archivo
+file: archivo
+loading: Cargando…
+slash: /
+composition-api: Composition API
+options-api: Options API
+script-setup: Script setup
+no-script-setup: Sin script setup
+show-compilation-error: Mostrar error de compilación
+working-example: Ejemplo funcional
+interactive-book-about-vue: Un libro interactivo acerca de Vue.js
+your-name:
+  label: Tu nombre
+  prompt: Esto es solo para el mensaje de bienvenida, puedes poner lo que quieras aquí.
+invite-code: Código de invitación
+this-is-a-private-preview-you-need-an-invite-code-to-access-it: Esta es una vista previa privada. Necesitas un código de invitación para acceder.
+invite-code-required: Se requiere un código de invitación
+enter: Entrar
+entering: Entrando
+hang-on-a-sec: espera un poco...
+invite:
+  agreement:
+    title: ¡Muchísimas gracias, {name}!
+    body: Noscierto, no lo hice en un sólo prompt, pero ojalá que eso se note 😅😅
+    note: >-
+      Ya enserio, esta es una preview  privada de este proyecto. Lo
+      compartí contigo porque de verdad valoro tu opinión y espero que me cuentes lo que realmente piensas. Así que muchas gracias por estar aquí. Aún
+      está en progreso, pero creo que puedo compartir lo que ya tengo para empezar
+      a orientarlo en la dirección correcta.
+    note2: >-
+      El contenido está principalmente en inglés. No lo he traducido, pero dado que el feature existe, solo quería mostrarte que tengo en mis planes tener una versión en español también.
+    continue: Continuar
+    entering: Entrando
+    error: Algo salió mal
+en: en
+es_mx: es_mx
+english: English
+espanol-mexico: Español (MX)

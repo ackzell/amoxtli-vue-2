@@ -152,7 +152,7 @@ const hiddenCount = computed(() => {
 </script>
 
 <template>
-  <div class="pointer-events-none left-0 right-0 top-0 fixed z-[111]">
+  <div class="z-toasts pointer-events-none left-0 right-0 top-0 fixed">
     <div
       class="p-4 pt-[55px] flex flex-col gap-2 items-center"
       @mouseenter="isStackHovered = true"

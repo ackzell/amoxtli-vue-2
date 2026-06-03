@@ -29,6 +29,10 @@ export default defineConfig({
     'z-splitter': 'z-102',
     'z-embedded-docs-close': 'z-103',
     'z-index-command-palette': 'z-200',
+    'z-toasts': 'z-111',
+    'z-docs-nav': 'z-104',
+    'z-alert-dialog-overlay': 'z-201',
+    'z-alert-dialog-content': 'z-202',
 
     // brought in from YV
     'sc-toolbar-btn': 'cursor-pointer hover:text-foreground/80 hover:scale-120 transition duration-200 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100 active:scale-95',

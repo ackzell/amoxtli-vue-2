@@ -9,10 +9,10 @@ export default defineContentConfig({
         exclude: ['**/.template/**'],
       },
     }),
-    ja: defineCollection({
+    es_mx: defineCollection({
       type: 'page',
       source: {
-        include: 'ja/**',
+        include: 'es_mx/**',
         exclude: ['**/.template/**'],
       },
     }),

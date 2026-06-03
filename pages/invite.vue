@@ -11,6 +11,7 @@ const error = ref('')
 const loading = ref(false)
 
 useThemeTransition()
+const i18n = useI18n()
 
 function normalizeCode(e: Event) {
   const input = e.target as HTMLInputElement
@@ -27,7 +28,7 @@ async function submit() {
     })
     if (res.valid) {
       const locale = useRoute().path.split('/')[1] || 'en'
-      await navigateTo(`/${locale}/invite/welcome`)
+      await navigateTo(`/${locale}`)
     }
   }
   catch (e: any) {
@@ -39,10 +40,8 @@ async function submit() {
 }
 
 onBeforeMount(async () => {
-  const { valid, agreed } = await $fetch('/api/invite/status').catch(() => {})
-  if (valid && !agreed)
-    await navigateTo(`/${locale}/invite/welcome`)
-  if (valid && agreed)
+  const res = await $fetch<{ valid: boolean }>('/api/invite/status').catch(() => ({ valid: false }))
+  if (res.valid)
     await navigateTo(`/${locale}`)
   checking.value = false
 })
@@ -51,6 +50,33 @@ onBeforeMount(async () => {
 <template>
   <div class="flex flex-col min-h-screen">
     <div class="p-4 flex justify-end">
+      <VDropdown theme="layout-dropdown">
+        <IconButton
+          tooltip="Languages"
+          tooltip-placement="bottom"
+        >
+          <div i-ph-translate-duotone text-xl />
+        </IconButton>
+        <template #popper>
+          <div class="layout-menu-panel">
+            <div flex="~ col gap-y-1" p2 class="layout-menu-list">
+              <button
+                v-for="locale of i18n.locales.value"
+                :key="locale.code"
+                class="layout-menu-item"
+                px2 py1 rounded
+                hover="bg-active"
+                :class="locale.code === i18n.locale.value ? 'text-primary dark:text-primary-dark' : ''"
+                @click="i18n.setLocale(locale.code)"
+              >
+                <div transition-transform duration-200>
+                  {{ locale.name }}
+                </div>
+              </button>
+            </div>
+          </div>
+        </template>
+      </VDropdown>
       <ColorSchemeToggle />
     </div>
 
@@ -92,7 +118,7 @@ onBeforeMount(async () => {
           <form class="space-y-5" @submit.prevent="submit">
             <div>
               <label for="name" class="text-sm text-faded font-medium mb-1.5 block">
-                {{ $t('your-name') }}
+                {{ $t('your-name.label') }} <small class="text-xs op40">{{ $t('your-name.prompt') }}</small>
               </label>
               <input
                 id="name"
@@ -146,3 +172,21 @@ onBeforeMount(async () => {
     </div>
   </div>
 </template>
+
+<style>
+/* Style */
+.v-popper--theme-layout-dropdown .v-popper__inner {
+  --uno: 'p0 bg-bgr-50 text-dark rounded-md shadow-md border border-bgr-200';
+}
+
+.dark .v-popper--theme-layout-dropdown .v-popper__inner {
+  color: var(--av-text-primary);
+  --uno: 'p0 bg-bgr-dark  rounded-md shadow-md border border-bgr-600';
+}
+
+.v-popper--theme-layout-dropdown .v-popper__arrow-container,
+.v-popper--theme-layout-dropdown .v-popper__arrow-outer,
+.v-popper--theme-layout-dropdown .v-popper__arrow-inner {
+  display: none;
+}
+</style>

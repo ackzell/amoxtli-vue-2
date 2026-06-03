@@ -1,3 +1,5 @@
+import { env } from 'node:process'
+
 export default defineEventHandler(async (event) => {
   const cookie = getCookie(event, 'amv_session')
 
@@ -21,7 +23,7 @@ export default defineEventHandler(async (event) => {
     httpOnly: true,
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 30,
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
   })
 
   return { agreed: true }

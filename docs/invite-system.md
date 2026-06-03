@@ -19,10 +19,9 @@ GET /en ───────────────────────►
   │                               no valid session?
   │                               redirect /en → /en/invite
   ▼
-GET /en/invite ───────────────── pages/invite/index.vue
+GET /en/invite ───────────────── pages/invite.vue
   │                               check session
-  │                               if valid + agreed → /en
-  │                               if valid + !agreed → /en/invite/welcome
+  │                               if valid → /en
   │                               else show form
   │
   │  (user enters name + code)
@@ -36,11 +35,9 @@ POST /api/invite/validate ───── validate.post.ts
   │                               create HMAC-signed session cookie
   │                               return { valid: true, alias }
   ▼
-navigateTo('/en/invite/welcome')  pages/invite/welcome.vue
-  │                               check session
-  │                               if !valid → /en/invite
-  │                               if already agreed → /en
-  │                               else show explanation
+navigateTo('/en') ────────────── app.vue (onMounted / route watch)
+  │                               fetch /api/invite/status
+  │                               if valid + !agreed → show AgreementDialog
   │
   │  (user reads + clicks Continue)
   │
@@ -50,9 +47,7 @@ POST /api/invite/agree ──────── agree.post.ts
   │                               re-sign cookie
   │                               return { agreed: true }
   ▼
-navigateTo('/en') ────────────── invite.global.ts
-  │                               cookie present, valid session
-  │                               pass through
+AgreementDialog emits close ──── app.vue hides dialog
   ▼
 Tutorial renders
 ```
@@ -61,21 +56,22 @@ Tutorial renders
 
 ## Key Files
 
-| File | Purpose |
-| --- | --- |
-| `server/utils/invite.ts` | `InviteData`/`SessionData` types, HMAC-SHA256 sign/verify, KV helpers |
-| `server/api/invite/validate.post.ts` | Validates name+code, marks invite used, sets `amv_session` cookie |
-| `server/api/invite/status.get.ts` | Reads `amv_session` cookie, returns `{ valid, alias, agreed }` |
-| `server/api/invite/agree.post.ts` | Sets `session.agreed = true`, re-signs cookie |
-| `middleware/invite.global.ts` | Route guard — redirects unauthenticated → `/locale/invite` |
-| `middleware/index.global.ts` | Redirects `/` → `/en` (locale prefix, runs before invite) |
-| `pages/invite/index.vue` | Gate page with name + code form, checks session on mount |
-| `pages/invite/welcome.vue` | Post-validation explanation page, user must click Continue to proceed |
-| `scripts/generate-invites.ts` | CLI to generate invite codes from YAML/JSON name list |
-| `invites.yaml` | List of aliases for code generation |
-| `nuxt.config.ts` | `devStorage` (fs), `runtimeConfig` (`inviteOnly`, `inviteSecret`), KV binding |
-| `wrangler.toml` | Cloudflare KV binding `AMVI_KV` |
-| `.env` | `NUXT_INVITE_SECRET`, `NUXT_PUBLIC_INVITE_ONLY` |
+| File                                 | Purpose                                                                       |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| `server/utils/invite.ts`             | `InviteData`/`SessionData` types, HMAC-SHA256 sign/verify, KV helpers         |
+| `server/api/invite/validate.post.ts` | Validates name+code, marks invite used, sets `amv_session` cookie             |
+| `server/api/invite/status.get.ts`    | Reads `amv_session` cookie, returns `{ valid, alias, agreed }`                |
+| `server/api/invite/agree.post.ts`    | Sets `session.agreed = true`, re-signs cookie                                 |
+| `middleware/invite.global.ts`        | Route guard — redirects unauthenticated → `/locale/invite`                    |
+| `middleware/index.global.ts`         | Redirects `/` → `/en` (locale prefix, runs before invite)                     |
+| `app.vue`                            | Root component — checks session on mount/route change, shows AgreementDialog |
+| `pages/invite.vue`                   | Gate page with name + code form, redirects validated users → `/locale`        |
+| `components/AgreementDialog.vue`     | Modal overlay with agreement text, Continue button calls `/api/invite/agree` |
+| `scripts/generate-invites.ts`        | CLI to generate invite codes from YAML/JSON name list                         |
+| `invites.yaml`                       | List of aliases for code generation                                           |
+| `nuxt.config.ts`                     | `devStorage` (fs), `runtimeConfig` (`inviteOnly`, `inviteSecret`), KV binding |
+| `wrangler.toml`                      | Cloudflare KV binding `AMVI_KV`                                               |
+| `.env`                               | `NUXT_INVITE_SECRET`, `NUXT_PUBLIC_INVITE_ONLY`                               |
 
 ---
 
@@ -85,10 +81,10 @@ Tutorial renders
 
 ```ts
 interface InviteData {
-  used: boolean           // true after first validation
-  usedAt: number | null   // timestamp of validation
-  usedByName: string | null  // name the user entered at the gate
-  createdAt: number       // timestamp of code generation
+  used: boolean // true after first validation
+  usedAt: number | null // timestamp of validation
+  usedByName: string | null // name the user entered at the gate
+  createdAt: number // timestamp of code generation
 }
 ```
 
@@ -98,8 +94,8 @@ Key format in KV: `invite_<CODE>` (e.g. `invite_AMV-TY2A`).
 
 ```ts
 interface SessionData {
-  alias: string         // name the user entered at the gate
-  validatedAt: number   // timestamp of validation
+  alias: string // name the user entered at the gate
+  validatedAt: number // timestamp of validation
 }
 ```
 
@@ -110,6 +106,7 @@ interface SessionData {
 ### Workflow
 
 1. Add/edit aliases in `invites.yaml`:
+
    ```yaml
    - Alice
    - Bob
@@ -117,6 +114,7 @@ interface SessionData {
    ```
 
 2. Generate codes:
+
    ```sh
    pnpm generate-invites          # fresh (with overwrite confirmation)
    pnpm generate-invites:append   # add codes only for new aliases
@@ -157,46 +155,40 @@ Content-Type: application/json
 ```
 
 On success:
+
 - Marks the invite `used = true`
 - Stores `usedByName = name.trim()` in the invite record
 - Creates an HMAC-SHA256 signed session cookie (`amv_session`)
 - Returns `{ valid: true, alias: "Alice" }`
 
 On failure (4xx):
+
 - Missing name/code → `400 "Name and invite code are required"`
 - Invalid code → `400 "Invalid invite code"`
 - Already used → `400 "This code has already been used"`
 
 ---
 
-## Agreement Page
+## Agreement Dialog
 
-After a successful validation, the user is redirected to `/locale/invite/welcome`
-where you can explain expectations, house rules, or instructions before granting
-access to the tutorial.
+After a successful validation, the user is navigated to `/locale` (the tutorial).
+`app.vue` checks the session on mount and whenever the route changes to a
+non-invite path. If the session is valid but `agreed` is `false`, it renders
+`<AgreementDialog>` as a modal overlay on top of the tutorial.
 
-The invite form page (`pages/invite/index.vue`) also checks the session on mount.
-Any user who already has a valid session cookie never sees the form again:
+The invite form page (`pages/invite.vue`) also checks the session on mount:
 
-| Session state | Redirect |
-| --- | --- |
-| Valid + `agreed: true` | `/locale` |
-| Valid + `agreed: false` | `/locale/invite/welcome` |
-| No valid session | Show the form |
+| Session state    | Redirect                          |
+| ---------------- | --------------------------------- |
+| Valid session    | `/locale` (dialog handles agree)  |
+| No valid session | Show the form                     |
 
-The page checks the session on mount:
-
-| Condition | Action |
-| --- | --- |
-| No valid session | Redirect to `/locale/invite` |
-| Already agreed | Redirect to `/locale` |
-| Valid, not agreed | Show explanation + Continue button |
-
-Clicking **Continue** calls `POST /api/invite/agree` which sets `agreed: true`
-in the session cookie and re-signs it. The user is then redirected to the
-tutorial home (`/locale`).
+The dialog calls `POST /api/invite/agree` which sets `session.agreed = true` and
+re-signs the cookie. On success the dialog closes and the user proceeds to the
+tutorial content beneath it.
 
 The agreement flag persists in the session cookie for its full 30-day lifetime.
+Subsequent visits with a valid session skip the dialog entirely.
 
 ---
 
@@ -242,10 +234,10 @@ data/invites/
 
 ### Toggling the gate
 
-| Variable | Effect |
-| --- | --- |
-| `NUXT_PUBLIC_INVITE_ONLY=true` | Gate enabled (default preview) |
-| `NUXT_PUBLIC_INVITE_ONLY=false` | Gate disabled, full access |
+| Variable                        | Effect                         |
+| ------------------------------- | ------------------------------ |
+| `NUXT_PUBLIC_INVITE_ONLY=true`  | Gate enabled (default preview) |
+| `NUXT_PUBLIC_INVITE_ONLY=false` | Gate disabled, full access     |
 
 ### Required env vars
 
