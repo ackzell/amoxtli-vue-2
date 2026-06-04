@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { version } from '../package.json'
+
 export interface FeedbackSections {
   'platform-ux': string
   'content': string
@@ -82,7 +84,7 @@ async function submit() {
   try {
     await $fetch('/api/feedback', {
       method: 'POST',
-      body: { name: name.value || null, sections: nonEmpty },
+      body: { name: name.value || null, sections: nonEmpty, page_url: useRoute().path, version },
     })
     submitted.value = true
   }
