@@ -76,9 +76,12 @@ invite:
       shared it with you because I really value your opinion and I believe you
       would give me some raw and honest feedback. So thank you very much for
       being here. It is still a Work in Progress, but I think I can share what I
-      already have to start steering in the right direction. Please use the "give feedback" button on the top right, it looks like this
+      already have to start steering in the right direction. Please use the
+      "give feedback" button on the top right, it looks like this
     note2: >-
-      The contents are mainly in English.. I haven't translated them but since the capability is there, I just wanted to signal that I have it in my plans to have a Spanish version too.
+      The contents are mainly in English.. I haven't translated them but since
+      the capability is there, I just wanted to signal that I have it in my
+      plans to have a Spanish version too.
     continue: Continue
     entering: Entering
     error: Something went wrong
@@ -86,12 +89,17 @@ en: en
 es_mx: es_mx
 english: English
 espanol-mexico: Español (MX)
-
 feedback:
   button-tooltip: Give feedback
-  heading: "Got any feedback? I'd love to hear it 🤓"
-  prompts: "A few things I'm curious about your experience with the platform I split them into categories. Feel free to answer any or all of them, or just share whatever is on your mind. You can send multiple feedback entries if you want to share more thoughts later on."
-  p-s: "P.S. I'm thinking about adding more challenges, progress tracking, live workshops, videos per lesson… but I'd love to hear your thoughts first."
+  heading: Got any feedback? I'd love to hear it 🤓
+  prompts: >-
+    A few things I'm curious about your experience with the platform I split
+    them into categories. Feel free to answer any or all of them, or just share
+    whatever is on your mind. You can send multiple feedback entries if you want
+    to share more thoughts later on.
+  p-s: >-
+    P.S. I'm thinking about adding more challenges, progress tracking, live
+    workshops, videos per lesson… but I'd love to hear your thoughts first.
   your-name: Your name
   optional: optional
   optional-label: (optional)
@@ -118,3 +126,7 @@ feedback:
   toast-success-desc: I really appreciate you taking the time to share your thoughts.
   toast-error: Something went wrong
   toast-error-desc: Could not submit feedback. Please try again.
+code: Code
+docs: Docs
+this-is-a-docs-only-lesson: This is a docs-only lesson
+docs-only-lesson: Docs-only lesson

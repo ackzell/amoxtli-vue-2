@@ -259,7 +259,7 @@ const isFeedbackOpen = ref(false)
       <ClientOnly>
         <template v-if="lessonForcesDocsOnly">
           <IconButton
-            tooltip="This is a docs-only lesson"
+            :tooltip="$t('this-is-a-docs-only-lesson')"
             tooltip-placement="bottom"
           >
             <div i-mynaui-book-open text-xl />
@@ -267,15 +267,6 @@ const isFeedbackOpen = ref(false)
         </template>
 
         <template v-else>
-          <IconButton
-            class="layout-menu-item"
-            tooltip="Code Focus"
-            tooltip-placement="bottom"
-            :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : ''"
-            @click="toggleCodeOnly"
-          >
-            <div i-mynaui-code text-xl />
-          </IconButton>
           <IconButton
             class="layout-menu-item"
             tooltip="Docs Focus"
@@ -288,6 +279,16 @@ const isFeedbackOpen = ref(false)
               text-xl hover:i-mynaui-book-open-solid
               :class="{ 'i-mynaui-book-open-solid': isDocsFocusApplied }"
             />
+          </IconButton>
+
+          <IconButton
+            class="layout-menu-item"
+            tooltip="Code Focus"
+            tooltip-placement="bottom"
+            :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : ''"
+            @click="toggleCodeOnly"
+          >
+            <div i-mynaui-code text-xl />
           </IconButton>
 
           <VDropdown theme="layout-dropdown">

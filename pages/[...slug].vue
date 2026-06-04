@@ -61,13 +61,13 @@ if (initialMeta.value) {
 async function mount(path: string) {
   const guideMeta = await loadGuideMeta(path)
 
+  // Eagerly update guide meta so reactive state (currentGuide, features) updates
+  // immediately on navigation — before any async playground operations complete.
+  guide.setGuideMeta(guideMeta)
+
   // Only mount the playground (code panel) if defaultLayout is not 'docs'
   if (guideMeta?.features?.defaultLayout !== 'docs') {
     await guide.mount(guideMeta, false)
-  }
-  else {
-    // Set features for layout configuration without initializing the playground
-    guide.setGuideMeta(guideMeta)
   }
 }
 

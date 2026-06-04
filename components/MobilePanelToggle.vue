@@ -2,8 +2,10 @@
 const ui = useUiState()
 const guide = useGuideStore()
 
+const isDocsOnly = computed(() => guide.currentGuide?.features?.defaultLayout === 'docs')
+
 const effectiveViewMode = computed(() => {
-  if (guide.features.defaultLayout === 'docs')
+  if (isDocsOnly.value)
     return 'docs'
   return ui.mainViewMode
 })
@@ -12,13 +14,13 @@ const isDocsActive = computed(() => effectiveViewMode.value === 'docs')
 const isCodeActive = computed(() => effectiveViewMode.value === 'code')
 
 function showDocs() {
-  if (guide.features.defaultLayout === 'docs')
+  if (isDocsOnly.value)
     return
   ui.setMainViewMode('docs')
 }
 
 function showCode() {
-  if (guide.features.defaultLayout === 'docs')
+  if (isDocsOnly.value)
     return
   ui.setMainViewMode('code')
 }
@@ -26,18 +28,16 @@ function showCode() {
 
 <template>
   <div
-    fixed bottom-0 left-0 right-0
-    h-auto min-h-12
+
     flex="~ items-center justify-center gap-4"
-    px3 pt2
+
     pb="[max(0.5rem,env(safe-area-inset-bottom))]"
-    bg-base border-t border-base
-    backdrop-blur-sm
-    z-50
+
+    px3 pt2 border-t border-base bg-base h-auto min-h-12 bottom-0 left-0 right-0 fixed z-50 backdrop-blur-sm
   >
     <button
       flex="~ items-center gap-1.5"
-      px3 py1.5 rounded text-sm
+      text-sm px3 py1.5 rounded
       :class="isDocsActive ? 'text-primary bg-active/40 dark:text-primary-dark' : 'hover:bg-active'"
       @click="showDocs"
     >
@@ -45,17 +45,22 @@ function showCode() {
         text-lg
         :class="isDocsActive ? 'i-mynaui-book-open-solid' : 'i-mynaui-book-open'"
       />
-      <span>Docs</span>
+      <span>{{ $t('docs') }}</span>
     </button>
 
     <button
       flex="~ items-center gap-1.5"
-      px3 py1.5 rounded text-sm
-      :class="isCodeActive ? 'text-primary bg-active/40 dark:text-primary-dark' : 'hover:bg-active'"
+      text-sm px3 py1.5 rounded
+      :disabled="isDocsOnly"
+      :class="[
+        isCodeActive ? 'text-primary bg-active/40 dark:text-primary-dark' : 'hover:bg-active',
+        isDocsOnly ? 'op-30 cursor-not-allowed' : '',
+      ]"
       @click="showCode"
     >
-      <div text-lg i-mynaui-code />
-      <span>Code</span>
+      <div i-mynaui-code text-lg />
+      <span>{{ $t('code') }}</span>
     </button>
+    <small v-if="isDocsOnly" class="text-[0.5rem]"> {{ $t('docs-only-lesson') }}</small>
   </div>
 </template>

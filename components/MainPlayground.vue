@@ -38,7 +38,7 @@ const guide = useGuideStore()
 const route = useRoute()
 
 const effectiveMainViewMode = computed(() => {
-  if (guide.features.defaultLayout === 'docs')
+  if (guide.currentGuide?.features?.defaultLayout === 'docs')
     return 'docs'
   return ui.mainViewMode
 })
