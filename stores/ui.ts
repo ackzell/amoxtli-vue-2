@@ -2,6 +2,7 @@ import type { CodePanelId, LayoutNode, LayoutSplit } from '~/types/layout'
 
 export type MainViewMode = 'split' | 'code' | 'docs'
 export type MainLayoutOrientation = 'horizontal' | 'vertical'
+export type MobilePanelView = 'docs' | 'code'
 
 const DEFAULT_LAYOUT_TREE: LayoutSplit = {
   type: 'split',
@@ -93,6 +94,9 @@ function normalizeLayoutTree(tree: unknown): LayoutSplit {
 export const useUiState = defineStore('ui', () => {
   const isPanelDragging = ref(false)
   const isContentDropdownShown = ref(false)
+  const mobilePanelView = ref<MobilePanelView>('docs')
+  // true when mainViewMode was set from the desktop nav (not the mobile toggle)
+  const mainViewModeFromDesktop = ref(false)
 
   const persistState = reactive(getLayoutDefaults())
 
@@ -144,6 +148,11 @@ export const useUiState = defineStore('ui', () => {
     persistState.mainViewMode = mode
   }
 
+  function setMainViewModeFromDesktop(mode: MainViewMode) {
+    mainViewModeFromDesktop.value = true
+    persistState.mainViewMode = mode
+  }
+
   function setMainLayoutOrientation(orientation: MainLayoutOrientation) {
     persistState.mainLayoutOrientation = orientation
   }
@@ -162,13 +171,20 @@ export const useUiState = defineStore('ui', () => {
     persistState.isSnapshotSidebarOpen = !persistState.isSnapshotSidebarOpen
   }
 
+  function setMobilePanelView(panel: MobilePanelView) {
+    mobilePanelView.value = panel
+  }
+
   return {
     isPanelDragging,
     isContentDropdownShown,
+    mobilePanelView,
+    mainViewModeFromDesktop,
     toggleTerminal,
     toggleConsole,
     togglePreview,
     setMainViewMode,
+    setMainViewModeFromDesktop,
     setMainLayoutOrientation,
     toggleMainLayoutOrientation,
     toggleMainLayoutReverse,
@@ -176,6 +192,7 @@ export const useUiState = defineStore('ui', () => {
     ...toRefs(persistState),
 
     toggleSnapshotSidebar,
+    setMobilePanelView,
   }
 })
 

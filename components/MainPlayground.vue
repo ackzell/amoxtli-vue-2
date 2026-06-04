@@ -4,6 +4,36 @@ import type { CodePanelId, LayoutNode, LayoutSplit } from '~/types/layout'
 import { Splitter } from '@ark-ui/vue'
 
 const ui = useUiState()
+const { width: windowWidth } = useWindowSize()
+const isMobile = computed(() => windowWidth.value < 768)
+
+// Track slide direction: 'forward' = docs→code (slide left), 'back' = code→docs (slide right)
+const mobileSlidDirection = ref<'forward' | 'back'>('forward')
+watch(
+  () => ui.mainViewMode,
+  (next, prev) => {
+    if (prev === 'docs' && next === 'code')
+      mobileSlidDirection.value = 'forward'
+    else if (prev === 'code' && next === 'docs')
+      mobileSlidDirection.value = 'back'
+  },
+)
+
+// When expanding back to desktop, restore split view unless the user explicitly
+// chose a focused mode via the desktop nav (tracked by mainViewModeFromDesktop).
+watch(isMobile, (nowMobile, wasMobile) => {
+  if (!wasMobile && nowMobile) {
+    // wide → narrow: if in split mode, default the mobile toggle to docs
+    if (ui.mainViewMode === 'split')
+      ui.setMainViewMode('docs')
+  }
+  if (wasMobile && !nowMobile) {
+    if (!ui.mainViewModeFromDesktop)
+      ui.setMainViewMode('split')
+  }
+  if (!nowMobile)
+    ui.mainViewModeFromDesktop = false
+})
 const guide = useGuideStore()
 const route = useRoute()
 
@@ -390,175 +420,207 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
 </script>
 
 <template>
-  <!-- Normal order: docs | resize | code -->
-  <Splitter.Root
-    v-if="!isReversed"
-    :key="`${effectiveMainViewMode}-normal`"
-    :panels="mainPanels"
-    :orientation="ui.mainLayoutOrientation"
-    :size="mainSizes"
-    h-full of-hidden
-    @resize-start="onResizeStart"
-    @resize="onMainResize"
-    @resize-end="onMainResizeEnd"
-  >
-    <Splitter.Panel id="docs-panel">
-      <PanelDocs v-if="!isCodeOnlyMode" :key="route.path" />
-    </Splitter.Panel>
-
-    <Splitter.ResizeTrigger v-if="isSplitMode" id="docs-panel:code-panel" />
-
-    <Splitter.Panel id="code-panel">
-      <div v-if="!isDocsOnlyMode" h-full grid="~ rows-[max-content_1fr]">
-        <PanelCodeToolbar />
-        <div
-          min-h-0 relative of-hidden
-          :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
-        >
-          <PlaygroundCodeDockNode
-            :node="visibleLayout"
-            :dragged-panel-id="draggedPanelId"
-            :active-drop-zone="activeDropZone"
-            :sizes-map="codeSizesMap"
-            :show-preview="ui.showPreview"
-            :show-console="ui.showConsole"
-            :show-terminal="ui.showTerminal"
-            @drag-start="onDragStart"
-            @drag-end="onDragEnd"
-            @drop-zone-enter="onDropZoneEnter"
-            @drop-zone-leave="onDropZoneLeave"
-            @zone-drop="onZoneDrop"
-            @split-resize="onCodeSplitResize"
-          />
+  <!-- Mobile: single panel view, toggled via MobilePanelToggle -->
+  <template v-if="isMobile">
+    <div h-full relative of-hidden>
+      <Transition :name="mobileSlidDirection === 'forward' ? 'mobile-slide-left' : 'mobile-slide-right'">
+        <PanelDocs v-if="!isCodeOnlyMode" :key="route.path" />
+        <div v-else key="code" h-full grid="~ rows-[max-content_1fr]">
+          <PanelCodeToolbar />
+          <div min-h-0 relative of-hidden>
+            <PlaygroundCodeDockNode
+              :node="visibleLayout"
+              :dragged-panel-id="draggedPanelId"
+              :active-drop-zone="activeDropZone"
+              :sizes-map="codeSizesMap"
+              :show-preview="ui.showPreview"
+              :show-console="ui.showConsole"
+              :show-terminal="ui.showTerminal"
+              @drag-start="onDragStart"
+              @drag-end="onDragEnd"
+              @drop-zone-enter="onDropZoneEnter"
+              @drop-zone-leave="onDropZoneLeave"
+              @zone-drop="onZoneDrop"
+              @split-resize="onCodeSplitResize"
+            />
+          </div>
         </div>
-      </div>
-    </Splitter.Panel>
-  </Splitter.Root>
+      </Transition>
+    </div>
+  </template>
 
-  <!-- Reversed order: code | resize | docs -->
-  <Splitter.Root
-    v-else
-    :key="`${effectiveMainViewMode}-reversed`"
-    :panels="mainPanels"
-    :orientation="ui.mainLayoutOrientation"
-    :size="mainSizes"
-    h-full of-hidden
-    @resize-start="onResizeStart"
-    @resize="onMainResize"
-    @resize-end="onMainResizeEnd"
-  >
-    <Splitter.Panel id="code-panel">
-      <div v-if="!isDocsOnlyMode" h-full grid="~ rows-[max-content_1fr]">
-        <PanelCodeToolbar />
-        <div
-          min-h-0 relative of-hidden
-          :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
-        >
-          <PlaygroundCodeDockNode
-            :node="visibleLayout"
-            :dragged-panel-id="draggedPanelId"
-            :active-drop-zone="activeDropZone"
-            :sizes-map="codeSizesMap"
-            :show-preview="ui.showPreview"
-            :show-console="ui.showConsole"
-            :show-terminal="ui.showTerminal"
-            @drag-start="onDragStart"
-            @drag-end="onDragEnd"
-            @drop-zone-enter="onDropZoneEnter"
-            @drop-zone-leave="onDropZoneLeave"
-            @zone-drop="onZoneDrop"
-            @split-resize="onCodeSplitResize"
-          />
-        </div>
-      </div>
-    </Splitter.Panel>
-
-    <Splitter.ResizeTrigger v-if="isSplitMode" id="code-panel:docs-panel" />
-
-    <Splitter.Panel id="docs-panel">
-      <PanelDocs v-if="!isCodeOnlyMode" :key="route.path" />
-    </Splitter.Panel>
-  </Splitter.Root>
-
-  <Transition name="slide-fade">
-    <!-- Normal embedded docs order: docs iframe | resize | spacer -->
+  <!-- Desktop: split panel view -->
+  <template v-else>
+    <!-- Normal order: docs | resize | code -->
     <Splitter.Root
-      v-if="guide.embeddedDocs && !isReversed"
-      :panels="embeddedPanels"
+      v-if="!isReversed"
+      :key="`${effectiveMainViewMode}-normal`"
+      :panels="mainPanels"
+      :orientation="ui.mainLayoutOrientation"
       :size="mainSizes"
-      inset-0 fixed z-embedded-docs
+      h-full of-hidden
       @resize-start="onResizeStart"
-      @resize="onEmbeddedResize"
-      @resize-end="onEmbeddedResizeEnd"
+      @resize="onMainResize"
+      @resize-end="onMainResizeEnd"
     >
-      <Splitter.Panel id="embedded-docs-panel" relative>
-        <iframe
-          :class="{ 'pointer-events-none': ui.isPanelDragging }"
-          :src="guide.embeddedDocs"
-          crossorigin="anonymous" allow="cross-origin-isolated"
-          credentialless h-full w-full inset-0
-        />
+      <Splitter.Panel id="docs-panel">
+        <PanelDocs v-if="!isCodeOnlyMode" :key="route.path" />
       </Splitter.Panel>
 
-      <Splitter.ResizeTrigger id="embedded-docs-panel:embedded-spacer-panel" />
+      <Splitter.ResizeTrigger v-if="isSplitMode" id="docs-panel:code-panel" />
 
-      <Splitter.Panel id="embedded-spacer-panel" relative important-of-visible>
-        <div
-          border="~ base"
-          rounded-full bg-base h-8 w-8 left--4 top-4 absolute z-embedded-docs-close of-hidden
-        >
-          <IconButton
-            tooltip="Close embedded docs"
-            tooltip-placement="left"
-            padding="sm"
-            class="flex h-full w-full items-center justify-center"
-            @click="guide.embeddedDocs = ''"
+      <Splitter.Panel id="code-panel">
+        <div v-if="!isDocsOnlyMode" h-full grid="~ rows-[max-content_1fr]">
+          <PanelCodeToolbar />
+          <div
+            min-h-0 relative of-hidden
+            :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
           >
-            <div i-ph-caret-left-bold h-4 w-4 />
-          </IconButton>
+            <PlaygroundCodeDockNode
+              :node="visibleLayout"
+              :dragged-panel-id="draggedPanelId"
+              :active-drop-zone="activeDropZone"
+              :sizes-map="codeSizesMap"
+              :show-preview="ui.showPreview"
+              :show-console="ui.showConsole"
+              :show-terminal="ui.showTerminal"
+              @drag-start="onDragStart"
+              @drag-end="onDragEnd"
+              @drop-zone-enter="onDropZoneEnter"
+              @drop-zone-leave="onDropZoneLeave"
+              @zone-drop="onZoneDrop"
+              @split-resize="onCodeSplitResize"
+            />
+          </div>
         </div>
       </Splitter.Panel>
     </Splitter.Root>
 
-    <!-- Reversed embedded docs order: spacer | resize | docs iframe -->
+    <!-- Reversed order: code | resize | docs -->
     <Splitter.Root
-      v-else-if="guide.embeddedDocs && isReversed"
-      :panels="embeddedPanels"
+      v-else
+      :key="`${effectiveMainViewMode}-reversed`"
+      :panels="mainPanels"
+      :orientation="ui.mainLayoutOrientation"
       :size="mainSizes"
-      inset-0 fixed z-embedded-docs
+      h-full of-hidden
       @resize-start="onResizeStart"
-      @resize="onEmbeddedResize"
-      @resize-end="onEmbeddedResizeEnd"
+      @resize="onMainResize"
+      @resize-end="onMainResizeEnd"
     >
-      <Splitter.Panel id="embedded-spacer-panel" relative important-of-visible>
-        <div
-          border="~ base"
-          rounded-full bg-base h-8 w-8 right--4 top-4 absolute z-embedded-docs-close of-hidden
-        >
-          <IconButton
-            tooltip="Close embedded docs"
-            tooltip-placement="right"
-            padding="sm"
-            class="flex h-full w-full items-center justify-center"
-            @click="guide.embeddedDocs = ''"
+      <Splitter.Panel id="code-panel">
+        <div v-if="!isDocsOnlyMode" h-full grid="~ rows-[max-content_1fr]">
+          <PanelCodeToolbar />
+          <div
+            min-h-0 relative of-hidden
+            :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
           >
-            <div i-ph-caret-right-bold h-4 w-4 />
-          </IconButton>
+            <PlaygroundCodeDockNode
+              :node="visibleLayout"
+              :dragged-panel-id="draggedPanelId"
+              :active-drop-zone="activeDropZone"
+              :sizes-map="codeSizesMap"
+              :show-preview="ui.showPreview"
+              :show-console="ui.showConsole"
+              :show-terminal="ui.showTerminal"
+              @drag-start="onDragStart"
+              @drag-end="onDragEnd"
+              @drop-zone-enter="onDropZoneEnter"
+              @drop-zone-leave="onDropZoneLeave"
+              @zone-drop="onZoneDrop"
+              @split-resize="onCodeSplitResize"
+            />
+          </div>
         </div>
       </Splitter.Panel>
 
-      <Splitter.ResizeTrigger id="embedded-spacer-panel:embedded-docs-panel" />
+      <Splitter.ResizeTrigger v-if="isSplitMode" id="code-panel:docs-panel" />
 
-      <Splitter.Panel id="embedded-docs-panel" relative>
-        <iframe
-          :class="{ 'pointer-events-none': ui.isPanelDragging }"
-          :src="guide.embeddedDocs"
-          crossorigin="anonymous" allow="cross-origin-isolated"
-          credentialless h-full w-full inset-0
-        />
+      <Splitter.Panel id="docs-panel">
+        <PanelDocs v-if="!isCodeOnlyMode" :key="route.path" />
       </Splitter.Panel>
     </Splitter.Root>
-  </Transition>
+
+    <Transition name="slide-fade">
+      <!-- Normal embedded docs order: docs iframe | resize | spacer -->
+      <Splitter.Root
+        v-if="guide.embeddedDocs && !isReversed"
+        :panels="embeddedPanels"
+        :size="mainSizes"
+        inset-0 fixed z-embedded-docs
+        @resize-start="onResizeStart"
+        @resize="onEmbeddedResize"
+        @resize-end="onEmbeddedResizeEnd"
+      >
+        <Splitter.Panel id="embedded-docs-panel" relative>
+          <iframe
+            :class="{ 'pointer-events-none': ui.isPanelDragging }"
+            :src="guide.embeddedDocs"
+            crossorigin="anonymous" allow="cross-origin-isolated"
+            credentialless h-full w-full inset-0
+          />
+        </Splitter.Panel>
+
+        <Splitter.ResizeTrigger id="embedded-docs-panel:embedded-spacer-panel" />
+
+        <Splitter.Panel id="embedded-spacer-panel" relative important-of-visible>
+          <div
+            border="~ base"
+            rounded-full bg-base h-8 w-8 left--4 top-4 absolute z-embedded-docs-close of-hidden
+          >
+            <IconButton
+              tooltip="Close embedded docs"
+              tooltip-placement="left"
+              padding="sm"
+              class="flex h-full w-full items-center justify-center"
+              @click="guide.embeddedDocs = ''"
+            >
+              <div i-ph-caret-left-bold h-4 w-4 />
+            </IconButton>
+          </div>
+        </Splitter.Panel>
+      </Splitter.Root>
+
+      <!-- Reversed embedded docs order: spacer | resize | docs iframe -->
+      <Splitter.Root
+        v-else-if="guide.embeddedDocs && isReversed"
+        :panels="embeddedPanels"
+        :size="mainSizes"
+        inset-0 fixed z-embedded-docs
+        @resize-start="onResizeStart"
+        @resize="onEmbeddedResize"
+        @resize-end="onEmbeddedResizeEnd"
+      >
+        <Splitter.Panel id="embedded-spacer-panel" relative important-of-visible>
+          <div
+            border="~ base"
+            rounded-full bg-base h-8 w-8 right--4 top-4 absolute z-embedded-docs-close of-hidden
+          >
+            <IconButton
+              tooltip="Close embedded docs"
+              tooltip-placement="right"
+              padding="sm"
+              class="flex h-full w-full items-center justify-center"
+              @click="guide.embeddedDocs = ''"
+            >
+              <div i-ph-caret-right-bold h-4 w-4 />
+            </IconButton>
+          </div>
+        </Splitter.Panel>
+
+        <Splitter.ResizeTrigger id="embedded-spacer-panel:embedded-docs-panel" />
+
+        <Splitter.Panel id="embedded-docs-panel" relative>
+          <iframe
+            :class="{ 'pointer-events-none': ui.isPanelDragging }"
+            :src="guide.embeddedDocs"
+            crossorigin="anonymous" allow="cross-origin-isolated"
+            credentialless h-full w-full inset-0
+          />
+        </Splitter.Panel>
+      </Splitter.Root>
+    </Transition>
+  </template>
 </template>
 
 <style>
@@ -574,5 +636,45 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
 .slide-fade-leave-to {
   transform: translateX(-30vw);
   opacity: 0;
+}
+
+/* Mobile panel slide transitions */
+.mobile-slide-left-enter-active,
+.mobile-slide-left-leave-active,
+.mobile-slide-right-enter-active,
+.mobile-slide-right-leave-active {
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* docs→code: incoming slides in from right, outgoing exits to left */
+.mobile-slide-left-enter-from {
+  transform: translateX(100%);
+}
+.mobile-slide-left-enter-to {
+  transform: translateX(0);
+}
+.mobile-slide-left-leave-from {
+  transform: translateX(0);
+}
+.mobile-slide-left-leave-to {
+  transform: translateX(-100%);
+}
+
+/* code→docs: incoming slides in from left, outgoing exits to right */
+.mobile-slide-right-enter-from {
+  transform: translateX(-100%);
+}
+.mobile-slide-right-enter-to {
+  transform: translateX(0);
+}
+.mobile-slide-right-leave-from {
+  transform: translateX(0);
+}
+.mobile-slide-right-leave-to {
+  transform: translateX(100%);
 }
 </style>

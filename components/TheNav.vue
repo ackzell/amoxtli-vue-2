@@ -32,7 +32,7 @@ const hasCustomLayoutApplied = computed(() => {
 function setMainViewMode(mode: 'split' | 'code' | 'docs') {
   if (lessonForcesDocsOnly.value && mode !== 'docs')
     return
-  ui.setMainViewMode(mode)
+  ui.setMainViewModeFromDesktop(mode)
 }
 
 function toggleCodeOnly() {

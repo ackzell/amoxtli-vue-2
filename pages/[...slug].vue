@@ -2,6 +2,8 @@
 const router = useRouter()
 const route = useRoute()
 const guide = useGuideStore()
+const { width: windowWidth } = useWindowSize()
+const isMobile = computed(() => windowWidth.value > 0 && windowWidth.value < 768)
 
 const templatesMap = Object.fromEntries(
   Object.entries(import.meta.glob('~/content/**/.template/index.ts'))
@@ -80,13 +82,14 @@ onMounted(() => {
 
 <template>
   <main
-    h-100dvh h-screen w-screen of-hidden
+    h-100dvh w-screen of-hidden
     grid="~ rows-[max-content_1fr]"
   >
     <header>
       <TheNav />
     </header>
     <MainPlayground />
+    <MobilePanelToggle v-if="isMobile" />
     <CommandPalette />
   </main>
 </template>
