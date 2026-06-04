@@ -59,7 +59,6 @@ export default defineEventHandler(async (event) => {
   }
 
   const feedback = {
-    alias: session.alias,
     name: name?.trim() || null,
     sections: trimmedSections,
     page_url: getRequestURL(event).pathname || null,

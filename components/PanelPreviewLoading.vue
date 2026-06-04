@@ -75,7 +75,7 @@ function getTextClass(status: PlaygroundStatus) {
         {{ $t('restart-server') }}
       </button>
     </template>
-    <div v-else grid="~ cols-[max-content_1fr] gap-2 items-center justify-center" font-terminal text-sm>
+    <div v-else grid="~ cols-[max-content_1fr] gap-2 items-center justify-center" text-sm font-terminal>
       <div :class="getStatusIcon('init')" />
       <span :class="getTextClass('init')">{{ $t('steps.initializing-webcontainer') }}</span>
       <div :class="getStatusIcon('mount')" />
@@ -99,5 +99,10 @@ function getTextClass(status: PlaygroundStatus) {
       <div :class="getStatusIcon('polling')" />
       <span :class="getTextClass('polling')">{{ $t('steps.waiting-for-dev-server') }}</span>
     </div>
+    <!-- <div v-else flex="~ col items-center gap-2" text-sm px4>
+      <div text-error i-mynaui-x-hexagon-solid text-xl />
+      <span text-error font-semibold>{{ $t('something-went-wrong') }}</span>
+      <span text-center op60>{{ getPlaygroundStore().error?.message }}</span>
+    </div> -->
   </div>
 </template>

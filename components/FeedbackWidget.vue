@@ -84,7 +84,12 @@ async function submit() {
   try {
     await $fetch('/api/feedback', {
       method: 'POST',
-      body: { name: name.value || null, sections: nonEmpty, page_url: useRoute().path, version },
+      body: {
+        name: name.value || null,
+        sections: nonEmpty,
+        page_url: useRoute().path,
+        version,
+      },
     })
     submitted.value = true
   }

@@ -106,8 +106,6 @@ export const usePlaygroundStore = defineStore('playground', () => {
     status.value = 'mount'
     await wc.mount(filesToWebContainerFs([...files.values()]))
 
-    startServer()
-
     // In dev, when doing HMR, we kill the previous process while reusing the same WebContainer
     if (import.meta.hot) {
       import.meta.hot.accept(() => {
@@ -346,7 +344,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
     ])
 
     // Reinstall and restart the dev server
-    if (depsChanged) {
+    if (depsChanged || !hasInstalled) {
       startServer()
     }
   }

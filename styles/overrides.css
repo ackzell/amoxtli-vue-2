@@ -23,6 +23,7 @@
 [data-scope='splitter'][data-part='resize-trigger'] {
   touch-action: none;
   flex-shrink: 0;
+  outline: none;
 }
 
 [data-scope='splitter'][data-part='resize-trigger'][data-orientation='horizontal'] {

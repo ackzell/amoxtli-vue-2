@@ -95,7 +95,7 @@ defineExpose({
 
 <template>
   <iframe
-    v-if="preview.url"
+    v-if="preview.url && preview.location.origin"
     ref="iframe"
     :src="preview.url"
     :class="{ 'pointer-events-none': ui.isPanelDragging }"

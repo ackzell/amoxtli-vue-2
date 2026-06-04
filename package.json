@@ -1,12 +1,12 @@
 {
   "name": "amoxtli-vue-2",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "packageManager": "pnpm@11.2.2",
   "scripts": {
     "build": "NODE_OPTIONS=\"--max-old-space-size=6144\" nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --host",
     "generate": "nuxt generate",
     "preview": "npx wrangler pages dev dist",
     "typecheck": "nuxt typecheck",

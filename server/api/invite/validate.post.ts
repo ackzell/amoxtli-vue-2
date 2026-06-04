@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { name, code } = await readBody<{ name?: string; code?: string }>(event)
+  const { name, code } = await readBody<{ name?: string, code?: string }>(event)
 
   if (!name?.trim() || !code?.trim()) {
     throw createError({ statusCode: 400, statusMessage: 'Name and invite code are required' })

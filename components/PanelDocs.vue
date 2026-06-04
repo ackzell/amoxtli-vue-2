@@ -84,10 +84,13 @@ function onTouchEnd() {
 
 const pullProgress = computed(() => Math.min(pullY.value / pullThreshold, 1))
 const showPullIndicator = computed(() => pullY.value > 0)
+
+const { width: windowWidth } = useWindowSize()
+const isMobile = computed(() => windowWidth.value > 0 && windowWidth.value < 768)
 </script>
 
 <template>
-  <div relative of-scroll class="panel-docs-container">
+  <div h-full relative of-scroll :class="{ 'shorten-height': isMobile }">
     <!-- Pull-to-refresh indicator -->
     <div
       v-if="showPullIndicator"
@@ -158,7 +161,7 @@ const showPullIndicator = computed(() => pullY.value > 0)
 </template>
 
 <style scoped>
-.panel-docs-container {
+.shorten-height {
   height: calc(100% - 4rem);
 }
 </style>
