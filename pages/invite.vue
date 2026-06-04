@@ -13,11 +13,6 @@ const loading = ref(false)
 useThemeTransition()
 const i18n = useI18n()
 
-function normalizeCode(e: Event) {
-  const input = e.target as HTMLInputElement
-  input.value = input.value.toUpperCase()
-}
-
 async function submit() {
   error.value = ''
   loading.value = true
@@ -149,7 +144,6 @@ onBeforeMount(async () => {
                 border="border-input"
 
                 required text-foreground px-4 py-2.5 w-full dark:text-foreground-dark
-                @input="normalizeCode"
               >
             </div>
 
