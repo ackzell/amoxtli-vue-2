@@ -104,7 +104,7 @@ feedback:
   category-design: Design
   category-other: Other
   category-general: General
-  prompt-platform-ux: What stood out? Any technical hiccups? Design thoughts?
+  prompt-platform-ux: What stood out? Any technical hiccups?
   prompt-content: Was it easy to follow? Did it feel like progression?
   prompt-features: What would you like to see added?
   prompt-technical: Any bugs, slowness, or browser issues?

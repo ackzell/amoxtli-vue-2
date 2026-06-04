@@ -104,7 +104,7 @@ feedback:
   category-design: Diseño
   category-other: Otro
   category-general: General
-  prompt-platform-ux: ¿Qué te llamó la atención? ¿Problemas técnicos? ¿Opiniones de diseño?
+  prompt-platform-ux: ¿Qué te llamó la atención? ¿Problemas técnicos?
   prompt-content: ¿Fue fácil de seguir? ¿Se sintió como un progreso?
   prompt-features: ¿Qué te gustaría que agregara?
   prompt-technical: ¿Problemas de rendimiento, errores, o algo del navegador?

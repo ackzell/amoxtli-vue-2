@@ -132,7 +132,7 @@ async function submit() {
         <UiScrollArea class="max-h-[50vh]" flex="~ col" px4>
           <div flex="~ col gap-4">
             <div>
-              <label for="name" class="dark:text-bgr-300-dark/70 text-xs text-bgr-300/70 font-medium block">
+              <label for="name" class="dark:text-bgr-200-dark/70 text-xs text-bgr-300/70 font-medium block">
                 {{ $t('feedback.your-name') }}
               </label>
               <input
@@ -149,10 +149,10 @@ async function submit() {
               v-for="def in sectionDefs"
               :key="def.key"
             >
-              <p class="text-xs text-bgr-400 font-medium dark:text-bgr-300/80">
+              <p class="text-xs text-bgr-400 font-medium dark:text-bgr-200/80">
                 {{ $t(def.labelKey) }}
               </p>
-              <p class="text-[11px] text-bgr-400/90 leading-relaxed dark:text-bgr-300/50">
+              <p class="text-[11px] text-bgr-400/90 leading-relaxed dark:text-bgr-200/50">
                 {{ $t(def.promptKey) }}
               </p>
               <textarea

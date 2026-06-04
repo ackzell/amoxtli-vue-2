@@ -17,8 +17,8 @@ function isInvitePath(path: string) {
   return INVITE_PATHS.some(p => path === p || path.startsWith(`${p}/`))
 }
 
-async function checkAgreement() {
-  const path = useRoute().path
+async function checkAgreement(explicitPath?: string) {
+  const path = explicitPath ?? useRoute().path
   if (!config.public.inviteOnly || isInvitePath(path))
     return
   try {
@@ -33,10 +33,10 @@ async function checkAgreement() {
 
 onMounted(checkAgreement)
 
-router.afterEach(() => {
+router.afterEach((to) => {
   if (showAgreement.value)
     return
-  checkAgreement()
+  checkAgreement(to.path)
 })
 
 function onAgreementClose() {
