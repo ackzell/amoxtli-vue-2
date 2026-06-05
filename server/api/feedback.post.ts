@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
   const feedback = {
     name: name?.trim() || null,
     sections: trimmedSections,
-    page_url: getRequestURL(event).pathname || null,
+    page_url: body.page_url || null,
     created_at: new Date().toISOString(),
   }
 
