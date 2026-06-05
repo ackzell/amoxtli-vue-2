@@ -7,15 +7,18 @@ const ui = useUiState()
 const { width: windowWidth } = useWindowSize()
 const isMobile = computed(() => windowWidth.value < 768)
 
-// Track slide direction: 'forward' = docs→code (slide left), 'back' = code→docs (slide right)
-const mobileSlidDirection = ref<'forward' | 'back'>('forward')
+// Track slide direction for mobile transitions
+// 'forward': incoming slides in from right (next lesson, or docs→code)
+// 'back':    incoming slides in from left  (prev lesson, or code→docs)
+const slideDirection = ref<'forward' | 'back'>('forward')
+
 watch(
   () => ui.mainViewMode,
   (next, prev) => {
     if (prev === 'docs' && next === 'code')
-      mobileSlidDirection.value = 'forward'
+      slideDirection.value = 'forward'
     else if (prev === 'code' && next === 'docs')
-      mobileSlidDirection.value = 'back'
+      slideDirection.value = 'back'
   },
 )
 
@@ -36,6 +39,14 @@ watch(isMobile, (nowMobile, wasMobile) => {
 })
 const guide = useGuideStore()
 const route = useRoute()
+
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    if (oldPath && newPath !== oldPath && isMobile.value)
+      slideDirection.value = newPath > oldPath ? 'forward' : 'back'
+  },
+)
 
 const effectiveMainViewMode = computed(() => {
   if (guide.currentGuide?.features?.defaultLayout === 'docs')
@@ -423,9 +434,11 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
   <!-- Mobile: single panel view, toggled via MobilePanelToggle -->
   <template v-if="isMobile">
     <div h-full relative of-hidden>
-      <Transition :name="mobileSlidDirection === 'forward' ? 'mobile-slide-left' : 'mobile-slide-right'">
-        <PanelDocs v-if="!isCodeOnlyMode" :key="route.path" />
-        <div v-else key="code" h-full grid="~ rows-[max-content_1fr]">
+      <Transition :name="slideDirection === 'forward' ? 'mobile-slide-left' : 'mobile-slide-right'">
+        <div v-if="!isCodeOnlyMode" key="docs-pane" h-full>
+          <PanelDocs :key="route.path" />
+        </div>
+        <div v-else key="code-pane" h-full grid="~ rows-[max-content_1fr]">
           <PanelCodeToolbar />
           <div min-h-0 relative of-hidden>
             <PlaygroundCodeDockNode

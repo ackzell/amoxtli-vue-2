@@ -43,7 +43,7 @@ router.beforeEach(() => {
 })
 
 // Pull-to-refresh
-const pullThreshold = 72
+const pullThreshold = 100
 const pullY = ref(0)
 const isPulling = ref(false)
 const isRefreshing = ref(false)
@@ -62,7 +62,7 @@ function onTouchMove(e: TouchEvent) {
     return
   const dy = e.touches[0]!.clientY - touchStartY
   if (dy > 0) {
-    pullY.value = Math.min(dy, pullThreshold * 1.5)
+    pullY.value = Math.min(dy / 1.5, pullThreshold * 1.5)
   }
   else {
     isPulling.value = false

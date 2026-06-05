@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { version } from '../package.json'
+
 const ui = useUiState()
 const guide = useGuideStore()
 
@@ -21,13 +23,7 @@ function getPlaygroundStore() {
 const isSplitMode = computed(() => effectiveMainViewMode.value === 'split')
 const isCodeFocusApplied = computed(() => effectiveMainViewMode.value === 'code')
 const isDocsFocusApplied = computed(() => effectiveMainViewMode.value === 'docs')
-const isVerticalLayoutApplied = computed(() => ui.mainLayoutOrientation === 'vertical')
 const isReverseLayoutApplied = computed(() => ui.mainLayoutReverse)
-const hasCustomLayoutApplied = computed(() => {
-  return effectiveMainViewMode.value !== 'split'
-    || isVerticalLayoutApplied.value
-    || isReverseLayoutApplied.value
-})
 
 function setMainViewMode(mode: 'split' | 'code' | 'docs') {
   if (lessonForcesDocsOnly.value && mode !== 'docs')
@@ -177,7 +173,7 @@ const isFeedbackOpen = ref(false)
   >
     <div px4>
       <div text-xl text-primary font-bold font-mono dark:text-primary-dark>
-        {{ $t('amoxtli-vue') }}
+        {{ $t('amoxtli-vue') }}<span class="text-foreground/55" text-xs font-code ml2 inline-block dark:text-primary-dark dark:op65>{{ `[v${version}]` }}</span>
       </div>
       <div class="text-xs text-foreground/50 dark:text-foreground-dark/50">
         {{ $t('a-book-about-vue') }}
