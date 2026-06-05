@@ -6,6 +6,10 @@ pages_build_output_dir = ".output/public"
 binding = "AMVI_KV"
 id = "b9f605b548ca4b7b8bd1055c274bd9db"
 
+[[kv_namespaces]]
+binding = "AMVF_KV"
+id = "535de70092714724ac15b95059049d92"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "amoxtli-vue-content"

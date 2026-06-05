@@ -110,6 +110,10 @@ export default defineNuxtConfig({
         driver: 'cloudflare-kv-binding',
         binding: 'AMVI_KV',
       },
+      feedback: {
+        driver: 'cloudflare-kv-binding',
+        binding: 'AMVF_KV',
+      },
     },
     devStorage: {
       invites: {

@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const id = `feedback:${Date.now()}:${crypto.randomUUID().slice(0, 8)}`
-  const storage = useStorage('invites')
+  const storage = useStorage('feedback')
   await storage.setItem(id, JSON.stringify(feedback))
 
   return { success: true }
