@@ -27,11 +27,17 @@
 
 .prose a {
   text-decoration: underline dotted;
+  transition: color 0.15s ease;
 }
 
 .prose a:hover {
+  color: color-mix(in oklch, var(--amv-links), white 25%);
   text-decoration: underline;
   text-decoration-style: dotted;
+}
+
+.prose a:visited {
+  color: color-mix(in oklch, var(--amv-links), black 25%);
 }
 
 .prose :where(h1 a, h2 a, h3 a, h4 a) {

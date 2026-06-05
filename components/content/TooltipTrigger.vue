@@ -187,13 +187,6 @@ async function showTooltip(event?: MouseEvent) {
     startScrollTracking()
 }
 
-function hideNow() {
-  clearHideTimer()
-  isShown.value = false
-  ensureAnimation()
-  stopScrollTracking()
-}
-
 function scheduleHide() {
   clearHideTimer()
   hideTimer = setTimeout(() => {
@@ -287,11 +280,10 @@ onUnmounted(() => {
   max-width: 500px;
 
   border-radius: var(--r);
-  border: 1px solid var(--amv-highlight);
 
   pointer-events: auto;
 
-  --uno: 'font-mono bg-bgr-50/10 dark:bg-bgr-200/10 backdrop-blur-[2px] p2 dark:text-bgr-300';
+  --uno: 'font-mono bg-bgr-50/10 dark:bg-bgr-200/10 backdrop-blur-[2px] p1.5 dark:text-bgr-300 border border-primary dark:border-primary-dark';
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 
   padding-top: calc(var(--ah) + 8px);

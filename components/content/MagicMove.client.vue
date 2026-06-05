@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ShikiMagicMove } from 'shiki-magic-move/vue'
+import { ShikiMagicMove } from '@shikijs/magic-move/vue'
 import { computed, onMounted, ref, watch } from 'vue'
-import 'shiki-magic-move/dist/style.css'
+import '@shikijs/magic-move/style.css'
 
 const props = defineProps<{
   lang?: string

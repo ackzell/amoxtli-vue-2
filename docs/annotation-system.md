@@ -258,7 +258,7 @@ Flow:
 
 The `::magic-move` MDC component **does not support annotations**. It reads
 only the raw `.textContent` from each `<pre><code>` block inside its slot,
-losing all annotation metadata. The re-highlighting uses `shiki-magic-move`'s
+losing all annotation metadata. The re-highlighting uses `@shikijs/magic-move`'s
 `codeToKeyedTokens()` which doesn't accept Shiki decorations.
 
 To support annotations in magic-move, the data flow would need to:

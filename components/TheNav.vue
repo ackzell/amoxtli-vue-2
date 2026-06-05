@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { version } from '../package.json'
+import pkg from '../package.json'
+
+const version = pkg.version
 
 const ui = useUiState()
 const guide = useGuideStore()
@@ -176,7 +178,7 @@ const isFeedbackOpen = ref(false)
         {{ $t('amoxtli-vue') }}
       </div>
       <div class="text-xs text-foreground/50 dark:text-foreground-dark/50">
-        {{ $t('a-book-about-vue') }} <span class="text-foreground/55" text-xs font-code ml2 inline-block dark:text-primary-dark dark:op65>{{ `[v${version}]` }}</span>
+        {{ $t('a-book-about-vue') }} <span class="text-foreground/55" text-xs font-code inline-block dark:text-primary-dark dark:op65>{{ `[v${version}]` }}</span>
       </div>
     </div>
     <div class="mx-2 max-w-2xl hidden md:flex md:flex-1">

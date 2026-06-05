@@ -79,6 +79,8 @@ export default defineConfig({
     'border-success',
     'bg-primary-dark-500',
     'bg-primary-400',
+    'text-primary-500',
+    'text-primary-dark-300',
 
     'text-primary-700',
   ],

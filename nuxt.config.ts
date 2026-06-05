@@ -174,7 +174,7 @@ export default defineNuxtConfig({
         'motion-v',
         'reka-ui',
         'shiki',
-        'shiki-magic-move/vue',
+        '@shikijs/magic-move/vue',
         'shiki/core',
         'shiki/engine-javascript.mjs',
         'shiki/langs/pug.mjs',

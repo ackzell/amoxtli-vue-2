@@ -1,12 +1,12 @@
 {
   "name": "amoxtli-vue-2",
   "type": "module",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "packageManager": "pnpm@11.2.2",
   "scripts": {
     "build": "NODE_OPTIONS=\"--max-old-space-size=6144\" nuxt build",
-    "dev": "nuxt dev --host",
+    "dev": "TMPDIR=/tmp nuxt dev --host",
     "generate": "nuxt generate",
     "preview": "npx wrangler pages dev dist",
     "typecheck": "nuxt typecheck",
@@ -25,6 +25,7 @@
   "dependencies": {
     "@ark-ui/vue": "catalog:frontend",
     "@shikijs/core": "catalog:frontend",
+    "@shikijs/magic-move": "catalog:frontend",
     "@shikijs/monaco": "catalog:frontend",
     "@shikijs/twoslash": "catalog:frontend",
     "@volar/monaco": "catalog:frontend",
@@ -46,7 +47,6 @@
     "pathe": "catalog:frontend",
     "reka-ui": "catalog:frontend",
     "shiki": "catalog:frontend",
-    "shiki-magic-move": "catalog:frontend",
     "strip-json-comments": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
     "twoslash-vue": "catalog:frontend",
