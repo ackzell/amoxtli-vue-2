@@ -173,10 +173,10 @@ const isFeedbackOpen = ref(false)
   >
     <div px4>
       <div text-xl text-primary font-bold font-mono dark:text-primary-dark>
-        {{ $t('amoxtli-vue') }}<span class="text-foreground/55" text-xs font-code ml2 inline-block dark:text-primary-dark dark:op65>{{ `[v${version}]` }}</span>
+        {{ $t('amoxtli-vue') }}
       </div>
       <div class="text-xs text-foreground/50 dark:text-foreground-dark/50">
-        {{ $t('a-book-about-vue') }}
+        {{ $t('a-book-about-vue') }} <span class="text-foreground/55" text-xs font-code ml2 inline-block dark:text-primary-dark dark:op65>{{ `[v${version}]` }}</span>
       </div>
     </div>
     <div class="mx-2 max-w-2xl hidden md:flex md:flex-1">
