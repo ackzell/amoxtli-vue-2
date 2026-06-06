@@ -15,9 +15,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="el" display-none>
+  <span ref="el" display-none>
     <div text-sm p2 rounded-md bg-bgr-50 dark:bg-bgr-900>
       <slot />
     </div>
-  </div>
+  </span>
 </template>
