@@ -1,8 +1,8 @@
 import { useVueRuntime } from './useVueRuntime'
 
 const themeColors = {
-  light: { bg: '#ffffff', fg: '#1a1a1a' },
-  dark: { bg: '#1a1a1a', fg: '#e4e4e4' },
+  light: { bg: '#fafafa', fg: '#101010' },
+  dark: { bg: '#101010', fg: '#fafafa' },
 }
 
 export function useSandboxPreview() {
@@ -52,10 +52,23 @@ export function useSandboxPreview() {
     iframeEl.value.srcdoc = buildHtml(js, css, isDark)
   }
 
-  function showError(message: string) {
+  function showError(message: string, css = '', isDark = false) {
+    const t = isDark ? themeColors.dark : themeColors.light
     compileError.value = message
     if (iframeEl.value) {
-      iframeEl.value.srcdoc = `<html><body><pre style="color:red;padding:16px;margin:0;font-size:13px;overflow:auto;">${message}</pre></body></html>`
+      iframeEl.value.srcdoc = `
+        <html>
+          <head>
+            <style>
+              html { background: ${t.bg}; }
+              body { margin: 0; padding: 16px; font-family: -apple-system, sans-serif; color: ${t.fg}; }
+              ${css}
+            </style>
+          </head>
+          <body>
+            <pre style="color:red;padding:16px;margin:0;font-size:13px;white-space: pre-wrap;word-wrap: break-word;">${message}</pre>
+          </body>
+        </html>`
     }
   }
 

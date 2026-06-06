@@ -338,8 +338,22 @@ export default defineNuxtConfig({
         (_, fence, before, after, code) => {
           const langMatch = before.match(/(\S+)/)
           const lang = langMatch ? langMatch[1] : 'vue'
-          const b64 = Buffer.from(code + '\n').toString('base64')
-          return `:vue-live{code="${b64}" lang="${lang}"}`
+          const b64 = Buffer.from(`${code}\n`).toString('base64')
+          let hide = ''
+          const hideMatch = (`${before} ${after}`).match(/hide=\{([^}]+)\}/)
+          if (hideMatch)
+            hide = hideMatch[1].replace(/\s+/g, '')
+          const hideAttr = hide ? ` hide="${hide}"` : ''
+
+          let showLineNumbers = ''
+          const slnMatch = (`${before} ${after}`).match(
+            /showLineNumbers(?:=\s*(?:\{\s*)?(true|false)\s*\}?)?/,
+          )
+          if (slnMatch)
+            showLineNumbers = slnMatch[1] ?? 'true'
+          const slnAttr = showLineNumbers ? ` :showLineNumbers="${showLineNumbers}"` : ''
+
+          return `:vue-live{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}}`
         },
       )
     },

@@ -21,8 +21,13 @@ console.log('version:', version)
 <template>
   <h1>{{ message }}</h1>
 
-  <input :value="message" :onInput="updateMessage">
-  <button :onClick="logMessage">
+  <input
+    :value="message"
+    :onInput="updateMessage"
+  >
+  <button
+    :onClick="logMessage"
+  >
     log message
   </button>
 

@@ -9,16 +9,18 @@ import { getShiki } from '~/monaco/shiki'
 const props = withDefaults(defineProps<{
   code?: string
   lang?: string
-  height?: string
+  hide?: string
+  showLineNumbers?: boolean
 }>(), {
   code: '',
   lang: 'vue',
-  height: '400px',
+  hide: '',
+  showLineNumbers: false,
 })
 
 const colorMode = useColorMode()
 const { compileSfc } = useSfcCompiler()
-const { iframeEl, vueVersion, blobUrl, render, showError } = useSandboxPreview()
+const { iframeEl, blobUrl, render, showError } = useSandboxPreview()
 
 const originalCode = ref('')
 const currentCode = ref('')
@@ -49,7 +51,7 @@ function doCompile() {
   const result = compileSfc(currentCode.value)
   lastResult.value = null
   if (result.error) {
-    showError(result.error)
+    showError(result.error, '', colorMode.value === 'dark')
   }
   else {
     lastResult.value = { js: result.js, css: result.css }
@@ -66,12 +68,34 @@ function handleReset() {
   if (currentCode.value === originalCode.value)
     return
   currentCode.value = originalCode.value
-  if (editor)
-    editor.setValue(originalCode.value)
+  if (editor) {
+    const model = editor.getModel()
+    if (model)
+      model.applyEdits([{ range: model.getFullModelRange(), text: originalCode.value }])
+  }
   doCompile()
 }
 
-const isModified = computed(() => currentCode.value !== originalCode.value)
+function resizeEditor() {
+  if (!editor)
+    return
+  const h = Math.max(60, Math.min(editor.getContentHeight(), 600))
+  editorEl.value!.style.height = `${h}px`
+  editor.layout()
+}
+
+function applyHiddenAreas() {
+  if (!props.hide || !editor)
+    return
+  const ranges = props.hide.split(',').map((part) => {
+    const [s, e] = part.trim().split('-').map(Number)
+    if (!isNaN(s) && !isNaN(e) && s > 0 && e >= s)
+      return { startLineNumber: s, startColumn: 1, endLineNumber: e, endColumn: 1 }
+    return null
+  }).filter((r): r is NonNullable<typeof r> => r !== null)
+  if (ranges.length)
+    (editor as any).setHiddenAreas(ranges)
+}
 
 const theme = computed(() => colorMode.value === 'dark' ? 'vesper' : 'amoxtli-light')
 
@@ -101,15 +125,19 @@ onMounted(async () => {
     fontSize: 13,
     fontFamily: 'DM Mono, monospace',
     lineNumbersMinChars: 3,
-    lineNumbers: 'off',
+    lineNumbers: props.showLineNumbers ? 'on' : 'off',
     lineDecorationsWidth: 10,
+    renderLineHighlight: 'none',
+    guides: {
+      indentation: false,
+    },
     minimap: { enabled: false },
     folding: false,
     glyphMargin: false,
     automaticLayout: true,
     scrollBeyondLastLine: false,
     wordWrap: 'on',
-    padding: { top: 8 },
+    padding: { top: 16, bottom: 16 },
     overviewRulerLanes: 0,
     fixedOverflowWidgets: true,
   })
@@ -118,6 +146,13 @@ onMounted(async () => {
     currentCode.value = editor.getValue()
     scheduleCompile()
   })
+
+  editor.onDidContentSizeChange(() => {
+    resizeEditor()
+  })
+
+  applyHiddenAreas()
+  resizeEditor()
 
   if (decoded)
     doCompile()
@@ -148,44 +183,14 @@ watch(blobUrl, (url) => {
 <template>
   <div
     class="vue-live-block"
-    :style="{ '--vl-height': height }"
     border="~ base rounded-lg"
     my-5 overflow-hidden
   >
-    <!-- <div
-      flex="~ items-center gap-2"
-
-      border="b base"
-      bg="dark:bgr-dark bgr-50"
-      text-sm px-3 py-1.5
-    >
-      <div i-logos-vue text-sm op60 />
-      <span text-xs font-mono op40>
-        {{ lang }}
-        <span
-          v-if="vueVersion"
-          v-tooltip="`Vue ${vueVersion}`"
-          op30
-        > {{ vueVersion }}</span>
-      </span>
-      <div flex-auto />
-      <button
-        v-if="originalCode"
-        :disabled="!isModified"
-
-        op40 transition-opacity disabled:op-15 hover:op-100
-        title="Reset"
-        @click="handleReset"
-      >
-        <div i-carbon-rotate text-sm />
-      </button>
-    </div> -->
-
     <div class="vl-body">
       <div class="vl-preview" border="b md:border-b-0 md:border-r base">
         <iframe
           ref="iframeEl"
-          class="dark:bg-#1a1a1a"
+          class="dark:bg-dark"
           border-none bg-white h-full w-full
           title="Live Preview"
         />
@@ -193,30 +198,40 @@ watch(blobUrl, (url) => {
 
       <div
         ref="editorEl"
-        class="vl-editor"
-      />
+        class="vl-editor group/vl-editor group/avVueLive relative"
+      >
+        <IconButton
+          :tooltip="$t('reset-contents')"
+          tooltip-placement="top"
+          unstyled border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none items-center right-2 top-2 justify-center absolute z-1
+          class="transition-opacity duration-200 group-focus-within/avVueLive:op75 group-hover/avVueLive:op75 hover:op100 group-focus-within/avVueLive:pointer-events-auto group-hover/avVueLive:pointer-events-auto"
+          :aria-label="$t('reset-contents')"
+          @click="handleReset"
+        >
+          <div i-carbon-rotate text-bgr-dark h4 w4 dark:text-bgr-50 />
+        </IconButton>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.vue-live-block {
-  --vl-sidebar-min: 200px;
-}
-
 .vl-body {
   display: grid;
-  grid-template-rows: 45% 55%;
+  grid-template-rows: auto auto;
   grid-template-columns: 1fr;
   grid-template-areas:
     'preview'
     'editor';
-  height: var(--vl-height);
 }
 
 .vl-preview {
   grid-area: preview;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  min-height: 100px;
 }
 
 .vl-editor {
@@ -226,7 +241,7 @@ watch(blobUrl, (url) => {
 
 @media (min-width: 768px) {
   .vl-body {
-    grid-template-rows: 1fr;
+    grid-template-rows: auto;
     grid-template-columns: 1fr 1fr;
     grid-template-areas: 'editor preview';
   }
