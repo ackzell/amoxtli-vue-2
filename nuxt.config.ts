@@ -157,6 +157,7 @@ export default defineNuxtConfig({
         '@vue/devtools-core',
         '@vue/devtools-kit',
         '@vue/language-service', // CJS
+        '@vue/compiler-sfc',
         '@webcontainer/api',
         '@xterm/addon-fit', // CJS
         '@xterm/xterm', // CJS
@@ -299,36 +300,46 @@ export default defineNuxtConfig({
       const templateDir = join(file.dirname, '.template', 'files')
       const solutionsDir = join(file.dirname, '.template', 'solutions')
 
-      if (!existsSync(templateDir) && !existsSync(solutionsDir))
-        return
+      if (existsSync(templateDir) || existsSync(solutionsDir)) {
+        file.body = file.body.replace(
+          /^(`{3,})(\w+)?[ \t]*(file|solution):\/(\S+)([ \t][^\n]*)?\n([\s\S]*?\n)?\1/gm,
+          (match, fence, lang, prefix, filePath, rest) => {
+            const baseDir = prefix === 'solution' ? solutionsDir : templateDir
+            const fullPath = join(baseDir, filePath)
+            if (!existsSync(fullPath)) {
+              return match
+            }
+            const content = readFileSync(fullPath, 'utf-8').trimEnd()
+            return `${fence}${lang ?? ''} ${prefix}:/${filePath}${rest ?? ''}\n${content}\n${fence}`
+          },
+        )
 
-      file.body = file.body.replace(
-        /^(`{3,})(\w+)?[ \t]*(file|solution):\/(\S+)([ \t][^\n]*)?\n([\s\S]*?\n)?\1/gm,
-        (match, fence, lang, prefix, filePath, rest) => {
-          const baseDir = prefix === 'solution' ? solutionsDir : templateDir
-          const fullPath = join(baseDir, filePath)
-          if (!existsSync(fullPath)) {
-            return match
-          }
-          const content = readFileSync(fullPath, 'utf-8').trimEnd()
-          return `${fence}${lang ?? ''} ${prefix}:/${filePath}${rest ?? ''}\n${content}\n${fence}`
-        },
-      )
+        // Escape collapse braces so MDC doesn't consume them as attribute syntax
+        file.body = file.body.replace(
+          /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
+          (_, before, val) => `${before}collapse=__ECOL_${val}__`,
+        )
 
-      // Escape collapse braces so MDC doesn't consume them as attribute syntax
-      file.body = file.body.replace(
-        /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
-        (_, before, val) => `${before}collapse=__ECOL_${val}__`,
-      )
+        // Encode title="..." with escaped quotes (\" and \\ and \` etc.)
+        file.body = file.body.replace(
+          /^(`{3,}[^\n]*?)\s+title="((?:[^"\\]|\\.)*)"/gm,
+          (match, prefix, titleValue) => {
+            const decoded = titleValue.replace(/\\(["\\`])/g, '$1')
+            const hex = Buffer.from(decoded).toString('hex')
+            return `${prefix} title=__ETIT_${hex}__`
+          },
+        )
+      }
 
-      // Encode title="..." with escaped quotes (\" and \\ and \` etc.)
-      // e.g. title="Imagine we have a \"container\" box" → title=__ETIT_<hex>__
+      // Detect live code blocks and wrap in VueLive component.
+      // Must run after file/solution inlining above so file:/path live works.
       file.body = file.body.replace(
-        /^(`{3,}[^\n]*?)\s+title="((?:[^"\\]|\\.)*)"/gm,
-        (match, prefix, titleValue) => {
-          const decoded = titleValue.replace(/\\(["\\`])/g, '$1')
-          const hex = Buffer.from(decoded).toString('hex')
-          return `${prefix} title=__ETIT_${hex}__`
+        /^(`{3,})([^\n]*?)\blive\b([^\n]*)\n([\s\S]*?)\n\1/gm,
+        (_, fence, before, after, code) => {
+          const langMatch = before.match(/(\S+)/)
+          const lang = langMatch ? langMatch[1] : 'vue'
+          const b64 = Buffer.from(code + '\n').toString('base64')
+          return `:vue-live{code="${b64}" lang="${lang}"}`
         },
       )
     },
