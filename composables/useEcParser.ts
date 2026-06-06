@@ -96,7 +96,18 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
       result.annotations.push({ text, lines: parseRanges(rangesStr) })
   }
 
-  workingString = workingString.replace(/(?:^|\s)file:(\S+)/, (_, val) => { result.file = val; return '' })
+  workingString = workingString.replace(/(?:^|\s)(?:file|solution):(\S+)/, (_, val) => { result.file = val; return '' })
+
+  // Decode title=__ETIT_<hex>__ (escaped quotes encoded by beforeParse hook)
+  workingString = workingString.replace(
+    /(?:^|\s)title=__ETIT_([A-Fa-f0-9]+)__/,
+    (_, hex) => {
+      result.title = decodeURIComponent(hex.replace(/([A-Fa-f0-9]{2})/g, '%$1'))
+      return ''
+    },
+  )
+
+  // Plain title="..." (no escaped quotes, no encoding needed)
   workingString = workingString.replace(/(?:^|\s)title="([^"]+)"/, (_, val) => { result.title = val; return '' })
   // workingString = workingString.replace(/(?:^|\s)collapse=\{([^}]+)\}/, (_, val) => {
   //   result.collapseRanges = parseCollapseRanges(val); return ''

@@ -114,7 +114,7 @@ const isMobile = computed(() => windowWidth.value > 0 && windowWidth.value < 768
     <article
       ref="docsEl"
       class="prose"
-      p6 h-full pb="[calc(1.5rem+max(5rem,calc(5rem+env(safe-area-inset-bottom))))]"
+      safe-area-pb p6 h-full
       :style="{ transform: showPullIndicator ? `translateY(${pullY}px)` : undefined, transition: isPulling ? 'none' : 'transform 0.2s ease' }"
       @touchstart.passive="onTouchStart"
       @touchmove.passive="onTouchMove"
@@ -163,5 +163,9 @@ const isMobile = computed(() => windowWidth.value > 0 && windowWidth.value < 768
 <style scoped>
 .shorten-height {
   height: calc(100% - 4rem);
+}
+.safe-area-pb {
+  padding-bottom: 6.5rem;
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
 }
 </style>

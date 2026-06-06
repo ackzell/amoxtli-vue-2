@@ -31,7 +31,7 @@ function showCode() {
 
     flex="~ items-center justify-center gap-4"
 
-    pb="[max(0.5rem,env(safe-area-inset-bottom))]"
+    safe-area-pb-toggle
 
     px3 pt2 border-t border-base bg-base h-auto min-h-12 bottom-0 left-0 right-0 fixed z-50 backdrop-blur-sm
   >
@@ -64,3 +64,10 @@ function showCode() {
     <small v-if="isDocsOnly" class="text-[0.5rem]"> {{ $t('docs-only-lesson') }}</small>
   </div>
 </template>
+
+<style scoped>
+.safe-area-pb-toggle {
+  padding-bottom: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+</style>

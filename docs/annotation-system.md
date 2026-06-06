@@ -70,18 +70,18 @@ matching text).
 Collapses a range of lines into a toggleable widget.
 
 `````markdown
-```vue collapse={24-30, 49-82}
+````vue title="App.vue"
+```ts file:/src/utils.ts
+```solution:/components/Answer.vue
+```vue [MyComponent.vue]
+`````````
 
-```
+- `file:/path` — resolves to `.template/files/path` (the starter code for a lesson)
+- `solution:/path` — resolves to `.template/solutions/path` (the completed/solution code)
+- `title="..."` — explicit filename header
+- `[filename]` — fallback metadata syntax
 
-``````
-
-Rendered as a bordered, collapsible section with a clickable widget showing the
-line count.
-
-### 5. Filename — `title="..."` or `file:...` or `[filename]`
-
-Displays a filename header above the code block. The filename also determines
+Rendered as a filename header above the code block. The filename also determines
 icon and language when no language is explicitly set.
 
 `````markdown
@@ -133,8 +133,8 @@ Shiki from misinterpreting `{ }`, `[ ]`, `/`, and other special characters.
 
 The hook also:
 
-- Infers language from `file:` extension if no language is given
-- Inlines content from `.template/files/` paths
+- Infers language from `file:` / `solution:` extension if no language is given
+- Inlines content from `.template/files/` (for `file:`) or `.template/solutions/` (for `solution:`) paths
 
 ### Stage 2: Decoding (`composables/useEcParser.ts`)
 

@@ -56,7 +56,7 @@ const inferredFilename = computed(() => {
   if (parsedEc.value.title)
     return parsedEc.value.title
   if (parsedEc.value.file)
-    return parsedEc.value.file
+    return parsedEc.value.file.replace(/^\//, '')
   if (props.filename)
     return props.filename
   if (props.meta) {

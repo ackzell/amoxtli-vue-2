@@ -8,32 +8,38 @@ ogImage: true
 
 > So how do we _mark_ those variables then?
 
-Great question! The [recommended way](https://vuejs.org/guide/essentials/reactivity-fundamentals.html#declaring-reactive-state-1) to do so is by "wrapping" them with `ref()`.
+Great question! The [recommended way](https://vuejs.org/guide/essentials/reactivity-fundamentals.html#declaring-reactive-state-1) to do so is by _wrapping_ them with `ref()`.
 
 ::magic-move{lang="vue"}
 
-```vue title="We start with a message variable"
+```vue title="We start with a \`message\` variable"
+
 <script setup>
 import { version } from 'vue'
 
 const message = 'Hola ref!'
 </script>
-```
+
+````
 
 ```vue title="Wrap it in ref()"
 <script setup>
 import { ref, version } from 'vue'
 
+// "hey Vue, please keep an eye on this variable
+// and use the latest value for it whenever it changes"
 const message = ref('Hola ref!')
 </script>
-```
+````
 
 Let's focus on _reading the value_ first in our example code:
 
-```vue title="Now we can use it in the template"
+```vue title="Now we use it in the template"
 <script setup>
 import { ref, version } from 'vue'
 
+// "hey Vue, please keep an eye on this variable
+// and use the latest value for it whenever it changes"
 const message = ref('Hola ref!')
 </script>
 
@@ -50,11 +56,15 @@ file:/src/App.vue title="App.vue" {"We import ref":2} {"The message variable is 
 
 That's great, I think I had similar code somewhere in the examples already. It is actually pretty intuitive, isn't it?
 
-But then, we need to also see the rest of the code to understand a couple things better: What happens if we update the value of the `message` _after_ it has been declared?
+But then, we need to work with a slightly more complex example to understand a couple things better: What happens if we update the value of the `message` _after_ it has been declared?
+
+You will use these reactive variables in two places: the `<script>` tag and the `<template>` tag. Let's see how to work with them in each of those.
 
 ## ref() inside the `<script>` tag
 
-Let's focus now on the flow of the `message`'s value now that we update it from the text input: when the user types something, the `h1` will be automagically updated with the input's current value. And when you click on the button, you should see in the console output the latest value that matches the `h1`.
+Let's add an `<input />` and a `<button />` to update the `message` variable and focus on the flow of the value for that variable:
+
+When the user enters something in the input, the `h1` will be automagically updated with the input's current (latest) value. And when you click on the button, you should see in the console output the latest value that matches the `h1`.
 
 ```file:/src/App.vue title="App.vue" {"Handles the update from the input":6-10} {"This logs the 'wrapped' variable, eg. an object":13}  {"Whereas this logs the actual value we care about":15} {"Bind the message variable to the input's value and change it when user types in it":24}  collapse={2-5, 18-19, 29-41}
 -

@@ -36,8 +36,8 @@ export const useGuideStore = defineStore('guide', () => {
 
   const ignoredFiles = computed(() => transformGuideIgnoredFiles(currentGuide.value?.ignoredFiles))
 
-  const buttonSolutionMessage = computed(() => currentGuide.value?.buttonSolutionMessage ?? t('show-solution'))
-  const buttonResetMessage = computed(() => currentGuide.value?.buttonResetMessage ?? t('reset-challenge'))
+  const buttonSolutionMessage = computed(() => currentGuide.value?.buttonSolutionMessage ? t(currentGuide.value.buttonSolutionMessage) : t('show-solution'))
+  const buttonResetMessage = computed(() => currentGuide.value?.buttonResetMessage ? t(currentGuide.value.buttonResetMessage) : t('reset-challenge'))
 
   watch(features, () => {
     if (features.value.fileTree === true) {

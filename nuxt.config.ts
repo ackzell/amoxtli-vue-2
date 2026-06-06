@@ -221,7 +221,7 @@ export default defineNuxtConfig({
 
       // Infer language from file extension when none is specified
       file.body = file.body.replace(
-        /^(`{3,})([ \t]*file:\/(\S+))([ \t][^\n]*)?\n/gm,
+        /^(`{3,})([ \t]*(?:file|solution):\/(\S+))([ \t][^\n]*)?\n/gm,
         (match, fence, filePrefix, filePath, rest) => {
           const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
           const extMap: Record<string, string> = {
@@ -297,19 +297,21 @@ export default defineNuxtConfig({
       // (the above replace handles one per call, but g flag handles all on same line)
 
       const templateDir = join(file.dirname, '.template', 'files')
+      const solutionsDir = join(file.dirname, '.template', 'solutions')
 
-      if (!existsSync(templateDir))
+      if (!existsSync(templateDir) && !existsSync(solutionsDir))
         return
 
       file.body = file.body.replace(
-        /^(`{3,})(\w+)?[ \t]*file:\/(\S+)([ \t][^\n]*)?\n([\s\S]*?\n)?\1/gm,
-        (match, fence, lang, filePath, rest) => {
-          const fullPath = join(templateDir, filePath)
+        /^(`{3,})(\w+)?[ \t]*(file|solution):\/(\S+)([ \t][^\n]*)?\n([\s\S]*?\n)?\1/gm,
+        (match, fence, lang, prefix, filePath, rest) => {
+          const baseDir = prefix === 'solution' ? solutionsDir : templateDir
+          const fullPath = join(baseDir, filePath)
           if (!existsSync(fullPath)) {
             return match
           }
           const content = readFileSync(fullPath, 'utf-8').trimEnd()
-          return `${fence}${lang ?? ''} file:/${filePath}${rest ?? ''}\n${content}\n${fence}`
+          return `${fence}${lang ?? ''} ${prefix}:/${filePath}${rest ?? ''}\n${content}\n${fence}`
         },
       )
 
@@ -317,6 +319,17 @@ export default defineNuxtConfig({
       file.body = file.body.replace(
         /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
         (_, before, val) => `${before}collapse=__ECOL_${val}__`,
+      )
+
+      // Encode title="..." with escaped quotes (\" and \\ and \` etc.)
+      // e.g. title="Imagine we have a \"container\" box" → title=__ETIT_<hex>__
+      file.body = file.body.replace(
+        /^(`{3,}[^\n]*?)\s+title="((?:[^"\\]|\\.)*)"/gm,
+        (match, prefix, titleValue) => {
+          const decoded = titleValue.replace(/\\(["\\`])/g, '$1')
+          const hex = Buffer.from(decoded).toString('hex')
+          return `${prefix} title=__ETIT_${hex}__`
+        },
       )
     },
 

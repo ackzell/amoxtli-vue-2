@@ -20,29 +20,27 @@ When used in `PanelEditor.vue`, the component receives props directly:
 
 ```vue
 <ButtonShowSolution
-  :show-solution-message="$t(guide.buttonSolutionMessage)"
-  :reset-message="$t(guide.buttonResetMessage)"
+  :show-solution-message="guide.buttonSolutionMessage"
+  :reset-message="guide.buttonResetMessage"
 />
 ```
 
-These are already translated i18n values resolved from the guide store's
-computed properties.
+The props are already translated strings resolved from the guide store.
 
 ### 2. Guide Meta (middle priority)
 
 When no props are passed (as with `<ButtonShowSolution />` in `.md` files),
 the component reads from the guide store's `buttonSolutionMessage` and
-`buttonResetMessage` computed properties and passes them through `$t()` to
-resolve the final display string.
+`buttonResetMessage` computed properties directly.
 
-The guide store's computed properties return **i18n keys** when the guide meta
-sets them, or **translated strings** when falling back to defaults:
+These computed properties always return **translated strings**:
 
 ```ts
 // stores/guide.ts
 const buttonSolutionMessage = computed(
-  () => currentGuide.value?.buttonSolutionMessage ?? $t('show-solution')
-  //         raw i18n key ↑                      ↑ already translated
+  () => currentGuide.value?.buttonSolutionMessage
+    ? t(currentGuide.value.buttonSolutionMessage)
+    : t('show-solution')
 )
 ```
 
@@ -66,59 +64,64 @@ must exist in `i18n/locales/*.yaml`.
 If neither prop nor guide meta provides a value, the component falls back to
 the default i18n keys:
 
-| Key               | English         | Japanese       |
-| ----------------- | --------------- | -------------- |
-| `show-solution`   | Show solution   | 解答を表示     |
-| `reset-challenge` | Reset challenge | 挑戦をリセット |
+| Key               | English          | Japanese              |
+| ----------------- | ---------------- | --------------------- |
+| `show-solution`   | Show solution    | 解答を表示            |
+| `reset-challenge` | Reset challenge  | 挑戦をリセット        |
 
 Defined in `i18n/locales/en.yaml` and `i18n/locales/ja.yaml`.
 
 ---
 
-## How It Works (Data Flow)
+## Data Flow
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  .template/index.ts                                         │
-│  (buttonSolutionMessage, buttonResetMessage)                │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ loaded via import.meta.glob
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│  pages/[...slug].vue                                        │
-│  (loadGuideMeta → guide.setGuideMeta())                     │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ stored in Pinia
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│  stores/guide.ts                                            │
-│  (buttonSolutionMessage / buttonResetMessage computed)       │
-└─────────┬───────────────────────────────────┬───────────────┘
-          │                                   │
-          ▼                                   ▼
-┌──────────────────┐            ┌──────────────────────────┐
-│ PanelEditor.vue  │            │ ButtonShowSolution.vue   │
-│ (passes as prop) │            │ (reads from guide store  │
-│                  │            │  when props are absent)  │
-└──────────────────┘            └──────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  .template/index.ts                          │
+│  (buttonSolutionMessage, buttonResetMessage) │
+│  e.g. 'script-setup' (raw i18n keys)         │
+└─────────────────────┬────────────────────────┘
+                      │ loaded via import.meta.glob
+                      ▼
+┌──────────────────────────────────────────────┐
+│  pages/[...slug].vue                         │
+│  (loadGuideMeta → guide.setGuideMeta())      │
+└─────────────────────┬────────────────────────┘
+                      │ stored in Pinia
+                      ▼
+┌──────────────────────────────────────────────┐
+│  stores/guide.ts                             │
+│                                              │
+│  buttonSolutionMessage = t('script-setup')   │
+│  → "Script Setup" (translated)               │
+└─────────┬────────────────────┬───────────────┘
+          │                    │
+          ▼                    ▼
+┌──────────────────┐  ┌──────────────────────────┐
+│ PanelEditor.vue  │  │ ButtonShowSolution.vue   │
+│                   │  │                          │
+│ passes translated │  │ .md usage: no props      │
+│ string as prop    │  │ falls to store value     │
+│                   │  │ (already translated)     │
+└──────────────────┘  └──────────────────────────┘
 ```
 
-When `<ButtonShowSolution />` is used inline in `.md` files, no props reach
-the component — Nuxt Content's MDC parser resolves the component tag but
-doesn't forward store data. The component therefore falls through to the
-guide store's computed properties, which picks up `buttonSolutionMessage` /
-`buttonResetMessage` from the guide meta if set.
+The guide store is the single point of translation — it converts the guide
+meta's raw i18n keys into translated strings via `t()`. Both `PanelEditor`
+(which passes the value as a prop) and inline `.md` usage (which reads from
+the store directly) receive already-translated strings, so the component
+never needs to call `$t()` itself.
 
 ---
 
 ## Related Files
 
-| File                                        | Role                                                                 |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| `components/content/ButtonShowSolution.vue` | Component with the fallback chain                                    |
-| `stores/guide.ts`                           | Computed properties for button text                                  |
-| `types/guides.ts`                           | `GuideMeta` interface (`buttonSolutionMessage`/`buttonResetMessage`) |
-| `components/PanelEditor.vue`                | Passes translated props to component                                 |
-| `pages/[...slug].vue`                       | Loads guide meta dynamically                                         |
-| `i18n/locales/en.yaml`                      | Default English button labels                                        |
-| `i18n/locales/ja.yaml`                      | Default Japanese button labels                                       |
+| File                                                    | Role                                                |
+| ------------------------------------------------------- | --------------------------------------------------- |
+| `components/content/ButtonShowSolution.vue`             | Component — reads props or store directly           |
+| `stores/guide.ts`                                       | Always returns translated strings via `t()`         |
+| `types/guides.ts`                                       | `GuideMeta` interface (`buttonSolutionMessage`/`buttonResetMessage`) |
+| `components/PanelEditor.vue`                            | Passes store value directly as prop                 |
+| `pages/[...slug].vue`                                   | Loads guide meta dynamically                        |
+| `i18n/locales/en.yaml`                                  | Default English button labels                       |
+| `i18n/locales/ja.yaml`                                  | Default Japanese button labels                      |

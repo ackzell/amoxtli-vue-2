@@ -22,11 +22,17 @@ interface InviteEntry {
   data: InviteData
 }
 
+function sanitizeName(name: string): string {
+  return name.trim().replace(/^[- ]+|[- ]+$/g, '').trim()
+}
+
 function generateCode(name: string, seen: Set<string>): string {
+  const clean = sanitizeName(name)
+  if (!clean) throw new Error(`Invalid name: "${name}"`)
   let code: string
   do {
     const bytes = randomBytes(4)
-    code = `${PREFIX}-${name}`
+    code = `${PREFIX}-${clean}`
     for (let i = 0; i < 4; i++) {
       code += CHARS.charAt(bytes.at(i)! % CHARS.length)
     }
@@ -36,17 +42,18 @@ function generateCode(name: string, seen: Set<string>): string {
 }
 
 function parseNames(filePath: string): string[] {
-  const content = readFileSync(filePath, 'utf-8').trim()
-  if (!content)
+  const raw = readFileSync(filePath, 'utf-8')
+  const trimmed = raw.trim()
+  if (!trimmed)
     return []
 
-  if (content.startsWith('[')) {
-    const parsed = JSON.parse(content)
+  if (trimmed.startsWith('[')) {
+    const parsed = JSON.parse(trimmed)
     return Array.isArray(parsed) ? parsed.map(String) : []
   }
 
-  if (content.startsWith('-')) {
-    const parsed = yaml.load(content)
+  if (/^\s*- /m.test(raw)) {
+    const parsed = yaml.load(trimmed)
     if (Array.isArray(parsed)) {
       return parsed.map((item: unknown): string => {
         if (typeof item === 'string')
@@ -59,7 +66,7 @@ function parseNames(filePath: string): string[] {
     }
   }
 
-  return content.split('\n')
+  return trimmed.split('\n')
     .map(l => l.trim())
     .filter((l): l is string => !!l && !l.startsWith('#'))
 }

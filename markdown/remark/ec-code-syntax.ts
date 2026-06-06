@@ -56,10 +56,12 @@ function walk(node: any, onCode: (codeNode: any) => void) {
 export default function remarkEcCodeSyntax() {
   return (tree: any) => {
     walk(tree, (node) => {
-      if (typeof node.lang !== 'string' || !node.lang.startsWith('file:'))
+      if (typeof node.lang !== 'string' || (!node.lang.startsWith('file:') && !node.lang.startsWith('solution:')))
         return
 
-      const filePath = node.lang.slice('file:'.length).trim()
+      const isSolution = node.lang.startsWith('solution:')
+      const prefix = isSolution ? 'solution:' : 'file:'
+      const filePath = node.lang.slice(prefix.length).trim()
       if (!filePath)
         return
 
@@ -67,7 +69,7 @@ export default function remarkEcCodeSyntax() {
       const hasTitle = /(?:^|\s)title=/.test(currentMeta)
       const nextMetaParts = [
         currentMeta,
-        `file:${filePath}`,
+        `${prefix}${filePath}`,
         hasTitle ? '' : `title="${getTitleFromPath(filePath)}"`,
       ].filter(Boolean)
 

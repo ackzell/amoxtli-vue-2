@@ -33,7 +33,7 @@ export default defineNuxtModule({
       )
 
       watcher.on('all', async (event: string, path: string) => {
-        if (!path.includes('.template/files'))
+        if (!path.includes('.template/files') && !path.includes('.template/solutions'))
           return
 
         if (!viteServer) {
@@ -55,7 +55,9 @@ export default defineNuxtModule({
             return // Ignore if file was just deleted
         }
 
-        const filesBase = path.substring(0, path.indexOf('.template/files/') + '.template/files/'.length)
+        const isSolution = path.includes('.template/solutions/')
+        const subDir = isSolution ? '.template/solutions/' : '.template/files/'
+        const filesBase = path.substring(0, path.indexOf(subDir) + subDir.length)
         const filename = relative(filesBase, path) // → "src/App.vue"
 
         // 2. BROADCAST TO FRONTEND
@@ -69,7 +71,7 @@ export default defineNuxtModule({
 
         // 3. TOUCH index.ts TO FORCE VITE NATIVE HMR AND CACHE BUSTING
         try {
-          const indexTsPath = path.replace(/\.template\/files\/.*$/, '.template/index.ts')
+          const indexTsPath = path.replace(/\.template\/(files|solutions)\/.*$/, '.template/index.ts')
           const now = new Date()
           utimesSync(indexTsPath, now, now)
         }

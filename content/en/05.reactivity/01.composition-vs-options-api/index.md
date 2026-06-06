@@ -104,7 +104,9 @@ As I mentioned, everything is in its place, neatly grouped and there is a very s
 
 And so on for the rest of the "parts" that make up your component. It gives you structure!
 
-I would highlight one particular aspect of it which I think expresses well the flow of data in your components using **Options API**. You can see that we refer to the `greetedCount` by prepending a `this.` to it. even This can feel a little bit magic if you are used to writing JS, but otherwise makes it really straightforward.
+I would highlight one particular aspect of it which I think expresses well the flow of data in your components using **Options API**. You can see that we refer to the `greetedCount` by prepending a `this.` to it.
+
+It can feel a little bit magic if you are used to writing JS, but otherwise makes it really straightforward.
 
 As long as you access to the component instance (`this`) in your component code, you will be able to read (and potentially write) to that piece of data. Your methods are accessible this way as presented in the example too.
 
@@ -116,16 +118,50 @@ Let's see what this same app looks like when authored with the newer approach: <
 
 ::magic-move{lang="vue" }
 
-```vue title="Let's start with a function. These are called 'composables'"
+```vue title="Let's start with a 'useGreeter' function. These are called 'composables'"
+<script setup>
+function useGreeter() {
+
+}
+</script>
+```
+
+```vue title="We'll need a reactive property, but internal to this function only"
+<script setup>
+import { ref } from 'vue'
+
+function useGreeter() {
+  const greetedCount = ref(0)
+}
+</script>
+```
+
+```vue title="Add the computed state, derived from the reactive var"
 <script setup>
 import { computed, ref } from 'vue'
 
 function useGreeter() {
-  // a reactive property, but internal to this function only
-  // we are not using it on the template
   const greetedCount = ref(0)
 
-  // still derived, computed state
+  const timesGreeted = computed(() => {
+    const isPlural = greetedCount.value > 1
+    const times = isPlural ? 'times' : 'time'
+
+    return greetedCount.value > 0
+      ? `I've greeted you ${greetedCount.value} ${times}`
+      : 'I have not greeted you yet.'
+  })
+}
+</script>
+```
+
+```vue title="Now the methods, which are now just functions"
+<script setup>
+import { computed, ref } from 'vue'
+
+function useGreeter() {
+  const greetedCount = ref(0)
+
   const timesGreeted = computed(() => {
     const isPlural = greetedCount.value > 1
     const times = isPlural ? 'times' : 'time'
@@ -135,7 +171,34 @@ function useGreeter() {
       : 'I have not greeted you yet.'
   })
 
-  // the methods are now functions
+  function greetMe() {
+    console.log(`Hello there!`)
+    greetedCount.value++
+  }
+
+  function reset() {
+    greetedCount.value = 0
+  }
+}
+</script>
+```
+
+```vue title="Finish the composable by exposing the specific parts of it we mean to be public"
+<script setup>
+import { computed, ref } from 'vue'
+
+function useGreeter() {
+  const greetedCount = ref(0)
+
+  const timesGreeted = computed(() => {
+    const isPlural = greetedCount.value > 1
+    const times = isPlural ? 'times' : 'time'
+
+    return greetedCount.value > 0
+      ? `I've greeted you ${greetedCount.value} ${times}`
+      : 'I have not greeted you yet.'
+  })
+
   function greetMe() {
     console.log(`Hello there!`)
     greetedCount.value++
@@ -145,7 +208,6 @@ function useGreeter() {
     greetedCount.value = 0
   }
 
-  // we expose the specific parts of the composable we mean to be "public"
   return {
     greetMe,
     reset,
@@ -160,7 +222,7 @@ function useGreeter() {
 import { computed, ref } from 'vue'
 
 // it will only be used once in the template and never change
-// so it doesn't need to be reactive
+// so it doesn't need to be reactive (not wrapped in a `ref()` call)
 const msg = 'Hola Composition API!'
 
 function useGreeter() {
@@ -184,7 +246,6 @@ function useGreeter() {
     greetedCount.value = 0
   }
 
-  // NOTE: We expose what the component will leverage from here
   return {
     greetMe,
     reset,
@@ -198,7 +259,8 @@ function useGreeter() {
 <script setup>
 import { computed, ref } from 'vue'
 
-// this is not reactive, but we don't need it to be
+// it will only be used once in the template and never change
+// so it doesn't need to be reactive (not wrapped in a `ref()` call)
 const msg = 'Hola Composition API!'
 
 // destructuring the result with the exposed props / behaviors from the composable
@@ -225,7 +287,6 @@ function useGreeter() {
     greetedCount.value = 0
   }
 
-  // NOTE: We expose what the component will leverage from here
   return {
     greetMe,
     reset,
@@ -239,9 +300,19 @@ function useGreeter() {
 
 This time we encapsulate the logic that will hold all the pieces that make up _the logic that greets_ in this app into its own unit of code: a `useGreeter` **composable function**.
 
+Imagine now, we import the composable from elsewhere, and the whole `<script setup>` block is effectively the following:
+
+```solution:/src/App.vue collapse={8-34, 50-63}
+-
+```
+
 Now you can see some obvious differences, and some less obvious ones, but the purpose is really that you can get a "feel" for how different / similar these two APIs can be.
 
-One difference is the way we treat the `greetedCount`. For starters, it isn't really exposed to the app component directly, as it lives only within the `useGreeter` function and its purpose is to help "calculate" the actual value we care about: the `timesGreeted` string (There is also a `.value` involved now that I will explain shortly).
+One difference is the way we treat the `greetedCount`. For starters, it isn't really exposed to the app component directly, as it lives only within the `useGreeter` function and its purpose is to help "calculate" the actual value we care about: the `timesGreeted` string.
+
+::info
+You probably also noticed that there is a `.value` involved now and worry not, I will explain that shortly.
+::
 
 Did you catch the `msg` difference? Since we didn't explicitly make it reactive, it won't be!
 
