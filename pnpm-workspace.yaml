@@ -63,6 +63,7 @@ catalogs:
     v-code-diff: ^1.13.1
     vscode-uri: ^3.1.0
     vue: ^3.5.35
+    '@vue/compiler-sfc': ^3.5.35
     vue-router: ^4.6.4
   icons:
     '@iconify-json/carbon': ^1.2.23

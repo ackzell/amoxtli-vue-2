@@ -52,7 +52,8 @@
     "twoslash-vue": "catalog:frontend",
     "vscode-uri": "catalog:frontend",
     "vue": "catalog:frontend",
-    "vue-router": "catalog:frontend"
+    "vue-router": "catalog:frontend",
+    "@vue/compiler-sfc": "catalog:frontend"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",

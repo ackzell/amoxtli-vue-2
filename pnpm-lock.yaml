@@ -67,6 +67,9 @@ catalogs:
     '@volar/monaco':
       specifier: ~2.4.28
       version: 2.4.28
+    '@vue/compiler-sfc':
+      specifier: ^3.5.35
+      version: 3.5.35
     '@vue/language-service':
       specifier: ^2.2.12
       version: 2.2.12
@@ -242,6 +245,9 @@ importers:
       '@volar/monaco':
         specifier: catalog:frontend
         version: 2.4.28
+      '@vue/compiler-sfc':
+        specifier: catalog:frontend
+        version: 3.5.35
       '@vue/language-service':
         specifier: catalog:frontend
         version: 2.2.12(typescript@5.9.3)
