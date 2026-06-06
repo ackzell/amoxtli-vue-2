@@ -44,7 +44,7 @@ export function useVueRuntime() {
       const result = await fetchRuntime()
       vueRuntime.value = result.text
       blobUrl.value = result.blobUrl
-      const vMatch = text.match(/vue\s+v(\d+\.\d+\.\d+(?:-\w+(?:\.\d+)?)?)/i)
+      const vMatch = result.text.match(/vue\s+v(\d+\.\d+\.\d+(?:-\w+(?:\.\d+)?)?)/i)
       vueVersion.value = vMatch?.[1] ?? ''
     }
     catch (e) {

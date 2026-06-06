@@ -177,6 +177,47 @@ const slnMatch = (`${before} ${after}`).match(
 - Preview has `min-height: 80px` and flex-centers its content
 - Reset button floats over the editor's top-right corner, visible on hover
 
+### DI Service Registration
+
+`monaco-editor-core`'s standalone entry point does not register all
+singletons that editor contributions depend on. Five services are missing:
+
+| Service | Module |
+|---|---|
+| `ICodeLensCache` | `editor/contrib/codelens/browser/codeLensCache` |
+| `IInlayHintsCache` | `editor/contrib/inlayHints/browser/inlayHintsController` |
+| `ISuggestMemories` | `editor/contrib/suggest/browser/suggestMemory` |
+| `IActionWidgetService` | `platform/actionWidget/browser/actionWidget` |
+| `ITreeViewsDnDService` | `editor/common/services/treeViewsDndService` |
+
+Without them, contributions like `CodeLensContribution2` throw
+`depends on UNKNOWN service <X>` at runtime.
+
+These modules are loaded via dynamic `import()` inside `onMounted` alongside
+the Monaco API entry point, using `Promise.all` so they resolve before any
+Monaco API function is called:
+
+```ts
+const [monaco] = await Promise.all([
+  import('monaco-editor-core/esm/vs/editor/editor.api'),
+  import('.../codeLensCache'),
+  import('.../inlayHintsController'),
+  import('.../suggestMemory'),
+  import('.../actionWidget'),
+  import('.../treeViewsDndService'),
+])
+```
+
+Each module calls `registerSingleton(ServiceId, Impl)` at evaluation time,
+which populates Monaco's DI registry before `StandaloneServices.initialize()`
+runs. This avoids both:
+
+- **SSR crash**: Dynamic imports are client-side only (inside `onMounted`)
+- **UNKNOWN service errors**: Services exist before contributions instantiate
+
+The type declarations for these internal modules live in
+`types/shim.d.ts`.
+
 ---
 
 ## Reset Behavior

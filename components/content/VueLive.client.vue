@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { shikiToMonaco } from '@shikijs/monaco'
-import editorWorker from 'monaco-editor-core/esm/vs/editor/editor.worker?worker'
+import EditorWorker from 'monaco-editor-core/esm/vs/editor/editor.worker?worker'
 import { useSandboxPreview } from '~/composables/useSandboxPreview'
 import { useSfcCompiler } from '~/composables/useSfcCompiler'
 import { vue as vueConfig } from '~/monaco/language-configs'
@@ -89,7 +89,7 @@ function applyHiddenAreas() {
     return
   const ranges = props.hide.split(',').map((part) => {
     const [s, e] = part.trim().split('-').map(Number)
-    if (!isNaN(s) && !isNaN(e) && s > 0 && e >= s)
+    if (s !== undefined && e !== undefined && !Number.isNaN(s) && !Number.isNaN(e) && s > 0 && e >= s)
       return { startLineNumber: s, startColumn: 1, endLineNumber: e, endColumn: 1 }
     return null
   }).filter((r): r is NonNullable<typeof r> => r !== null)
@@ -104,11 +104,18 @@ onMounted(async () => {
   originalCode.value = decoded
   currentCode.value = decoded
 
-  const monaco = await import('monaco-editor-core/esm/vs/editor/editor.api')
+  const [monaco] = await Promise.all([
+    import('monaco-editor-core/esm/vs/editor/editor.api'),
+    import('monaco-editor-core/esm/vs/editor/contrib/codelens/browser/codeLensCache'),
+    import('monaco-editor-core/esm/vs/editor/contrib/inlayHints/browser/inlayHintsController'),
+    import('monaco-editor-core/esm/vs/editor/contrib/suggest/browser/suggestMemory'),
+    import('monaco-editor-core/esm/vs/platform/actionWidget/browser/actionWidget'),
+    import('monaco-editor-core/esm/vs/editor/common/services/treeViewsDndService'),
+  ])
 
-  self.MonacoEnvironment = {
+  ;(window as any).MonacoEnvironment = {
     getWorker() {
-      return new editorWorker()
+      return new EditorWorker()
     },
   }
 
@@ -231,7 +238,7 @@ watch(blobUrl, (url) => {
   align-items: center;
   justify-content: center;
   overflow: auto;
-  min-height: 100px;
+  min-height: 200px;
 }
 
 .vl-editor {
