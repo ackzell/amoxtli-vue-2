@@ -83,6 +83,7 @@ export default defineNuxtConfig({
       gitSha: execaSync('git', ['rev-parse', 'HEAD']).stdout.trim(),
       repoUrl: 'https://github.com/ackzell/amoxtli-vue-2',
       inviteOnly: true,
+      pagesBranch: process.env.CF_PAGES_BRANCH || '',
     },
     inviteSecret: '',
     devtools: {
