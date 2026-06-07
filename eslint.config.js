@@ -47,11 +47,20 @@ export default antfu(
     },
     {
       files: [
-        'content/**/05.reactivity/03-ref/index.md',
-        'content/**/05.reactivity/03-ref/index.md/**',
+        'content/**/06.reactivity/01.ref/index.md',
+        'content/**/06.reactivity/01.ref/index.md/**',
       ],
       rules: {
         'vue/no-ref-as-operand': 'off',
+      },
+    },
+    {
+      files: [
+        'content/**/05.interactivity/03.v-on/index.md',
+        'content/**/05.interactivity/03.v-on/index.md/**',
+      ],
+      rules: {
+        'vue/v-on-style': 'off',
       },
     },
   )

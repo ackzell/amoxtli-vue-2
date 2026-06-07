@@ -58,7 +58,6 @@ export default defineNuxtConfig({
           },
         },
         highlight: {
-          engine: 'javascript',
           langs: [
             'pug',
             'vue',
@@ -322,7 +321,7 @@ export default defineNuxtConfig({
 
         // Encode title="..." with escaped quotes (\" and \\ and \` etc.)
         file.body = file.body.replace(
-          /^(`{3,}[^\n]*?)\s+title="((?:[^"\\]|\\.)*)"/gm,
+          /^(`{3}[^\n]*?)\s+title="((?:[^"\\]|\\.)*)"/gm,
           (match, prefix, titleValue) => {
             const decoded = titleValue.replace(/\\(["\\`])/g, '$1')
             const hex = Buffer.from(decoded).toString('hex')
@@ -353,7 +352,15 @@ export default defineNuxtConfig({
             showLineNumbers = slnMatch[1] ?? 'true'
           const slnAttr = showLineNumbers ? ` :showLineNumbers="${showLineNumbers}"` : ''
 
-          return `:vue-live{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}}`
+          let showConsole = ''
+          const scMatch = (`${before} ${after}`).match(
+            /showConsole(?:=\s*(?:\{\s*)?(true|false)\s*\}?)?/,
+          )
+          if (scMatch)
+            showConsole = scMatch[1] ?? 'true'
+          const scAttr = showConsole ? ` :showConsole="${showConsole}"` : ''
+
+          return `:vue-live{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}${scAttr}}`
         },
       )
     },

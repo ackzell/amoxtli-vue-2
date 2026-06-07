@@ -24,4 +24,6 @@ I am willing to bet you can tell what this code does even if you have never seen
 
 The `v-` prefix is something you will find pretty often in Vue codebases. These attribute-like pieces are known as **directives**. Vue provides some built in ones to make our lives easier and to perform common tasks on the DOM.
 
-Let's check em out.
+Before checking them out, I want to discuss _the make up of a directive_ so you can read them and know what they are doing.
+
+<img src="directives_syntax.png" alt="Directive syntax" />

@@ -1,9 +1,7 @@
 ---
-title: Reactive variables
+title: Reactivity
 ogImage: true
 ---
-
-# Reactive variables
 
 This stuff is getting more and more fun, right?
 

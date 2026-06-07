@@ -1,4 +1,5 @@
 import { useVueRuntime } from './useVueRuntime'
+import { CONSOLE_INTERCEPTOR_CODE } from '~/templates/console-interceptor'
 
 const themeColors = {
   light: { bg: '#fafafa', fg: '#101010' },
@@ -10,8 +11,11 @@ export function useSandboxPreview() {
   const { vueVersion, blobUrl, loading, error: runtimeError } = useVueRuntime()
   const compileError = ref<string | null>(null)
 
-  function buildHtml(js: string, css: string, isDark: boolean): string {
+  function buildHtml(js: string, css: string, isDark: boolean, showConsole = false): string {
     const t = isDark ? themeColors.dark : themeColors.light
+    const consoleScript = showConsole
+      ? `<script>${CONSOLE_INTERCEPTOR_CODE}<\/script>`
+      : ''
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -26,6 +30,7 @@ export function useSandboxPreview() {
 <body>
   <div id="app"></div>
   <script src="${blobUrl.value}"><\/script>
+  ${consoleScript}
   <script>
     try {
       var comp = ${js}
@@ -41,7 +46,7 @@ export function useSandboxPreview() {
 </html>`
   }
 
-  function render(js: string, css: string, isDark = false) {
+  function render(js: string, css: string, isDark = false, showConsole = false) {
     compileError.value = null
     if (!iframeEl.value)
       return
@@ -49,7 +54,7 @@ export function useSandboxPreview() {
       iframeEl.value.srcdoc = '<html><body><p style="padding:16px;color:#888;">Loading Vue runtime...</p></body></html>'
       return
     }
-    iframeEl.value.srcdoc = buildHtml(js, css, isDark)
+    iframeEl.value.srcdoc = buildHtml(js, css, isDark, showConsole)
   }
 
   function showError(message: string, css = '', isDark = false) {

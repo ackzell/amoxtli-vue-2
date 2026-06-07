@@ -121,7 +121,7 @@ function handleCopy() {
     ref="containerRef"
     :data-magic-move-id="instanceId"
     class="magic-move-slot-container my-8 outline-none rounded-md overflow-hidden hover:shadow-md"
-    bg="bgr-50 dark:bgr-800"
+    bg="bgr-50 dark:bgr-900"
     border="~ bgr-700/10 dark:bgr-50/10"
     focus-visible:ring-1 focus-visible:ring-primary-300 dark:focus-visible:ring-primary-dark-900
     tabindex="0"
@@ -130,14 +130,14 @@ function handleCopy() {
     <!-- top bar -->
     <div
       class="px-4 py-2.5 border-bgr-700/10 flex items-center justify-between dark:border-bgr-50/10"
-      bg="~ bgr-100/40 dark:bgr-dark"
+      bg="~ bgr-100/40 dark:bgr-900"
     >
       <div>
         <IconButton
           tooltip-placement="bottom"
           :disabled="isFirst"
-          aria-label="Previous step"
-          tooltip="Previous step"
+          :aria-label="$t('magic-move.previous-step')"
+          :tooltip="$t('magic-move.previous-step')"
           @click="prev"
         >
           <div i-mynaui-chevron-left h4 w4 />
@@ -146,8 +146,8 @@ function handleCopy() {
         <IconButton
           tooltip-placement="bottom"
           :disabled="isLast"
-          aria-label="Next step"
-          tooltip="Next step"
+          :aria-label="$t('magic-move.next-step')"
+          :tooltip="$t('magic-move.next-step')"
           @click="next"
         >
           <div i-mynaui-chevron-right h4 w4 />
@@ -176,7 +176,10 @@ function handleCopy() {
       <div
         v-if="currentLabel"
         :key="currentLabel"
-        class="text-xs font-mono p1.5 text-center select-none truncate"
+        text-xs text-primary-700
+        font-mono p1.5
+        text-center
+        select-none truncate dark:text-primary-dark-100
       >
         {{ currentLabel }}
       </div>
@@ -213,7 +216,7 @@ function handleCopy() {
     <!-- bottom bar -->
     <div
       class="px-4 py-3 flex gap-1.5 items-center justify-between"
-      bg="~ bgr-100/40 dark:bgr-dark"
+      bg="~ bgr-100/40 dark:bgr-900"
     >
       <div>
         <IconButton
@@ -251,6 +254,7 @@ function handleCopy() {
 
 <style scoped>
 .shiki-magic-move-container {
+  --uno: 'dark:bg-bgr-dark!';
   pre {
     --uno: 'm0 font-code line-height-[1.6] text-wrap';
   }

@@ -58,21 +58,32 @@ That's great, I think I had similar code somewhere in the examples already. It i
 
 You will use these reactive variables in two places: the `<script>` tag and the `<template>` tag. Let's see how to work with them in each of those.
 
-## ref() inside the `<script>` tag
+## A more complex example
 
 We'll work with a slightly more complex example to understand a couple things better: What happens if we update the value of the `message` _after_ it has been declared?
 
 Let's add an `<input />` and a `<button />` to update the `message` variable and focus on the flow of the value for that variable:
 
-```file:/src/App.vue live  hide={1-20, 36-46} showLineNumbers=false
+```file:/src/App.vue live  hide={1-20, 36-46} showConsole=true
 -
 ```
 
 When the user enters something in the input, the `h1` will be automagically updated with the input's current (latest) value. And when you click on the button, you should see in the console output the latest value that matches the `h1`.
 
+Something like this:
+
+```ts showLineNumbers=false
+Object {dep: {…}, __v_isRef: true, __v_isShallow: false, _rawValue: "Hola ref!", _value: "Hola ref!"}
+Hola ref!
+```
+
+Here is the breakdown of the full file:
+
 ```file:/src/App.vue title="App.vue" {"Handles the update from the input":6-10} {"This logs the 'wrapped' variable, eg. an object":13}  {"Whereas this logs the actual value we care about":15} {"Bind the message variable to the input's value and change it when user types in it":25}  collapse={2-5, 18-19, 29-41}
 -
 ```
+
+## ref() inside the `<script>` tag
 
 Did you notice the `.value` we appended when referring to `message` in the `<script>` tag? We **must** use the `.value` there because otherwise we would be referring to the "wrapper object" that Vue uses to keep track of the changes for the variable.
 

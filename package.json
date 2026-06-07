@@ -1,7 +1,7 @@
 {
   "name": "amoxtli-vue-2",
   "type": "module",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "packageManager": "pnpm@11.2.2",
   "scripts": {
@@ -29,6 +29,7 @@
     "@shikijs/monaco": "catalog:frontend",
     "@shikijs/twoslash": "catalog:frontend",
     "@volar/monaco": "catalog:frontend",
+    "@vue/compiler-sfc": "catalog:frontend",
     "@vue/language-service": "catalog:frontend",
     "@webcontainer/api": "catalog:frontend",
     "@xterm/addon-fit": "catalog:frontend",
@@ -52,8 +53,7 @@
     "twoslash-vue": "catalog:frontend",
     "vscode-uri": "catalog:frontend",
     "vue": "catalog:frontend",
-    "vue-router": "catalog:frontend",
-    "@vue/compiler-sfc": "catalog:frontend"
+    "vue-router": "catalog:frontend"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",

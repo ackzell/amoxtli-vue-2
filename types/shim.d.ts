@@ -15,3 +15,25 @@ declare module 'monaco-editor-core/esm/vs/editor/contrib/inlayHints/browser/inla
 declare module 'monaco-editor-core/esm/vs/editor/contrib/suggest/browser/suggestMemory' {}
 declare module 'monaco-editor-core/esm/vs/platform/actionWidget/browser/actionWidget' {}
 declare module 'monaco-editor-core/esm/vs/editor/common/services/treeViewsDndService' {}
+declare module 'luna-console' {
+  interface LunaConsoleOptions {
+    theme?: string
+  }
+  class LunaConsole {
+    constructor(element: HTMLElement, options?: LunaConsoleOptions)
+    setOption(key: string, value: any): void
+    log(...args: any[]): void
+    warn(...args: any[]): void
+    error(...args: any[]): void
+    info(...args: any[]): void
+    debug(...args: any[]): void
+    table(...args: any[]): void
+    dir(...args: any[]): void
+    clear(keepHistory?: boolean): void
+  }
+  export default LunaConsole
+}
+declare module 'luna-console/luna-console.css' {}
+declare module '~/templates/console-interceptor' {
+  export const CONSOLE_INTERCEPTOR_CODE: string
+}

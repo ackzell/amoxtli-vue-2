@@ -236,6 +236,39 @@ state — clicking reset with unchanged code is a no-op (guarded by
 
 ---
 
+## Console Panel
+
+When `showConsole` is set on the fence (e.g. ```` ```vue live showConsole ````),
+`VueLive.client.vue` injects the console interceptor script into the preview
+iframe's srcdoc, lazy-imports `luna-console`, and renders a 200px console
+below the preview on the right panel (desktop) or below the editor (mobile).
+
+**Desktop layout:**
+```
+┌──────────────┬──────────────────────┐
+│              │      Preview          │
+│   Editor     ├──────────────────────┤
+│              │   Console (200px)     │
+└──────────────┴──────────────────────┘
+```
+
+**Architecture:**
+```
+iframe console.log
+  → interceptor overrides console.*
+  → postMessage({ source: 'nuxt-playground-frame', ... })
+  → handleConsoleMessage()
+  → deserializeMessage()
+  → lunaConsole.log(...)
+```
+
+**TODO — deduplicate:** `VueLive.client.vue` copies the `deserializeMessage()`
+function and the console setup logic from `PanelConsole.client.vue`. If
+LunaConsole integration is kept, these should be extracted to a shared
+composable (e.g. `composables/useConsoleOutput.ts`) so both components
+import from the same source. The interceptor script lives in
+`templates/console-interceptor.ts` and is already shared.
+
 ## Related
 
 - `docs/preview-system.md` — the older WebContainer-based preview (used for

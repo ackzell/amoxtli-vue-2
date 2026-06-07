@@ -23,10 +23,10 @@ console.log('version:', version)
 
   <input
     :value="message"
-    :onInput="updateMessage"
+    @input="updateMessage"
   >
   <button
-    :onClick="logMessage"
+    @click="logMessage"
   >
     log message
   </button>
