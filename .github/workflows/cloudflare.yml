@@ -26,6 +26,7 @@ jobs:
         run: pnpm build
         env:
           NODE_OPTIONS: "--max-old-space-size=6144"
+          CF_PAGES_BRANCH: ${{ github.ref_name }}
 
       - name: Prune Worker bundle (WASM, source maps)
         run: |

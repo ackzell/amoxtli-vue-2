@@ -10,6 +10,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return
   }
 
+  const pagesBranch = config.public.pagesBranch as string
+  if (pagesBranch && pagesBranch !== 'main') {
+    return
+  }
+
   if (to.path.startsWith('/api') || INVITE_PATHS.some(p => to.path === p || to.path.startsWith(`${p}/`))) {
     return
   }
