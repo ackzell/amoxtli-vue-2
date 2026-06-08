@@ -113,6 +113,19 @@ export const usePlaygroundStore = defineStore('playground', () => {
       })
     }
 
+    // Clean up WebContainer when the user leaves so the next visit
+    // doesn't encounter a stale service worker from StackBlitz.
+    if (import.meta.client) {
+      window.addEventListener('beforeunload', () => {
+        try {
+          wc.teardown()
+        }
+        catch {
+          // teardown may throw if already torn down
+        }
+      })
+    }
+
     _isInitialized.value = true
   }
 
