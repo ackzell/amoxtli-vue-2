@@ -18,6 +18,8 @@ const PanelPreviewClient = defineAsyncComponent({
 })
 
 const inputUrl = ref<string>('')
+let retryTimer: ReturnType<typeof setTimeout> | null = null
+let retryCount = 0
 const inner = ref<{ iframe?: HTMLIFrameElement | undefined }>()
 
 // auto update inputUrl when location value changed
@@ -39,6 +41,39 @@ function refreshIframe(force = false) {
     inputUrl.value = preview.location.fullPath
   }
 }
+
+function startRetryTimer() {
+  if (retryCount >= 2) {
+    preview.connecting = false
+    return
+  }
+  clearTimeout(retryTimer!)
+  preview.connecting = true
+  preview.iframeReady = false
+  retryCount++
+  retryTimer = setTimeout(() => {
+    if (!preview.iframeReady && preview.url) {
+      refreshIframe(true)
+      startRetryTimer()
+    }
+  }, 5000)
+}
+
+watch(() => preview.url, (newUrl) => {
+  retryCount = 0
+  if (newUrl) {
+    startRetryTimer()
+  }
+})
+
+watch(() => preview.iframeReady, (ready) => {
+  if (ready) {
+    clearTimeout(retryTimer!)
+    preview.connecting = false
+  }
+})
+
+onBeforeUnmount(() => clearTimeout(retryTimer!))
 
 function navigate() {
   preview.location.fullPath = inputUrl.value
@@ -131,8 +166,8 @@ watch(
       </ClientOnly>
     </div>
     <div h-full w-full relative>
-      <PanelPreviewLoading />
       <PanelPreviewClient ref="inner" />
+      <PanelPreviewLoading />
     </div>
   </div>
 </template>

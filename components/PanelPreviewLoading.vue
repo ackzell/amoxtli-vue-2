@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const ui = useUiState()
+const preview = usePreviewStore()
 
 // Only access playground store when actually needed
 let play: ReturnType<typeof usePlaygroundStore> | null = null
@@ -10,6 +11,15 @@ function getPlaygroundStore() {
   }
   return play
 }
+
+const showLoading = computed(() => {
+  const s = getPlaygroundStore().status
+  return s === 'interactive' || s !== 'ready' || preview.connecting
+})
+
+const overlay = computed(() => {
+  return getPlaygroundStore().status === 'ready' && preview.connecting
+})
 
 function getStep(status: PlaygroundStatus) {
   const playgroundStore = getPlaygroundStore()
@@ -55,9 +65,10 @@ function getTextClass(status: PlaygroundStatus) {
 
 <template>
   <div
-    v-if="getPlaygroundStore().status !== 'ready'"
+    v-if="showLoading"
     flex="~ col items-center gap-2 justify-center"
     h-full
+    :class="{ 'absolute inset-0 z-10': overlay }"
   >
     <template v-if="getPlaygroundStore().status === 'interactive'">
       <div flex="~ gap-2 items-center" text-lg>
@@ -74,6 +85,12 @@ function getTextClass(status: PlaygroundStatus) {
         <div i-carbon-rotate-360 text-lg />
         {{ $t('restart-server') }}
       </button>
+    </template>
+    <template v-else-if="getPlaygroundStore().status === 'ready' && preview.connecting">
+      <div flex="~ gap-2 items-center" text-lg>
+        <div i-svg-spinners-pulse-multiple text-2xl />
+        <span>{{ $t('steps.connecting-preview') }}</span>
+      </div>
     </template>
     <div v-else grid="~ cols-[max-content_1fr] gap-2 items-center justify-center" text-sm font-terminal>
       <div :class="getStatusIcon('init')" />

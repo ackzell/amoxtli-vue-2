@@ -14,6 +14,8 @@ const functions: ParentFunctions = {
   onReady(info: ClientInfo) {
     // Don't access playground store in docs mode
     preview.clientInfo = info
+    preview.iframeReady = true
+    preview.connecting = false
     syncColorMode()
   },
   onNavigate(path: string) {
@@ -88,6 +90,13 @@ watch(
   { flush: 'sync' },
 )
 
+watch(() => preview.url, (newUrl) => {
+  if (newUrl) {
+    preview.iframeReady = false
+    preview.connecting = true
+  }
+})
+
 defineExpose({
   iframe,
 })
@@ -100,6 +109,7 @@ defineExpose({
     :src="preview.url"
     :class="{ 'pointer-events-none': ui.isPanelDragging }"
     bg-transparent h-full w-full inset-0 absolute allow="geolocation; microphone; camera; payment; autoplay; serial; cross-origin-isolated"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
     @load="syncColorMode"
   />
 </template>

@@ -21,6 +21,7 @@ steps:
   installing-dependencies: Instalando dependencias
   starting-dev-server: Iniciando el servidor de desarrollo
   waiting-for-dev-server: Esperando al servidor de desarrollo
+  connecting-preview: Conectando a la vista previa
 restart-server: Reiniciar el servidor
 interactive-terminal-mode: Modo terminal interactivo
 files: Archivos

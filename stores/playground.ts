@@ -13,6 +13,7 @@ export const PlaygroundStatusOrder = [
   'start',
   'polling',
   'ready',
+  'preview-ready',
   'interactive',
 ] as const
 

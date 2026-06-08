@@ -21,6 +21,7 @@ steps:
   installing-dependencies: Installing dependencies
   starting-dev-server: Starting dev server
   waiting-for-dev-server: Waiting for dev server
+  connecting-preview: Connecting to preview
 restart-server: Restart the server
 interactive-terminal-mode: Interactive terminal mode
 files: Files

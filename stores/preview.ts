@@ -8,6 +8,8 @@ export const usePreviewStore = defineStore('preview', () => {
   const url = ref('')
   const clientInfo = ref<ClientInfo>()
   const pendingFullPath = ref('/')
+  const iframeReady = ref(false)
+  const connecting = ref(false)
 
   function updateUrl() {
     url.value = location.value.origin + location.value.fullPath
@@ -25,5 +27,7 @@ export const usePreviewStore = defineStore('preview', () => {
     updateUrl,
     setFullPath,
     pendingFullPath,
+    iframeReady,
+    connecting,
   }
 })
