@@ -6,7 +6,7 @@ const el = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   const target = document.querySelector<HTMLElement>(
-    `[data-tooltip-content-target='${id}']`,
+    `.tooltip-content[data-tooltip-content-target='${id}']`,
   )
   if (target && el.value) {
     target.replaceChildren(...Array.from(el.value.childNodes))

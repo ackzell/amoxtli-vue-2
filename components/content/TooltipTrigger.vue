@@ -14,6 +14,7 @@ interface TooltipTriggerProps {
   noFollow?: boolean
   hideTimeout?: number
   noEasing?: boolean
+  persistent?: boolean
 }
 
 const props = withDefaults(defineProps<TooltipTriggerProps>(), {
@@ -46,7 +47,17 @@ const GAP_GRACE_MS = 150
 
 const tooltipStyle = computed(() => {
   const tooltipWidth = tooltipEl.value?.offsetWidth ?? 0
-  const rawArrowX = mousePosition.x - tooltipPosition.x
+
+  let arrowAnchorX: number
+  if (props.noFollow && triggerEl.value) {
+    const r = triggerEl.value.getBoundingClientRect()
+    arrowAnchorX = r.left + r.width / 2
+  }
+  else {
+    arrowAnchorX = mousePosition.x
+  }
+
+  const rawArrowX = arrowAnchorX - tooltipPosition.x
   const clampedArrowX = Math.max(
     ARROW_MIN_PADDING,
     Math.min(tooltipWidth - ARROW_MIN_PADDING, rawArrowX),
@@ -188,6 +199,8 @@ async function showTooltip(event?: MouseEvent) {
 }
 
 function scheduleHide() {
+  if (props.persistent)
+    return
   clearHideTimer()
   hideTimer = setTimeout(() => {
     isShown.value = false
@@ -205,6 +218,8 @@ function handleTooltipClick(event: MouseEvent) {
 }
 
 function handleTriggerLeave(event: MouseEvent) {
+  if (props.persistent)
+    return
   const to = event.relatedTarget as Node | null
   if (tooltipEl.value?.contains(to) || tooltipEl.value === to) {
     return
@@ -393,5 +408,9 @@ onUnmounted(() => {
   margin: 0.5em 0;
   padding-left: 3em;
   border-left: 3px solid var(--amv-highlight);
+}
+
+.tooltip-content p {
+  margin: 1em 0;
 }
 </style>

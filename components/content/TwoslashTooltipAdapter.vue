@@ -13,6 +13,7 @@ defineProps<{
     no-icon
     no-follow
     :default-shown="persisted"
+    :persistent="persisted"
     :hide-timeout="100"
   >
     <span class="twoslash-token-content" v-html="tokenHtml" />
