@@ -1,0 +1,62 @@
+{
+	
+	"Template index file (html)": {
+		"prefix": "tht",
+		"include": ["**/.template/index.ts"],
+		"body": [
+			"import type { GuideMeta } from '~/types/guides'",
+			"",
+			"export const meta: GuideMeta = {",
+				"startingFile: 'index.html',",
+				"features: {",
+					"defaultLayout: 'split',",
+					"terminal: false,",
+					"fileTree: true,",
+				"},",
+				"template: 'html',",
+				"ignoredFiles: ['package.json', 'main.js', 'style.css', 'server.js'],",
+				"sessionName: '$1',",
+			"}",
+		]
+	},
+
+	"Template index file (vue-sass)": {
+		"prefix": "tvs",
+		"include": ["**/.template/index.ts"],
+		"body": [
+			"import type { GuideMeta } from '~/types/guides'",
+			"",
+			"export const meta: GuideMeta = {",
+				"features: {",
+					"defaultLayout: 'split',",
+					"fileTree: false,",
+					"terminal: true,",
+				"},",
+				"template: 'vue-sass',",
+				"startingFile: 'src/App.vue',",
+				"ignoredFiles: ['package.json', 'main.js', 'tsconfig.node.json', 'vite.config.ts', 'App.vue', 'index.html', 'src/main.ts'],",
+				"sessionName: '$1',",
+			"}",
+		]
+	},
+
+	"Template index file (vue)": {
+		"prefix": "tv",
+		"include": ["**/.template/index.ts"],
+		"body": [
+			"import type { GuideMeta } from '~/types/guides'",
+			"",
+			"export const meta: GuideMeta = {",
+				"features: {",
+					"defaultLayout: 'split',",
+					"fileTree: false,",
+					"terminal: true,",
+				"},",
+				"template: 'vue',",
+				"startingFile: 'src/App.vue',",
+				"ignoredFiles: ['package.json', 'main.js', 'tsconfig.node.json', 'vite.config.ts', 'App.vue', 'index.html', 'src/main.ts'],",
+				"sessionName: '$1',",
+			"}",
+		]
+	}
+}
