@@ -1,5 +1,5 @@
-import { useVueRuntime } from './useVueRuntime'
 import { CONSOLE_INTERCEPTOR_CODE } from '~/templates/console-interceptor'
+import { useVueRuntime } from './useVueRuntime'
 
 const themeColors = {
   light: { bg: '#fafafa', fg: '#101010' },

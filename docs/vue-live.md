@@ -8,13 +8,14 @@ markdown. Uses Monaco (no Volar), Shiki tokenization, and
 
 ## Architecture
 
-```
+````
 ┌───────────────────────────────────────────────────────────┐
 │  nuxt.config.ts                                           │
 │  content:file:beforeParse                                 │
 │                                                           │
 │  Detects ```vue live fences →                             │
-│  :vue-live{code="<base64>" hide="..." showLineNumbers=}   │
+│  :vue-live{code="<base64>" hide="..."                      │
+│  showLineNumbers showConsole showPreview}                  │
 └──────────┬────────────────────────────────────────────────┘
            │ MDC renders
            ▼
@@ -23,7 +24,8 @@ markdown. Uses Monaco (no Volar), Shiki tokenization, and
 │                                                           │
 │  ┌───────────────────────────────────────┐                │
 │  │  Preview (iframe, srcdoc)             │                │
-│  │  Compiled JS + CSS rendered here      │                │
+│  │  - Reload button (manual recompile)   │                │
+│  │  - Console (if showConsole)           │                │
 │  └───────────────────────────────────────┘                │
 │  ┌───────────────────────────────────────┐                │
 │  │  Monaco Editor (Shiki-themed)         │                │
@@ -31,6 +33,9 @@ markdown. Uses Monaco (no Volar), Shiki tokenization, and
 │  │  - Auto-grow height                   │                │
 │  │  - Reset button on hover              │                │
 │  └───────────────────────────────────────┘                │
+│                                                           │
+│  watch(blobUrl) → auto-recompile once runtime loads       │
+│  watch(theme)   → re-render on dark/light toggle          │
 └──────────┬────────────────────────────────────────────────┘
            │ on change (300ms debounce)
            ▼
@@ -51,21 +56,24 @@ markdown. Uses Monaco (no Volar), Shiki tokenization, and
 │  - Compiled component JS                                  │
 │  - Compiled CSS                                           │
 └───────────────────────────────────────────────────────────┘
-```
+````
 
 ---
 
 ## Key Files
 
-| File | Role |
-|---|---|
-| `components/content/VueLive.client.vue` | Main component: Monaco init, compile orchestration, reset, hidden areas |
-| `composables/useSfcCompiler.ts` | Wraps `@vue/compiler-sfc`, rewrites `import { x } from 'vue'` to `const x = Vue.x`, strips `__isScriptSetup` guard, returns `{ js, css, error }` |
-| `composables/useSandboxPreview.ts` | Iframe srcdoc management, theme toggle via `?dark` param in blob URL |
-| `composables/useVueRuntime.ts` | Fetches Vue prod build from unpkg, caches as blob URL, extracts real version from header comment |
-| `monaco/language-configs.ts` | Vue language config for Monaco (auto-closing pairs, surrounding pairs, brackets) |
-| `monaco/shiki.ts` | Shiki highlighter setup with custom themes (`amoxtli-light`, `vesper`) |
-| `nuxt.config.ts` (lines 334–358) | `content:file:beforeParse` hook — live fence detection, `hide`/`showLineNumbers` parsing |
+| File                                    | Role                                                                                                                                             |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `components/content/VueLive.client.vue` | Main component: Monaco init, compile orchestration, reset, hidden areas                                                                          |
+| `composables/useSfcCompiler.ts`         | Wraps `@vue/compiler-sfc`, rewrites `import { x } from 'vue'` to `const x = Vue.x`, strips `__isScriptSetup` guard, returns `{ js, css, error }` |
+| `composables/useSandboxPreview.ts`      | Iframe srcdoc management, theme toggle via `?dark` param in blob URL                                                                             |
+| `composables/useVueRuntime.ts`          | Fetches Vue dev build (`vue.global.js`) from unpkg, caches as blob URL, extracts real version from header comment                                 |
+| `monaco/language-configs.ts`            | Vue language config for Monaco (auto-closing pairs, surrounding pairs, brackets)                                                                 |
+| `monaco/shiki.ts`                       | Shiki highlighter setup with custom themes (`amoxtli-light`, `vesper`)                                                                           |
+| `composables/useConsoleOutput.ts`       | Shared LunaConsole lifecycle, theme management, log deserialization for both VueLive and Playground                                                |
+| `templates/console-interceptor.ts`      | Console interceptor injected into preview iframes — detects reactive objects, refs, DOM elements, errors, etc.                                    |
+| `i18n/locales/en.yaml`                  | i18n keys: `vue-live.reset-contents`, `vue-live.reload-preview`, `vue-live.clear-console`                                                         |
+| `nuxt.config.ts` (lines 334–358)        | `content:file:beforeParse` hook — live fence detection, `hide`/`showLineNumbers` parsing                                                         |
 
 ---
 
@@ -89,6 +97,44 @@ markdown. Uses Monaco (no Volar), Shiki tokenization, and
 
 ---
 
+## Vue Runtime Loading
+
+The Vue library is loaded from CDN (`unpkg.com`) as a global build and served
+to the preview iframe via a blob URL.
+
+### Dev Build
+
+Uses the **development** build (`vue.global.js`) instead of the production
+build. This provides Vue's dev-mode warnings and better error messages in the
+preview console.
+
+### Caching
+
+The runtime is fetched once and cached globally (`fetchRuntime()` in
+`composables/useVueRuntime.ts`). Subsequent page navigations reuse the cached
+blob URL without a network request.
+
+### Race Condition Handling
+
+The initial `onMounted` flow calls `doCompile()` before the Vue runtime fetch
+completes. `render()` bails out when `blobUrl` is empty, showing a "Loading
+Vue runtime..." placeholder. A `watch(blobUrl)` in `VueLive.client.vue` catches
+the moment the runtime finishes loading and re-compiles automatically:
+
+```ts
+watch(blobUrl, (url) => {
+  if (url && currentCode.value) {
+    doCompile()
+  }
+})
+```
+
+This ensures the preview renders as soon as the runtime is available, even on
+a cold cache. If the runtime is already cached, `doCompile()` on mount finds
+`blobUrl` set and renders immediately.
+
+---
+
 ## Code Hiding (`hide` prop)
 
 Lines can be hidden via Monaco's internal `setHiddenAreas` API. Hidden lines
@@ -99,6 +145,7 @@ compiled for the preview.
 
 ````md
 ```vue live hide={2-14,16-20}
+
 ```
 ````
 
@@ -141,6 +188,7 @@ Controlled by the `showLineNumbers` prop, passed as a boolean to Monaco's
 
 ````md
 ```vue live showLineNumbers
+
 ```
 ````
 
@@ -148,10 +196,12 @@ Or explicitly:
 
 ````md
 ```vue live showLineNumbers=false
+
 ```
 ````
 
 Parsed in nuxt.config.ts:
+
 ```ts
 const slnMatch = (`${before} ${after}`).match(
   /showLineNumbers(?:=\s*(?:\{\s*)?(true|false)\s*\}?)?/
@@ -165,7 +215,7 @@ const slnMatch = (`${before} ${after}`).match(
 - **No Volar / Vue language service** — only core editor + Shiki tokenization
 - Worker: only `editorWorker` (no TS worker)
 - Themes: `amoxtli-light` (light) / `vesper` (dark) via Shiki → Monaco bridge
-- Font: `DM Mono, monospace`, size 13
+- Font: `Ubuntu Mono, monospace`, size 13
 - `wordWrap: 'on'`, `minimap: false`, `folding: false`, `glyphMargin: false`
 - Auto-grow: editor height adjusts to content (60–600px) via
   `onDidContentSizeChange` + `getContentHeight()`
@@ -174,21 +224,23 @@ const slnMatch = (`${before} ${after}`).match(
 
 - Mobile (<768px): preview above, editor below
 - Desktop (≥768px): editor left, preview right
-- Preview has `min-height: 80px` and flex-centers its content
-- Reset button floats over the editor's top-right corner, visible on hover
+- Preview has `min-height: 200px` and flex-centers its content
+- **Reset button** floats over the editor's top-right corner, visible on hover
+- **Reload button** floats over the preview's top-right corner, visible on hover
+- **Clear console button** floats over the console's top-right corner, visible on hover
 
 ### DI Service Registration
 
 `monaco-editor-core`'s standalone entry point does not register all
 singletons that editor contributions depend on. Five services are missing:
 
-| Service | Module |
-|---|---|
-| `ICodeLensCache` | `editor/contrib/codelens/browser/codeLensCache` |
-| `IInlayHintsCache` | `editor/contrib/inlayHints/browser/inlayHintsController` |
-| `ISuggestMemories` | `editor/contrib/suggest/browser/suggestMemory` |
-| `IActionWidgetService` | `platform/actionWidget/browser/actionWidget` |
-| `ITreeViewsDnDService` | `editor/common/services/treeViewsDndService` |
+| Service                | Module                                                   |
+| ---------------------- | -------------------------------------------------------- |
+| `ICodeLensCache`       | `editor/contrib/codelens/browser/codeLensCache`          |
+| `IInlayHintsCache`     | `editor/contrib/inlayHints/browser/inlayHintsController` |
+| `ISuggestMemories`     | `editor/contrib/suggest/browser/suggestMemory`           |
+| `IActionWidgetService` | `platform/actionWidget/browser/actionWidget`             |
+| `ITreeViewsDnDService` | `editor/common/services/treeViewsDndService`             |
 
 Without them, contributions like `CodeLensContribution2` throw
 `depends on UNKNOWN service <X>` at runtime.
@@ -236,38 +288,134 @@ state — clicking reset with unchanged code is a no-op (guarded by
 
 ---
 
+## Preview Controls
+
+### Reload Button
+
+A `i-mynaui-rewind` icon button floats over the preview's top-right corner
+(visible on hover). Clicking it calls `doCompile()` to force a full
+re-compile and re-render of the preview.
+
+Useful for:
+- Manually re-triggering the preview when it didn't render on first load
+- Clearing transient iframe state (e.g., after a runtime error)
+
+```html
+<IconButton
+  :tooltip="$t('vue-live.reload-preview')"
+  @click="doCompile"
+/>
+```
+
+### `refreshPreview()`
+
+Re-renders the last compiled result without re-compiling:
+
+```ts
+function refreshPreview() {
+  if (lastResult.value) {
+    render(lastResult.value.js, lastResult.value.css, ...)
+  }
+}
+```
+
+Used by the theme watcher to update the preview when toggling dark/light
+mode without an unnecessary re-compile.
+
+### `showPreview` Prop
+
+Controls whether the iframe is visible via `v-show`:
+
+```html
+<iframe v-show="props.showPreview" ref="iframeEl" ... />
+```
+
+Default: `true`. Set to `false` in a markdown fence to hide the preview:
+
+````md
+```vue live showPreview=false
+```
+````
+
+---
+
+## Theme Sync
+
+When the user toggles dark/light mode:
+
+1. `watch(theme)` fires (computed from `colorMode.value`)
+2. Monaco editor theme switches via `monaco.editor.setTheme()`
+3. `refreshPreview()` re-renders the iframe with the new theme's
+   background/foreground colors
+
+The theme colors are defined in `useSandboxPreview.ts`:
+
+```ts
+const themeColors = {
+  light: { bg: '#fafafa', fg: '#101010' },
+  dark:  { bg: '#101010', fg: '#fafafa' },
+}
+```
+
+---
+
 ## Console Panel
 
-When `showConsole` is set on the fence (e.g. ```` ```vue live showConsole ````),
+When `showConsole` is set on the fence (e.g. ` ```vue live showConsole `),
 `VueLive.client.vue` injects the console interceptor script into the preview
-iframe's srcdoc, lazy-imports `luna-console`, and renders a 200px console
-below the preview on the right panel (desktop) or below the editor (mobile).
+iframe's srcdoc, and renders a 150px console below the preview on the right
+panel (desktop) or below the editor (mobile).
 
 **Desktop layout:**
+
 ```
 ┌──────────────┬──────────────────────┐
-│              │      Preview          │
+│              │  Preview  [↺]        │
 │   Editor     ├──────────────────────┤
-│              │   Console (200px)     │
+│              │  Console (150px) [⌧] │
 └──────────────┴──────────────────────┘
 ```
 
-**Architecture:**
+[↺] = Reload preview button
+[⌧] = Clear console button
+
+### Clear Console Button
+
+A `i-carbon-clean` icon button floats over the console's top-right corner
+(visible on hover). Clicking it calls `consoleOutput.clearLogs(true)` to
+clear all console output.
+
+### Architecture
+
 ```
 iframe console.log
   → interceptor overrides console.*
   → postMessage({ source: 'nuxt-playground-frame', ... })
   → handleConsoleMessage()
-  → deserializeMessage()
-  → lunaConsole.log(...)
+  → consoleOutput.addLog()  (useConsoleOutput composable)
+    → deserializeMessage()
+    → lunaConsole.log(...)
 ```
 
-**TODO — deduplicate:** `VueLive.client.vue` copies the `deserializeMessage()`
-function and the console setup logic from `PanelConsole.client.vue`. If
-LunaConsole integration is kept, these should be extracted to a shared
-composable (e.g. `composables/useConsoleOutput.ts`) so both components
-import from the same source. The interceptor script lives in
-`templates/console-interceptor.ts` and is already shared.
+### Reactive Object Detection
+
+The interceptor (`templates/console-interceptor.ts`) detects:
+- **Vue reactive objects** via both `window.Vue.isReactive()` (global build)
+  and `__v_isReactive` (ESM build), serializing them as `Reactive` objects
+  with their handler type (`MutableReactiveHandler`, `ReadonlyReactiveHandler`,
+  etc.) and a slice of their properties.
+- **Vue refs** via `__v_isRef`, serialized as `Ref` objects.
+
+This ensures `Proxy(Object)` rendering in both VueLive and Playground contexts.
+
+### Shared Composable
+
+Both `VueLive.client.vue` and `PanelConsole.client.vue` share the same
+console logic via `composables/useConsoleOutput.ts`, which wraps
+LunaConsole lifecycle, theme management, and deserialization via
+`composables/useConsoleDeserializer.ts`. Each component filters messages
+by `event.source === iframe.contentWindow` to prevent cross-contamination
+between iframes.
 
 ## Related
 

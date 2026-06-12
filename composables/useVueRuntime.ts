@@ -1,4 +1,4 @@
-const VUE_CDN = 'https://unpkg.com/vue@3/dist/vue.global.prod.js'
+const VUE_CDN = 'https://unpkg.com/vue@3/dist/vue.global.js'
 
 interface RuntimeCache {
   text: string

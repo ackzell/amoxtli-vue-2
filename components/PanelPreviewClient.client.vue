@@ -33,6 +33,8 @@ onMounted(() => {
     },
     on(fn) {
       window.addEventListener('message', (event) => {
+        if (event.source !== iframe.value?.contentWindow)
+          return
         if (typeof event.data !== 'object')
           return
         if (event.data.source !== 'nuxt-playground-frame')
@@ -52,6 +54,8 @@ onBeforeUnmount(() => {
 })
 
 function handleConsoleMessage(event: MessageEvent) {
+  if (event.source !== iframe.value?.contentWindow)
+    return
   if (typeof event.data !== 'object')
     return
   if (event.data.source !== 'nuxt-playground-frame')

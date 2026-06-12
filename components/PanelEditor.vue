@@ -124,8 +124,10 @@ onMounted(() => {
 
 const onTextInput = useDebounceFn(_onTextInput, 500)
 function _onTextInput() {
-  if (input.value != null)
+  if (input.value != null) {
     play.value?.fileSelected?.write(input.value)
+    play.value?.notifyFileChanged()
+  }
 }
 
 function startDragging() {

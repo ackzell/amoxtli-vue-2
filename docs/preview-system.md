@@ -136,6 +136,8 @@ rpc = createBirpc<FrameFunctions, ParentFunctions>(functions, {
   },
   on(fn) {
     window.addEventListener('message', (event) => {
+      if (event.source !== iframe.value?.contentWindow)
+        return
       if (event.data.source !== 'nuxt-playground-frame')
         return
       fn(event.data.payload)
@@ -177,10 +179,11 @@ rpc.onReady(clientInfo)
 
 ### E. Console Output Flow
 
-1. The **console interceptor** (injected into HTML files via `VirtualFile.fsTransform`) wraps all `console.*` methods.
-2. When code in the iframe calls `console.log()`, the interceptor calls the original method (so it appears in DevTools) and also sends a serialized payload via `postMessage`.
-3. `PanelPreviewClient` listens for these messages and calls `(window as any).executeLog(payload)`.
-4. `PanelConsole.client.vue` has registered `window.executeLog` to log to a Luna Console instance.
+1. The **console interceptor** (`templates/console-interceptor.ts`, injected into HTML files via `VirtualFile.fsTransform`) wraps all `console.*` methods. It serializes arguments with rich type metadata and detects Vue reactive objects via `__v_isReactive` (works even when Vue is loaded as ESM without `window.Vue`).
+2. When code in the iframe calls `console.log()`, the interceptor calls the original method (so it appears in DevTools) and also sends a serialized payload via `postMessage` with `source: 'nuxt-playground-frame'`.
+3. `PanelPreviewClient` listens for these messages (guarded by `event.source` to only accept its own iframe) and calls `(window as any).executeLog(payload)`.
+4. `PanelConsole.client.vue` registers `window.executeLog` on mount, which forwards logs through the shared `useConsoleOutput()` composable. The composable lazy-loads LunaConsole, manages the theme, and deserializes the payload back into rich JS objects (including `Proxy(Object)` reconstruction for Vue reactives).
+5. Both `VueLive.client.vue` and `PanelConsole.client.vue` share the same console logic via `composables/useConsoleOutput.ts`, preventing drift between the two console implementations.
 
 ---
 
@@ -244,6 +247,8 @@ These are served by the WebContainer's Vite server as part of the iframe's HTML 
 - **Two `postMessage` channels**: (1) the **birpc RPC** channel for structured function calls, and (2) a **direct `postMessage`** channel for color mode + console logging.
 - **The Vite `playground-color-mode` plugin** injects color mode handling directly into the iframe's HTML at build time, providing instant dark mode without waiting for Vue to mount.
 - **Console interceptor is injected at WebContainer write time** (via `VirtualFile.fsTransform`), not in the editor — the user never sees the interceptor code in their file tree.
+- **Cross-contamination prevention**: Both `PanelPreviewClient` and `VueLive.client.vue` filter console messages by `event.source === iframe.contentWindow`, so each console instance only processes logs from its own iframe.
+- **Shared console composable**: `PanelConsole` and `VueLive` both use `composables/useConsoleOutput.ts`, which wraps LunaConsole lifecycle, theme management, and deserialization via `useConsoleDeserializer`. The `withDomReconstruction` option enables DOM element reconstruction for the playground panel (via `licia/toEl`).
 
 ## Diagram
 

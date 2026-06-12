@@ -109,6 +109,42 @@ export const CONSOLE_INTERCEPTOR_CODE = `
       };
     }
 
+    if ((window.Vue?.isReactive?.(arg)) || arg?.__v_isReactive === true) {
+      const keys = Object.keys(arg).slice(0, 50);
+      const properties = {};
+      for (const key of keys) {
+        try { properties[key] = { value: serializeArg(arg[key], seen) }; }
+        catch { properties[key] = { value: '[Error accessing property]' }; }
+      }
+      const isReadonly = arg.__v_isReadonly === true;
+      const isShallow = arg.__v_isShallow === true;
+      let handlerName = 'MutableReactiveHandler';
+      if (isReadonly && isShallow) handlerName = 'ShallowReadonlyReactiveHandler';
+      else if (isReadonly) handlerName = 'ReadonlyReactiveHandler';
+      else if (isShallow) handlerName = 'ShallowReactiveHandler';
+      return { 
+        __type: 'object', 
+        constructor: 'Reactive',
+        properties,
+        reactiveInfo: { handlerName, isReadonly, isShallow },
+      };
+    }
+
+    if (arg?.__v_isRef === true) {
+      const keys = Object.keys(arg).slice(0, 50);
+      const properties = {};
+      for (const key of keys) {
+        try { properties[key] = { value: serializeArg(arg[key], seen) }; }
+        catch { properties[key] = { value: '[Error accessing property]' }; }
+      }
+      return {
+        __type: 'object',
+        constructor: 'Ref',
+        properties,
+        truncatedProperties: Object.keys(arg).length > 50 ? Object.keys(arg).length - 50 : undefined,
+      };
+    }
+
     try {
       const properties = {};
       const keys = Object.keys(arg).slice(0, 50);

@@ -361,7 +361,15 @@ export default defineNuxtConfig({
             showConsole = scMatch[1] ?? 'true'
           const scAttr = showConsole ? ` :showConsole="${showConsole}"` : ''
 
-          return `:vue-live{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}${scAttr}}`
+          let showPreview = ''
+          const spMatch = (`${before} ${after}`).match(
+            /showPreview(?:=\s*(?:\{\s*)?(true|false)\s*\}?)?/,
+          )
+          if (spMatch)
+            showPreview = spMatch[1] ?? 'true'
+          const spAttr = showPreview ? ` :showPreview="${showPreview}"` : ''
+
+          return `:vue-live{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}${scAttr}${spAttr}}`
         },
       )
     },
