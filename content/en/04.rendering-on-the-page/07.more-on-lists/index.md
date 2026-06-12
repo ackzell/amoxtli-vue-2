@@ -58,11 +58,11 @@ Up to this point, we have been adding the `key` attribute every time we use the 
 -
 ```
 
-So for now, just keep in mind that you should always provide a `key` that is unique. It should also be a _primitive_ (string or number).
+So for now, just keep in mind that you should always provide a `key` that is unique. It should also be a _primitive_ (`string` or `number`).
 
 ## Second alias `index`
 
-One last thing before we move on to other topics: you probably also noticed the `index` in the inner loop, to which we bound the `key`. This is an alias that `v-for` supports in case you want to know what the current index while you are dealing with your iterables.
+You probably also noticed the `index` in the inner loop, to which we bound the `key`. This is an alias that `v-for` supports in case you want to know what the current index while you are dealing with your iterables.
 
 Making this syntax also valid:
 
@@ -74,4 +74,37 @@ It **can have any name** you want to give to it, just remember that it is the se
 
 ::tooltip-content{id="nested-scopes"}
 To render the reactions, we are looping over the `entry.reactions` array, Where `entry` is the variable defined in the outer `v-for` loop.
+::
+
+## `v-for` with objects and ranges
+
+One last thing before we move on to other topics: `v-for` can also be used to loop through the properties of an object, or even a range of numbers. Here are a couple examples for that:
+
+```vue showLineNumbers=false live
+<script setup>
+const album = {
+  title: 'Absolution',
+  artist: 'Muse',
+  released: 2003,
+  hearts: 5
+}
+</script>
+
+<template>
+  <table>
+    <tr v-for="(value, key, index) in album" :key="key">
+      <td>{{ index }}</td>
+      <td>{{ key }}</td>
+      <td>{{ value }}</td>
+    </tr>
+  </table>
+  <hr>
+  <span v-for="n in album.hearts" :key="n">
+    ❤️
+  </span>
+</template>
+```
+
+::tip
+There are some more fine details you can learn about `v-for` in the [API reference](https://vuejs.org/api/built-in-directives.html#v-for) as well as the official guide on [list rendering](https://vuejs.org/guide/essentials/list.html).
 ::

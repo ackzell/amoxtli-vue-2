@@ -1,14 +1,16 @@
 import type { GuideMeta } from '~/types/guides'
 
 export const meta: GuideMeta = {
-  template: 'vue',
-  startingFile: 'src/App.vue',
   features: {
     defaultLayout: 'split',
-    fileTree: true,
-    console: true,
+    fileTree: false,
     terminal: true,
+    console: true,
   },
+  template: 'vue',
+  startingFile: 'src/App.vue',
   ignoredFiles: ['package.json', 'main.js', 'tsconfig.node.json', 'vite.config.ts', 'App.vue', 'index.html', 'src/main.ts'],
-  sessionName: 'binding-attribute-values',
+  sessionName: 'ref',
+  buttonSolutionMessage: 'original-vs-reactive-object',
+  buttonResetMessage: 'player-example',
 }

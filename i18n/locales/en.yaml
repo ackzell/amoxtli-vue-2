@@ -134,6 +134,7 @@ something-went-wrong: Something went wrong
 vue-live:
   reset-contents: Reset contents
   clear-console: Clear console
+  reload-preview: Reload preview
 magic-move:
   previous-step: Previous step
   next-step: Next step

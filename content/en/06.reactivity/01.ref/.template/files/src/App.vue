@@ -39,7 +39,7 @@ h1 {
   color: #42b983;
 }
 
-button {
-  margin-left: 0.5rem;
+input {
+  margin-right: 0.5rem;
 }
 </style>

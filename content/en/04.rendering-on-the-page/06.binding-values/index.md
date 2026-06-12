@@ -58,7 +58,7 @@ The first instinct could be again, very likely to stache' the heck out of the at
 
 This is the solution to the pickle we found ourselves into: we _bind_ the value of the attribute to whatever is held by `album.cover` with `v-bind`.
 
-```file:/src/App.vue title="App.vue" collapse={1-60, 73-101} {"building a dynamic value for the src attr":63-64}
+```file:/src/App.vue title="App.vue" collapse={1-60, 73-101} {"building a dynamic value for the src attr":64}
 -
 ```
 
@@ -70,7 +70,7 @@ Note that if we were able to _build the string_ (`assets/${album.cover}`) for th
 
 All right, next thing to note is this: this is a rather popular directive that is used a ton in Vue code usually. So you have a more comfortable way to write it: `:`
 
-```vue {"Shorthand syntax for v-bind":3-4}
+```vue {"Shorthand syntax for v-bind":4}
 <img
   class="good"
 

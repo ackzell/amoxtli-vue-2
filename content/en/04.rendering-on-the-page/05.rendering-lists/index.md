@@ -7,7 +7,7 @@ ogImage: true
 
 Say you had a favorite rock band, and I'll just pick a random one... maybe... THE greatest and bestest band of all times, of course: The Beatles. And when I said you, I meant "I have a favorite band", in case you didn't notice.
 
-Anyhow, let's create a simple structure that will hold some data about the band ≤members:
+Anyhow, let's create a simple structure that will hold some data about the band members:
 
 ```js showLineNumbers=false
 const theBeatles = [

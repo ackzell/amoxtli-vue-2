@@ -176,10 +176,9 @@ function handleCopy() {
       <div
         v-if="currentLabel"
         :key="currentLabel"
-        text-xs text-primary-700
-        font-mono p1.5
-        text-center
-        select-none truncate dark:text-primary-dark-100
+        text="~ xs primary-700 dark:primary-dark-200"
+        font-mono p1.5 text-center select-none text-wrap
+        class="dark:bg-bgr-800/60"
       >
         {{ currentLabel }}
       </div>

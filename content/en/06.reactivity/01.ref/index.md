@@ -6,6 +6,25 @@ ogImage: true
 
 # ref()
 
+```vue twoslash showLineNumbers=false
+<script setup>
+import { ref } from 'vue'
+//       ^?
+</script>
+
+
+
+
+
+
+
+
+
+<template>
+  ...
+</template>
+```
+
 > So how do we _mark_ those variables then?
 
 Great question! The [recommended way](https://vuejs.org/guide/essentials/reactivity-fundamentals.html#declaring-reactive-state-1) to do so is by _wrapping_ them with `ref()`.
@@ -68,14 +87,27 @@ Let's add an `<input />` and a `<button />` to update the `message` variable and
 -
 ```
 
-When the user enters something in the input, the `h1` will be automagically updated with the input's current (latest) value. And when you click on the button, you should see in the console output the latest value that matches the `h1`.
+When the user enters something in the input, the `h1` will be automagically updated with the :tooltip-trigger{id='input-event'}[input's current (latest) value]. And when you click on the button, you should see in the console output the latest value that matches the `h1`.
 
-Something like this:
+::tooltip-content{id='input-event'}
+Remember: this is a [DOM event](https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event) we are listening to.
+::
+
+Something :tooltip-trigger{id='console-output'}[like this]:
 
 ```ts showLineNumbers=false
-Object {dep: {…}, __v_isRef: true, __v_isShallow: false, _rawValue: "Hola ref!", _value: "Hola ref!"}
+RefImpl {dep: Dep, __v_isRef: true, __v_isShallow: false, _rawValue: "Hola ref!", _value: "Hola ref!"}
 Hola ref!
 ```
+
+Note that the first line is an object, whereas the second is the actual _string value_.
+
+::tooltip-content{id='console-output'}
+With a very small caveat: on the actual browser (if you opened up your console right now and looked for the logged output, you might see actually a bit of an ever so slightly different output.
+
+I actually had to do some magic to intercept the console in the live component as well as the playground (and I'm really proud of the outcome 🤓), then make it behave as close to _"real browser output as possible"_ but it won't be the exact same.
+
+::
 
 Here is the breakdown of the full file:
 
@@ -111,6 +143,10 @@ We will cover this in more detail when we start leveraging TS more, but if you a
 There is also a linting rule that will prevent you from making this mistake: [vue/no-ref-as-operand](https://eslint.vuejs.org/rules/no-ref-as-operand.html)
 ::
 
+::info
+The official guide has a more in-depth explanation to all of this, you really should go read it [here](https://vuejs.org/guide/essentials/reactivity-fundamentals.html#why-refs)
+::
+
 ## ref() inside the `<template>` tag
 
 That is not the case when referring to the `message` variable in the `<template>` tag because Vue _unwraps_ the value for you :tooltip-trigger{id="unwrapping"}[(with some caveats)] in that case.
@@ -129,7 +165,7 @@ Finally, I left the `version` variable on purpose here. Don't mark your variable
 - You know the _value won't change_
 - You _don't need_ to keep track of it
 
-```file:/src/App.vue title="App.vue" {"NOT reactive":18} collapse={4-17, 22-27, 33-41} /(?<!')\bversion\b/
+```file:/src/App.vue title="App.vue" {"NOT reactive":18} collapse={4-17, 22-27, 36-45} /(?<!')\bversion\b/
 -
 ```
 
