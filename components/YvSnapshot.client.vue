@@ -53,6 +53,7 @@ function getChangedFiles(
 }
 
 const changedFiles = computed(() => {
+  playground.fileContentVersion // reactive dependency — re-evaluate on file edits
   const currentFiles = Object.fromEntries(
     Array.from(playground.files.entries()).map(([path, file]) => [path, file.read()]),
   )
@@ -144,8 +145,8 @@ const fileDiffs = computed(() =>
               :old-string="file.oldString"
               :new-string="file.newString"
               output-format="side-by-side"
-              filename="Current"
-              new-filename="Snapshot"
+              filename="Snapshot"
+              new-filename="Current"
               max-height="20rem"
               :theme="colorMode.value"
             />

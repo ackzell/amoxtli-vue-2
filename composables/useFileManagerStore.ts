@@ -22,7 +22,7 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
     return play
   }
 
-  // When the lesson changes, auto-save a snapshot before the new files mount
+  // When the lesson changes, set up the session for snapshot storage
   watch(
     () => [guide.currentGuide, guide.showingSolution] as const,
     async ([currentGuide]) => {
@@ -31,11 +31,10 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
         if (window) {
           currentPath = window.location.pathname
         }
-        console.warn('[guide-meta] Current guide does not have a sessionName. Skipping session load and snapshot save.', currentGuide, currentPath)
+        console.warn('[guide-meta] Current guide does not have a sessionName. Skipping session load.', currentGuide, currentPath)
         return
       }
 
-      // Set up session FIRST
       const existing = await sessions.getByName(currentGuide.sessionName)
       if (existing) {
         currentSession.value = existing
@@ -43,9 +42,6 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
       else {
         currentSession.value = await sessions.create(currentGuide.sessionName)
       }
-
-      // THEN save snapshot, now that currentSession is populated
-      await saveSnapshot({ type: 'auto', message: 'Lesson load' })
     },
   )
 
@@ -77,7 +73,7 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
       Array.from(playground.files.entries()).map(([path, file]) => [path, file.read()]),
     )
 
-    const latestSnapshotByType = await snapshots.getLatestByType(snapshot.type)
+    const latestSnapshotByType = await snapshots.getLatestByType(snapshot.type, currentSession.value.id)
 
     if (!latestSnapshotByType) {
       await snapshots.create({
@@ -87,6 +83,9 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
         message: snapshot.message,
       })
       await sessions.changeUpdatedAt(currentSession.value.id, new Date())
+
+      if (snapshot.type === 'manual')
+        toast.success('Snapshot saved')
     }
     else {
       const didFilesChange = filesHaveChanged(currentFiles, latestSnapshotByType.files)
@@ -128,8 +127,17 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
     await saveSnapshot({ type: 'auto', message: 'Before a snapshot was restored' })
 
     const playground = getPlaygroundStore()
-    // Mount the snapshot files back into the WebContainer
-    await playground.mount(snapshot.files)
+    // Mount the snapshot files directly, without template merging
+    await playground.mountFiles(snapshot.files)
+
+    // Force the editor to re-read the selected file — mountFiles updates
+    // VirtualFile._content but doesn't trigger Monaco's content watcher
+    if (import.meta.client) {
+      const selected = playground.fileSelected
+      if (selected) {
+        window.dispatchEvent(new CustomEvent('template-file-updated', { detail: selected.filepath }))
+      }
+    }
 
     // Update the session's updatedAt to reflect the restore action
     await sessions.changeUpdatedAt(currentSession.value!.id, new Date())

@@ -31,8 +31,12 @@ function liveQuerySnapshots(sessionId: number): Observable<Snapshot[]> {
   return liveQuery(async () => await db.snapshots.where({ sessionId }).reverse().sortBy('createdAt'))
 }
 
-async function getLatestByType(type: SnapshotType): Promise<Snapshot | undefined> {
-  return (await db.snapshots.where({ type }).sortBy('createdAt')).pop()
+async function getLatestByType(type: SnapshotType, sessionId?: number): Promise<Snapshot | undefined> {
+  const snaps = await db.snapshots
+    .where('type').equals(type)
+    .filter(s => sessionId === undefined || s.sessionId === sessionId)
+    .sortBy('createdAt')
+  return snaps.pop()
 }
 
 function deleteSnapshot(snapshotId: number): Promise<void> {

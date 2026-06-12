@@ -51,6 +51,11 @@ export const usePlaygroundStore = defineStore('playground', () => {
   const files = shallowReactive<Raw<Map<string, VirtualFile>>>(new Map())
   const fileSelected = shallowRef<Raw<VirtualFile>>()
 
+  const fileContentVersion = ref(0)
+  function notifyFileChanged() {
+    fileContentVersion.value++
+  }
+
   let _promiseInit: Promise<void> | undefined
   let hasInstalled = false
   let lastInstalledPackageJson = ''
@@ -283,8 +288,10 @@ export const usePlaygroundStore = defineStore('playground', () => {
     if (file) {
       if (filepath.endsWith('.html'))
         file.fsTransform = injectHtmlScripts
-      if (file.read() !== content)
+      if (file.read() !== content) {
         await file.write(content)
+        notifyFileChanged()
+      }
       return file
     }
     else {
@@ -293,6 +300,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
         newFile.fsTransform = injectHtmlScripts
       files.set(filepath, newFile)
       await newFile.write(content)
+      notifyFileChanged()
       return newFile
     }
   }
@@ -355,6 +363,39 @@ export const usePlaygroundStore = defineStore('playground', () => {
   const safeError = computed(() => _isInitialized.value ? error.value : undefined)
   const safeCurrentProcess = computed(() => _isInitialized.value ? currentProcess.value : undefined)
 
+  /**
+   * Mount files to WebContainer without template merging.
+   * Used by snapshot restore to write exactly the saved files.
+   */
+  async function mountFiles(fileMap: Record<string, string>) {
+    const newPackageJson = fileMap['package.json'] || ''
+    const depsChanged = hasInstalled && newPackageJson !== lastInstalledPackageJson
+
+    if (depsChanged) {
+      killPreviousProcess()
+      hasInstalled = false
+      preview.url = ''
+      status.value = 'mount'
+    }
+
+    const toRemove = Array.from(files.keys()).filter(fp => !(fp in fileMap))
+
+    await Promise.all([
+      ...Object.entries(fileMap).map(async ([filepath, content]) => {
+        await _updateOrCreateFile(filepath, content)
+      }),
+      ...toRemove.map(async (filepath) => {
+        const file = files.get(filepath)
+        await file?.remove()
+        files.delete(filepath)
+      }),
+    ])
+
+    if (depsChanged || !hasInstalled) {
+      startServer()
+    }
+  }
+
   return {
     init,
     webcontainer: safeWebcontainer,
@@ -365,8 +406,11 @@ export const usePlaygroundStore = defineStore('playground', () => {
     restartServer: startServer,
 
     files,
+    fileContentVersion,
     fileSelected,
+    notifyFileChanged,
     mount,
+    mountFiles,
   }
 })
 
@@ -379,9 +423,7 @@ if (import.meta.hot) {
     const file = playground.files.get(data.filename)
     if (file) {
       file.write(data.content)
-      // We mutate a bogus property or trigger a change so observers can react
-      // The VirtualFile class could have an event emitter, but since it doesn't,
-      // we'll trigger an event on the window just in case any component wants to forcefully refresh.
+      playground.notifyFileChanged()
       if (import.meta.client) {
         window.dispatchEvent(new CustomEvent('template-file-updated', { detail: data.filename }))
       }
