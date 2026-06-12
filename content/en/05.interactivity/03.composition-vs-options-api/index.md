@@ -5,10 +5,11 @@ ogImage: true
 
 # Composition vs Options API
 
+Okay, this has been mentioned a couple times in this book, but we haven't really talked about it. I meant to show you at least the basics of attribute binding and event handling before showing you the code that is part of this lesson. So here we go now.
+
 ::info
 I'll be honest: I can't fit everything there is to be covered about the differences in philosophy, pros and cons for each one in just one quick lesson here. But also, there are way more intelligent people who worked on the official docs that put it very well in a [dedicated section](https://vuejs.org/guide/extras/composition-api-faq.html). I encourage you to give it a read and you'll have all the context you need regarding this subject.
 
-Having said that, I'll do my best to give you a perspective on their differences and justify my choice of using Composition API for the rest of the materials in Amoxtli Vue.
 ::
 
 Vue has a couple ways for authoring your code: the "original flavor" and the "new approach".

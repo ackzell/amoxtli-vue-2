@@ -33,10 +33,10 @@ export default {
 
   <p>{{ timesGreeted }}</p>
 
-  <button :onClick="greetMe">
+  <button @click="greetMe">
     Greet Me
   </button>
-  <button :onClick="reset">
+  <button @click="reset">
     Reset
   </button>
 </template>
