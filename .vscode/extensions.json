@@ -2,6 +2,8 @@
   "recommendations": [
     "antfu.pnpm-catalog-lens",
     "dbaeumer.vscode-eslint",
-    "vue.volar"
+    "vivaxy.vscode-conventional-commits",
+    "johnsoncodehk.vue-split-editor",
+    "martinszeltins.vue-component-usage"
   ]
 }

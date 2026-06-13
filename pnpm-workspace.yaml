@@ -22,6 +22,8 @@ catalogs:
     '@intlify/eslint-plugin-vue-i18n': ^4.5.1
     '@unocss/eslint-plugin': ~66.4.2
     better-sqlite3: ^12.10.0
+    commit-and-tag-version: ^12.7.3
+    cz-conventional-changelog: ^3.3.0
     eslint: ^9.39.4
     eslint-plugin-format: ^1.5.0
     execa: ^9.6.1

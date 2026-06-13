@@ -13,6 +13,11 @@
     "prepare": "nuxt prepare",
     "lint": "eslint .",
     "format": "eslint . --fix",
+    "cz": "exec < /dev/tty && npx cz --hook || true",
+    "tag": "commit-and-tag-version -- --no-verify",
+    "tag:minor": "commit-and-tag-version --release-as minor -- --no-verify",
+    "tag:major": "commit-and-tag-version --release-as major -- --no-verify",
+    "publish": "git push --follow-tags",
     "invites:generate": "npx tsx scripts/generate-invites.ts invites.yaml",
     "invites:override": "npx tsx scripts/generate-invites.ts invites.yaml --override",
     "invites:publish": "npx wrangler kv bulk put --binding AMVI_KV invites-batch.json --remote",
@@ -21,6 +26,11 @@
     "invites:list-local": "npx wrangler kv key list --namespace-id=b9f605b548ca4b7b8bd1055c274bd9db",
     "invites:purge-remote": "npx wrangler kv bulk delete invites-in-remote.json --namespace-id=b9f605b548ca4b7b8bd1055c274bd9db --remote",
     "invites:diff": "pnpm run invites:list-remote && npx tsx scripts/invites-diff.ts"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   },
   "dependencies": {
     "@ark-ui/vue": "catalog:frontend",
@@ -81,6 +91,8 @@
     "@unocss/nuxt": "catalog:nuxt",
     "@vueuse/nuxt": "catalog:nuxt",
     "better-sqlite3": "catalog:dev",
+    "commit-and-tag-version": "catalog:dev",
+    "cz-conventional-changelog": "catalog:dev",
     "eslint": "catalog:dev",
     "eslint-plugin-format": "catalog:dev",
     "execa": "catalog:dev",
