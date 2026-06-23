@@ -151,13 +151,14 @@ onKeyStroke('Escape', () => {
       v-if="prev"
       :to="prev.path"
       :title="`Previous: ${prev.title}`"
-      hover="bg-active text-primary dark:text-primary-dark op100"
-      class="z-docs-nav text-sm rounded-md op70 flex h10 w10 items-center justify-center"
+      class="text-sm rounded-md op70 flex h10 w10 scale-100 items-center justify-center z-docs-nav"
+      hover="bg-bgr-50 dark:bg-bgr-dark border border-primary dark:hover:border-primary-dark scale-102 shadow-md text-primary-600 dark:text-primary-dark op100"
+      transition-all
     >
       <div i-carbon-arrow-left />
     </NuxtLink>
     <!-- flex-grow spacer so the absolute child can anchor to the bar position -->
-    <div ref="navRoot" class="nav-bar-anchor group z-docs-nav flex-grow min-w-0 relative">
+    <div ref="navRoot" class="nav-bar-anchor group flex-grow min-w-0 relative z-docs-nav">
       <!-- Single bordered box: contains both trigger bar and dropdown panel -->
       <div
         class="dark:border-bgr-700 hover:border-primary hover:shadow-md dark:hover:border-primary-dark dark:hover-shadow-dark-950"
@@ -224,8 +225,9 @@ onKeyStroke('Escape', () => {
       v-if="next"
       :to="next.path"
       :title="`Next: ${next.title}`"
-      hover="bg-active text-primary dark:text-primary-dark op100"
-      z-docs-nav text-sm rounded-md op70 flex h10 w10 items-center justify-center
+      class="text-sm rounded-md op70 flex h10 w10 scale-100 items-center justify-center z-docs-nav"
+      hover="bg-bgr-50 dark:bg-bgr-dark border border-primary dark:hover:border-primary-dark scale-102 shadow-md text-primary-600 dark:text-primary-dark op100"
+      transition-all
     >
       <div i-mynaui-arrow-right />
     </NuxtLink>
