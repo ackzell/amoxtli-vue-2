@@ -172,6 +172,7 @@ const isFeedbackOpen = ref(false)
 <template>
   <nav
     text-lg px4 py2 relative border="b base" flex="~ gap-1 items-center justify-between"
+    z-nav backdrop-blur-2xl
   >
     <div px4>
       <div text-xl text-primary font-bold font-mono dark:text-primary-dark>

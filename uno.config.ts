@@ -18,9 +18,6 @@ export default defineConfig({
     'bg-faded': 'bg-bgr/5 dark:bg-bgr-dark/5',
     'bg-base': 'bg-white dark:bg-bgr-dark',
     'text-faded': 'text-bgr-500/90 dark:text-bgr-300/90',
-
-    'bg-code': 'bg-gray/5',
-
     'bg-inline-code': 'bg-gray-100 dark:bg-gray-800/75',
     'border-inline-code': 'border-gray-200 dark:border-bgr-700',
 
@@ -28,9 +25,11 @@ export default defineConfig({
     'z-embedded-docs-raised': 'z-101',
     'z-splitter': 'z-102',
     'z-embedded-docs-close': 'z-103',
-    'z-index-command-palette': 'z-200',
+    'z-tooltip-popper': 'z-104',
+    'z-docs-nav': 'z-105',
+    'z-nav': 'z-106',
     'z-toasts': 'z-111',
-    'z-docs-nav': 'z-104',
+    'z-index-command-palette': 'z-200',
     'z-dialog-overlay': 'z-201',
     'z-dialog-content': 'z-202',
 

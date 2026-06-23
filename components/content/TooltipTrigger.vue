@@ -266,6 +266,7 @@ onUnmounted(() => {
     <div
       ref="tooltipEl"
       class="guide-tooltip-popper"
+      z-tooltip-popper
       :class="{ 'is-bottom': floatingPlacement.startsWith('top') }"
       :style="[tooltipStyle, { display: isShown ? '' : 'none' }]"
       @mouseenter="showTooltip()"
@@ -288,14 +289,9 @@ onUnmounted(() => {
   --aw: 11px;
 
   box-sizing: border-box;
-
   position: fixed;
-  z-index: 300;
-
   max-width: 500px;
-
   border-radius: var(--r);
-
   pointer-events: auto;
 
   --uno: 'font-mono bg-bgr-50/10 dark:bg-bgr-200/10 backdrop-blur-[2px] p1.5 dark:text-bgr-300 border border-primary dark:border-primary-dark';
