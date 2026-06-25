@@ -180,7 +180,7 @@ onKeyStroke('Escape', () => {
             <div v-if="idx !== 0" i-mynaui-chevron-right text-sm op50 flex-none />
             <NuxtLink
               :to="bc.path"
-              hover="text-primary dark:text-primary-dark"
+              hover="text-primary dark:text-primary-dark-300"
               text-sm shrink min-w-0
               class="group/bc hover:shrink-0 hover:min-w-0"
               @click.stop
@@ -206,8 +206,8 @@ onKeyStroke('Escape', () => {
           <div class="nav-dropdown-inner">
             <div
               border="t base"
-              class="bg-bgr/80 dark:bg-bgr-dark/70"
-              text-sm py2 max-h-60vh overflow-y-auto backdrop-blur-md
+              class="bg-bgr dark:bg-bgr-dark"
+              text-sm py2 max-h-60vh overflow-y-auto
             >
               <ContentNavItem
                 v-for="item of navigationItems"

@@ -64,6 +64,7 @@ const variant = computed(() => {
 <style scoped>
 .callout-container {
   corner-shape: squircle;
+  margin-top: 1.5rem;
 }
 
 :deep(.callout-text-container) {

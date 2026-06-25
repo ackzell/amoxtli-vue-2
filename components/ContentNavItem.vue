@@ -31,11 +31,11 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
         <summary>
           <div
             flex="~ gap-1 items-center" px1 py0.5 cursor-pointer select-none
-            hover="text-primary dark:text-primary-dark bg-active"
+            hover="text-primary dark:text-primary-dark-300 bg-bgr-100/35 dark:bg-bgr-700/45"
             :style="{ paddingLeft }"
           >
-            <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op50 flex-none duration-400 />
-            <div i-mynaui-folder-solid opacity-50 flex-none />
+            <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op80 flex-none duration-400 />
+            <div i-mynaui-folder-solid opacity-80 flex-none />
             <div ml1>
               {{ resolved.title }}
             </div>
@@ -56,14 +56,14 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
       v-else
       :to="resolved.path"
       :style="{ paddingLeft }"
-      :class="{ 'text-primary dark:text-primary-dark bg-bgr-50 dark:bg-bgr-900': resolved.path === route.path }"
+      :class="{ 'text-primary dark:text-primary-dark-300  bg-bgr-50 dark:bg-bgr-900': resolved.path === route.path }"
       flex="~ gap-1 items-center"
-      hover="text-primary dark:text-primary-dark bg-active" px1 py0.5
+      hover="text-primary dark:text-primary-dark-300 bg-bgr-100/35 dark:bg-bgr-700/45" px1 py0.5
       @click="ui.isContentDropdownShown = false"
     >
       <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op0 flex-none duration-400 />
       <div v-if="resolved.meta.isChallenge" i-mynaui-lightning-solid text-challenge op90 flex-none />
-      <div v-else i-mynaui-file-solid op50 flex-none />
+      <div v-else i-mynaui-file-solid op80 flex-none />
       <div ml1>
         {{ resolved.title }}
       </div>
