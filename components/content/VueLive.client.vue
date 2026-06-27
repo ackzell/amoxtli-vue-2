@@ -47,6 +47,29 @@ function decodeBase64(encoded: string): string {
   }
 }
 
+function handleWheelCapture(e: WheelEvent) {
+  const scrollTop = editor.getScrollTop()
+  const scrollHeight = editor.getScrollHeight()
+  const clientHeight = editor.getLayoutInfo().height
+  const atTop = scrollTop <= 0
+  const atBottom = scrollTop >= scrollHeight - clientHeight
+  const fits = scrollHeight <= clientHeight
+
+  if (fits) {
+    e.stopPropagation()
+    return
+  }
+
+  if (e.deltaY < 0 && atTop) {
+    e.stopPropagation()
+    return
+  }
+
+  if (e.deltaY > 0 && atBottom) {
+    e.stopPropagation()
+  }
+}
+
 let compileTimer: ReturnType<typeof setTimeout> | null = null
 
 function scheduleCompile() {
@@ -59,6 +82,7 @@ function scheduleCompile() {
 function doCompile() {
   const result = compileSfc(currentCode.value)
   lastResult.value = null
+
   if (result.error) {
     showError(result.error, '', colorMode.value === 'dark')
   }
@@ -200,28 +224,6 @@ onMounted(async () => {
   applyHiddenAreas()
   resizeEditor()
 
-  function handleWheelCapture(e: WheelEvent) {
-    const scrollTop = editor.getScrollTop()
-    const scrollHeight = editor.getScrollHeight()
-    const clientHeight = editor.getLayoutInfo().height
-    const atTop = scrollTop <= 0
-    const atBottom = scrollTop >= scrollHeight - clientHeight
-    const fits = scrollHeight <= clientHeight
-
-    if (fits) {
-      e.stopPropagation()
-      return
-    }
-
-    if (e.deltaY < 0 && atTop) {
-      e.stopPropagation()
-      return
-    }
-
-    if (e.deltaY > 0 && atBottom) {
-      e.stopPropagation()
-    }
-  }
   editorEl.value!.addEventListener('wheel', handleWheelCapture, { capture: true, passive: false })
 
   if (decoded) {
