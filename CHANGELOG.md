@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.1.8](https://github.com/ackzell/amoxtli-vue-2/compare/v0.1.7...v0.1.8) (2026-06-28)
+
+
+### Features
+
+* **chapter-styling:** starting to add content for the chapter ([bccc17c](https://github.com/ackzell/amoxtli-vue-2/commit/bccc17c6d2f05dd2b720b11cd10d956611ac1a88))
+* **create-content-CLI:** adding a new tool to create content via a CLI ([af0b53a](https://github.com/ackzell/amoxtli-vue-2/commit/af0b53a83f208d7ca990858a997959cda2317976))
+* **helper-components:** updating the DirectivePartsDiagram component to highlight the legends better ([0efb4e7](https://github.com/ackzell/amoxtli-vue-2/commit/0efb4e761ebda939dd890d9e6f50bfc5232fa987))
+* **styles:** navigation buttons  on the docs navigation should look like nav cards ([6f80937](https://github.com/ackzell/amoxtli-vue-2/commit/6f8093700adc826e9ec6fcf12cd3c8cba0a97892))
+
+
+### Bug Fixes
+
+* **styles:** fixing tooltip stacking display. It should no longer show on top of the navigation. ([4544c90](https://github.com/ackzell/amoxtli-vue-2/commit/4544c90703540d08e9926fa5d129626ddca7c5a9))
+* **styles:** updating some styles for consistency ([ad0a16b](https://github.com/ackzell/amoxtli-vue-2/commit/ad0a16b001f227759ad5557ec753bf5fde4d5266))
+
 ## 0.1.7 (2026-06-13)
 
 
