@@ -1,4 +1,5 @@
-packages: []
+packages:
+  - 'packages/*'
 
 overrides:
   '@emmetio/css-parser': 0.4.1
@@ -92,3 +93,10 @@ catalogs:
     nuxi: ^3.35.2
     nuxt: ^4.4.7
     pinia: ^3.0.4
+  conflicts_frontend_h2_0_0:
+    pathe: ^2.0.0
+catalog:
+  '@clack/prompts': ^1.6.0
+  '@types/node': ^22.20.0
+  kolorist: ^1.8.0
+  vitest: ^3.2.6
