@@ -87,7 +87,7 @@ Let's add an `<input />` and a `<button />` to update the `message` variable and
 -
 ```
 
-When the user enters something in the input, the `h1` will be automagically updated with the :tooltip-trigger{id='input-event'}[input's current (latest) value]. And when you click on the button, you should see in the console output the latest value that matches the `h1`.
+When the user enters something in the input, the `h1` will automagically be updated with the :tooltip-trigger{id='input-event'}[input's current (latest) value]. And when you click on the button, you should see in the console output the latest value that matches the `h1`.
 
 ::tooltip-content{id='input-event'}
 Remember: this is a [DOM event](https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event) we are listening to.
