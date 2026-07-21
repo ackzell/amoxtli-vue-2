@@ -1,8 +1,4 @@
 import type { Locale } from './utils'
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { autocomplete, confirm, isCancel, note, select, spinner, text } from '@clack/prompts'
-import { cyan, green, red } from 'kolorist'
 import { TEMPLATE_OPTIONS } from './lesson'
 import {
   detectTemplateFromIndex,
@@ -16,6 +12,10 @@ import {
   listFilesDir,
 
 } from './utils'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { autocomplete, confirm, isCancel, note, select, spinner, text } from '@clack/prompts'
+import { cyan, green, red } from 'kolorist'
 
 async function pickLesson(): Promise<{ locale: Locale, lessonPath: string, lessonLabel: string } | null> {
   const locales = getLocales()

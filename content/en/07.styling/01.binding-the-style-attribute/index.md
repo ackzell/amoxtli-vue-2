@@ -53,7 +53,7 @@ const myFontSize = 30
 ```
 
 ::info
-Keep in mind that when you update the value in the code above, it changes because the component in the book is re-rendering (think live-reload), but not exactly because the value is actually changing in Vue.
+Keep in mind that when you update the value in the code above, it changes because the component in the book is re-rendering (think live-reload during development), but not exactly because the value is actually changing in Vue.
 ::
 
 ## Let's make it actually reactive

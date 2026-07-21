@@ -34,7 +34,7 @@ const editorEl = ref<HTMLDivElement>()
 const consoleEl = ref<HTMLDivElement>()
 let editor: any = null
 
-const consoleOutput = useConsoleOutput()
+const consoleOutput = useConsoleOutput({ withDomReconstruction: true })
 
 function decodeBase64(encoded: string): string {
   try {
@@ -117,7 +117,7 @@ function resizeEditor() {
     return
   }
   const h = Math.max(60, Math.min(editor.getContentHeight(), 600))
-  editorEl.value!.style.height = `${h}px`
+  editorEl.value!.style.minHeight = `${h}px`
   editor.layout()
 }
 
@@ -349,10 +349,12 @@ watch(blobUrl, (url) => {
 
 .vl-editor {
   overflow: hidden;
+  height: 100%;
 }
 
 .vl-console {
-  height: 150px;
+  min-height: 150px;
+  max-height: 200px;
   overflow: auto;
 }
 

@@ -17,7 +17,16 @@ useTwoslashTooltips(preEl)
 const ecInfo = computed(() => `${props.language || ''} ${props.meta || ''}`.trim())
 
 const parsedEc = computed(() => parseEcInfo(ecInfo.value))
-const showLineNumbers = computed(() => parsedEc.value.showLineNumbers)
+
+const isPlainText = computed(() => {
+  const lang = (props.language || '').toLowerCase()
+  return !lang || lang === 'text' || lang === 'txt'
+})
+
+const showLineNumbers = computed(() => {
+  if (isPlainText.value) return false
+  return parsedEc.value.showLineNumbers
+})
 
 const language = computed(() => {
   const value = (props.language || '').toLowerCase()
@@ -173,6 +182,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
         :class="[
           preClass,
           !showLineNumbers ? 'ec-hide-line-numbers' : '',
+          isPlainText ? 'ec-plain-text' : '',
           inferredFilename ? 'rounded-t-none! mt-0!' : '',
         ]"
       ><slot /></pre>
@@ -225,6 +235,11 @@ pre {
 
 :deep(pre.ec-hide-line-numbers code .line::before) {
   content: none;
+}
+
+:deep(pre.ec-plain-text code) {
+  padding-left: var(--hidden-line-number-spacing, 1rem);
+  padding-right: 1rem;
 }
 
 :deep(code .line.ec-collapsed) {

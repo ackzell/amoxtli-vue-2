@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "format": "eslint . --fix",
     "cz": "exec < /dev/tty && npx cz --hook || true",
-    "content": "node --experimental-strip-types packages/create-content/src/index.ts",
+    "content": "npx tsx packages/create-content/src/index.ts",
     "tag": "commit-and-tag-version -- --no-verify",
     "tag:minor": "commit-and-tag-version --release-as minor -- --no-verify",
     "tag:major": "commit-and-tag-version --release-as major -- --no-verify",

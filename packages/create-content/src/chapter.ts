@@ -1,8 +1,4 @@
 import type { Locale } from './utils'
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { confirm, isCancel, select, spinner, text } from '@clack/prompts'
-import { red } from 'kolorist'
 import { createLesson, TEMPLATE_OPTIONS } from './lesson'
 import {
   getChapterIndexMd,
@@ -14,6 +10,10 @@ import {
   padNumber,
   slugify,
 } from './utils'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { confirm, isCancel, select, spinner, text } from '@clack/prompts'
+import { red } from 'kolorist'
 
 export async function createChapter() {
   const locales = getLocales()

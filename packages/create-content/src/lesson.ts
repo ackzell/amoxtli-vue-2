@@ -1,8 +1,4 @@
 import type { Locale } from './utils'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { autocomplete, confirm, isCancel, select, spinner, text } from '@clack/prompts'
-import { red } from 'kolorist'
 import {
   copyDir,
   generateIndexTs,
@@ -18,6 +14,10 @@ import {
   padNumber,
   slugify,
 } from './utils'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { autocomplete, confirm, isCancel, select, spinner, text } from '@clack/prompts'
+import { red } from 'kolorist'
 
 export const TEMPLATE_OPTIONS = [
   { value: 'vue', label: 'Vue SFC', hint: 'vue' },
