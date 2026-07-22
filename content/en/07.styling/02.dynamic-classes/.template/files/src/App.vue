@@ -243,4 +243,8 @@ li {
 .success {
   color: limegreen;
 }
+
+.bold {
+  font-weight: bold;
+}
 </style>
