@@ -179,6 +179,69 @@ set on mount remain intact across resets without needing to re-apply.
 
 ---
 
+## Code Extraction (`extract` prop)
+
+Unlike `hide` (which only hides lines in the editor while still compiling the
+full file), `extract` pulls **only** the specified line ranges from the
+`.template` file at build time. The extracted code becomes the full content
+that is both displayed and compiled.
+
+### Usage in Markdown
+
+````md
+```file:/src/App.vue live extract={1-4, 14-23, 57-76, 200-210, 246}
+
+```
+````
+
+Comma-separated ranges, 1-indexed line numbers. Single lines are supported:
+`extract={5}` is equivalent to `extract={5-5}`.
+
+#### Line breaks between ranges
+
+Insert empty lines between extracted ranges using `[N]`:
+
+````md
+```file:/src/App.vue live extract={1-4,[1],14-23,[2],57-76}
+
+```
+````
+
+- `[1]` = insert 1 empty line
+- `[2]` = insert 2 empty lines
+- `[0]` = no-op (0 empty lines = nothing)
+
+### How It Works
+
+1. In `nuxt.config.ts`, the `content:file:beforeParse` hook reads the file
+   content during the file inlining step
+2. If `extract={...}` is present in the fence info string, only the specified
+   line ranges are extracted from the file content
+3. The extracted content replaces the full content before base64 encoding
+4. The `:vue-live` component receives only the extracted code — no changes to
+   `VueLive.client.vue` needed
+
+### Interaction with `hide`
+
+`extract` and `hide` can coexist:
+
+- `extract` runs at **build time** — controls what code is compiled
+- `hide` runs at **runtime** — controls what is displayed in the editor
+
+For example, `extract={1-20} hide={5-10}` would extract lines 1-20 from the
+file, then hide lines 5-10 of that extracted content in the editor. The full
+extracted code (lines 1-20) would still compile for the preview.
+
+### When to Use `extract` vs `hide`
+
+| Scenario | Use |
+|----------|-----|
+| Show a subset of a large file in both editor and preview | `extract` |
+| Show only relevant lines in editor but compile the full file | `hide` |
+| Extract a subset, then hide boilerplate within it | `extract` + `hide` |
+
+---
+
 ## Show Line Numbers
 
 Controlled by the `showLineNumbers` prop, passed as a boolean to Monaco's

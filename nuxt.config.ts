@@ -309,7 +309,35 @@ export default defineNuxtConfig({
             if (!existsSync(fullPath)) {
               return match
             }
-            const content = readFileSync(fullPath, 'utf-8').trimEnd()
+            let content = readFileSync(fullPath, 'utf-8').trimEnd()
+
+            const extractMatch = (rest || '').match(/extract=\{([^}]+)\}/)
+            if (extractMatch) {
+              const parts = extractMatch[1].replace(/\s+/g, '').split(',')
+              const lines = content.split('\n')
+              const extracted: string[] = []
+              for (const part of parts) {
+                const breakMatch = part.match(/^\[(\d+)\]$/)
+                if (breakMatch) {
+                  const count = Number.parseInt(breakMatch[1], 10)
+                  for (let i = 0; i < count; i++) {
+                    extracted.push('')
+                  }
+                }
+                else {
+                  const [s, e] = part.split('-').map(Number)
+                  const end = e ?? s
+                  if (!Number.isNaN(s) && !Number.isNaN(end) && s > 0 && end >= s) {
+                    for (let i = s - 1; i < end && i < lines.length; i++) {
+                      if (lines[i] !== undefined)
+                        extracted.push(lines[i]!)
+                    }
+                  }
+                }
+              }
+              content = extracted.join('\n')
+            }
+
             return `${fence}${lang ?? ''} ${prefix}:/${filePath}${rest ?? ''}\n${content}\n${fence}`
           },
         )
@@ -341,7 +369,7 @@ export default defineNuxtConfig({
           const b64 = Buffer.from(`${code}\n`).toString('base64')
           let hide = ''
           const hideMatch = (`${before} ${after}`).match(/hide=\{([^}]+)\}/)
-          if (hideMatch)
+          if (hideMatch && hideMatch[1])
             hide = hideMatch[1].replace(/\s+/g, '')
           const hideAttr = hide ? ` hide="${hide}"` : ''
 

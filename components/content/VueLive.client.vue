@@ -127,8 +127,9 @@ function applyHiddenAreas() {
   }
   const ranges = props.hide.split(',').map((part) => {
     const [s, e] = part.trim().split('-').map(Number)
-    if (s !== undefined && e !== undefined && !Number.isNaN(s) && !Number.isNaN(e) && s > 0 && e >= s) {
-      return { startLineNumber: s, startColumn: 1, endLineNumber: e, endColumn: 1 }
+    const end = e ?? s
+    if (s !== undefined && end !== undefined && !Number.isNaN(s) && !Number.isNaN(end) && s > 0 && end >= s) {
+      return { startLineNumber: s, startColumn: 1, endLineNumber: end, endColumn: 1 }
     }
     return null
   }).filter((r): r is NonNullable<typeof r> => r !== null)
