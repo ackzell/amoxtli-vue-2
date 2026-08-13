@@ -350,7 +350,7 @@ export default defineNuxtConfig({
 
         // Encode title="..." with escaped quotes (\" and \\ and \` etc.)
         file.body = file.body.replace(
-          /^(`{3}[^\n]*?)\s+title="((?:[^"\\]|\\.)*)"/gm,
+          /^(`{3}\S*)\s+title="((?:[^"\\]|\\.)*)"/gm,
           (match, prefix, titleValue) => {
             const decoded = titleValue.replace(/\\(["\\`])/g, '$1')
             const hex = Buffer.from(decoded).toString('hex')
@@ -362,7 +362,7 @@ export default defineNuxtConfig({
       // Detect live code blocks and wrap in VueLive component.
       // Must run after file/solution inlining above so file:/path live works.
       file.body = file.body.replace(
-        /^(`{3,})([^\n]*?)\blive\b([^\n]*)\n([\s\S]*?)\n\1/gm,
+        /^(`{3,})([^\n`]*?\blive\b)([^\n]*)\n([\s\S]*?)\n\1/gm,
         (_, fence, before, after, code) => {
           const langMatch = before.match(/(\S+)/)
           const lang = langMatch ? langMatch[1] : 'vue'
