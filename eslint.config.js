@@ -46,31 +46,36 @@ export default antfu(
       },
     },
     {
+      rules: {
+        'vue/v-on-style': 'off',
+      },
       files: [
         'content/**/05.interactivity/02.v-on/index.md',
         'content/**/05.interactivity/02.v-on/index.md/**',
       ],
-      rules: {
-        'vue/v-on-style': 'off',
-      },
     },
     {
+      rules: {
+        'vue/no-ref-as-operand': 'off',
+      },
       files: [
         'content/**/06.reactivity/01.ref/index.md',
         'content/**/06.reactivity/01.ref/index.md/**',
       ],
-      rules: {
-        'vue/no-ref-as-operand': 'off',
-        'style/no-multiple-empty-lines': 'off',
-      },
     },
     {
-      files: [
-        'content/**/06.reactivity/02.reactive/index.md',
-        'content/**/06.reactivity/02.reactive/index.md/**',
-      ],
       rules: {
         'style/no-multiple-empty-lines': 'off',
       },
+      files: [
+        'content/**/06.reactivity/01.ref/index.md',
+        'content/**/06.reactivity/01.ref/index.md/**',
+        'content/**/06.reactivity/02.reactive/index.md',
+        'content/**/06.reactivity/02.reactive/index.md/**',
+        'content/**/06.reactivity/04.next-tick/index.md',
+        'content/**/06.reactivity/04.next-tick/index.md/**',
+        'content/**/06.reactivity/05.computed-properties/index.md',
+        'content/**/06.reactivity/05.computed-properties/index.md/**',
+      ],
     },
   )
