@@ -1,9 +1,36 @@
 ---
-title: "Next Tick"
+title: "nextTick()"
 ogImage: true
 ---
 
-# When `nextTick()` Is Useful
+# nextTick()
+
+```vue twoslash showLineNumbers=false
+<script setup>
+import { nextTick } from 'vue'
+//       ^?
+
+
+
+// usage: with a callback
+nextTick(() => {
+  // Your code here
+})
+
+// OR
+// usage: as a promise
+async function myFunction() {
+  // Your code here
+  await nextTick()
+  // Your code here
+}
+</script>
+
+
+<template>
+  ...
+</template>
+```
 
 There will be times when we want to access the DOM immediately after updating the state (ie. after making updates to the the reactive variables) but that presents a little bit of an issue. Let me show you two examples where this happens and then we'll see how to solve it.
 
