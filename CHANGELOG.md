@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.0](https://github.com/ackzell/amoxtli-vue-2/compare/v0.1.8...v0.2.0) (2026-08-19)
+
+
+### Features
+
+* **chapter-nextTick:** introducing twoslash at the beginning of the lesson ([bd2f031](https://github.com/ackzell/amoxtli-vue-2/commit/bd2f031112536008694b0ee95b04b58e76b88f33))
+* **content:** creating content for computed properties ([c1ca138](https://github.com/ackzell/amoxtli-vue-2/commit/c1ca13896ba90f62d5a66f6734da4a2722052bf2))
+* **helper-components:** VueLive: updating it to accept an "extracts" attribute ([26ba78a](https://github.com/ackzell/amoxtli-vue-2/commit/26ba78aead3b96343edebc48db6962197c26b64d))
+* initial swap from webcontainers to almostnode ([f2c0358](https://github.com/ackzell/amoxtli-vue-2/commit/f2c03580c83922c036815a579b1e173f6488abc4))
+
+
+### Bug Fixes
+
+* resolve birpc timeout on onColorModeChange ([c3ada84](https://github.com/ackzell/amoxtli-vue-2/commit/c3ada8421e2686e2eb32d6038d4940eb706ffe0e))
+
 ## [0.1.8](https://github.com/ackzell/amoxtli-vue-2/compare/v0.1.7...v0.1.8) (2026-06-28)
 
 
