@@ -26,7 +26,8 @@
     "invites:list-remote": "npx wrangler kv key list --namespace-id=b9f605b548ca4b7b8bd1055c274bd9db --remote > invites-in-remote.json",
     "invites:list-local": "npx wrangler kv key list --namespace-id=b9f605b548ca4b7b8bd1055c274bd9db",
     "invites:purge-remote": "npx wrangler kv bulk delete invites-in-remote.json --namespace-id=b9f605b548ca4b7b8bd1055c274bd9db --remote",
-    "invites:diff": "pnpm run invites:list-remote && npx tsx scripts/invites-diff.ts"
+    "invites:diff": "pnpm run invites:list-remote && npx tsx scripts/invites-diff.ts",
+    "sync:almostnode": "rm -f vendor/almostnode-*.tgz && cd ../oss/almostnode && pnpm build && pnpm pack --pack-destination ../../amoxtli-vue-2/vendor && cd - && pnpm install"
   },
   "config": {
     "commitizen": {
@@ -44,7 +45,7 @@
     "@vue/language-service": "catalog:frontend",
     "@xterm/addon-fit": "catalog:frontend",
     "@xterm/xterm": "catalog:frontend",
-    "almostnode": "file:../oss/almostnode",
+    "almostnode": "file:./vendor/almostnode-0.5.1.tgz",
     "birpc": "catalog:frontend",
     "clsx": "catalog:frontend",
     "dexie": "catalog:frontend",
