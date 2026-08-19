@@ -1,3 +1,4 @@
+import type { DirEnt } from 'almostnode/webcontainer'
 import type { FileType } from './types'
 import type { CreateData } from './vue.worker'
 import * as volar from '@volar/monaco'
@@ -15,7 +16,7 @@ export class WorkerHost {
     const uri = Uri.parse(uriString)
     try {
       const filepath = withoutLeadingSlash(uri.fsPath)
-      const content = await this.ctx.webcontainer!.fs.readFile(filepath, encoding as 'utf-8')
+      const content = await this.ctx.webcontainer!.fs.readFile(filepath, encoding as 'utf-8') as string
       if (content != null)
         getOrCreateModel(uri, undefined, content)
       return content
@@ -35,7 +36,7 @@ export class WorkerHost {
 
     try {
       // TODO: should we cache it?
-      const files = await this.ctx.webcontainer!.fs.readdir(dir, { withFileTypes: true })
+      const files = await this.ctx.webcontainer!.fs.readdir(dir, { withFileTypes: true }) as DirEnt[]
       const file = files.find(item => item.name === base)
       if (!file)
         return undefined
@@ -65,7 +66,7 @@ export class WorkerHost {
     const uri = Uri.parse(uriString)
     try {
       const filepath = withoutLeadingSlash(uri.fsPath)
-      const result = await this.ctx.webcontainer!.fs.readdir(filepath, { withFileTypes: true })
+      const result = await this.ctx.webcontainer!.fs.readdir(filepath, { withFileTypes: true }) as DirEnt[]
       return result.map(item => [item.name, item.isDirectory() ? 2 : 1]) as [string, 1 | 2][]
     }
     catch (err) {
@@ -83,15 +84,15 @@ export async function reloadLanguageTools(ctx: PlaygroundMonacoContext) {
   console.info('Initializing Vue Language Service...')
 
   // Try load tsconfig.json from root (or .nuxt for Nuxt projects)
-  let tsconfigRaw = await ctx.webcontainer?.fs
+  let tsconfigRaw = (await ctx.webcontainer?.fs
     .readFile('tsconfig.json', 'utf-8')
-    .catch(() => undefined)
+    .catch(() => undefined)) as string | undefined
 
   // Fallback to .nuxt/tsconfig.json for Nuxt projects
   if (!tsconfigRaw) {
-    tsconfigRaw = await ctx.webcontainer?.fs
+    tsconfigRaw = (await ctx.webcontainer?.fs
       .readFile('.nuxt/tsconfig.json', 'utf-8')
-      .catch(() => undefined)
+      .catch(() => undefined)) as string | undefined
   }
 
   const tsconfig = tsconfigRaw
@@ -175,7 +176,7 @@ export async function reloadLanguageTools(ctx: PlaygroundMonacoContext) {
 function loadFiles(ctx: PlaygroundMonacoContext, files: string[]) {
   return Promise.all(files.map(async (file) => {
     const filepath = withoutLeadingSlash(file)
-    const content = await ctx.webcontainer!.fs.readFile(filepath, 'utf-8').catch(() => undefined)
+    const content = (await ctx.webcontainer!.fs.readFile(filepath, 'utf-8').catch(() => undefined)) as string | undefined
     const uri = Uri.parse(`file:///${filepath}`)
     if (content != null) {
       getOrCreateModel(uri, undefined, content)

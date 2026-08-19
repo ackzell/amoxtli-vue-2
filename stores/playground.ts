@@ -434,10 +434,14 @@ export const usePlaygroundStore = defineStore('playground', () => {
     const process = await wc.spawn(command, args, {
       env: {
         DEV_SERVER_PORT: DEV_SERVER_PORT.toString(),
+        FORCE_COLOR: '1',
+        TERM: 'xterm-256color',
       },
     })
     currentProcess.value = process
+    console.log(`[playground-debug] currentProcess set | cmd=${command} args=${args.join(' ')}`)
     return process.exit.then((r) => {
+      console.log(`[playground-debug] process exited | cmd=${command} | code=${r}`)
       if (currentProcess.value === process)
         currentProcess.value = undefined
       return r

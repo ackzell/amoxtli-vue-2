@@ -76,6 +76,7 @@ watch(
     return play.currentProcess
   },
   (p) => {
+    console.log(`[term-debug] watcher fired | process=${!!p} | globalTerminal=${!!globalTerminal}`)
     if (currentProcess === p) {
       return // Already bound to this process
     }
@@ -101,7 +102,11 @@ watch(
       const readerToUse = currentReader
       function read() {
         readerToUse.read().then(({ done, value }) => {
+          if (done) {
+            console.log('[term-debug] stream done')
+          }
           if (value && globalTerminal) {
+            console.log(`[term-debug] read chunk | type=${typeof value} | len=${value.length}`)
             globalTerminal.write(value)
             globalTerminal.scrollToBottom()
           }
@@ -149,6 +154,19 @@ useResizeObserver(root, useDebounceFn(() => {
     globalFitAddon.fit()
   }
 }, 200))
+
+// TEMPORARY DEBUG: surface vite diagnostics printed by the playground store
+function onViteDiag(e: Event) {
+  const text = (e as CustomEvent<string>).detail
+  if (globalTerminal) {
+    globalTerminal.writeln('')
+    globalTerminal.write(text.replace(/\n/g, '\r\n'))
+    globalTerminal.writeln('')
+    globalTerminal.scrollToBottom()
+  }
+}
+window.addEventListener('amoxtli:vite-diag', onViteDiag)
+onBeforeUnmount(() => window.removeEventListener('amoxtli:vite-diag', onViteDiag))
 
 const stop = watch(
   () => root.value,

@@ -1,4 +1,4 @@
-import type { WebContainer } from '@webcontainer/api'
+import type { WebContainer } from 'almostnode/webcontainer'
 import type { StringOrRegExp } from '~/types/guides'
 import { isBinaryFile } from '~/lib/binary'
 
@@ -15,6 +15,9 @@ export async function downloadZip(wc: WebContainer, ignoredFiles?: StringOrRegEx
 
     await Promise.all(
       files.map(async (file) => {
+        if (typeof file === 'string')
+          return
+
         if (isFileIgnored(file.name, ignoredFiles))
           return
 

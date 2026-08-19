@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     // local
     '~/modules/template-loader',
+    '~/modules/almostnode-sw',
     '~/modules/nuxt-link',
     '@nuxt/scripts',
   ],
@@ -158,7 +159,6 @@ export default defineNuxtConfig({
         '@vue/devtools-kit',
         '@vue/language-service', // CJS
         '@vue/compiler-sfc',
-        '@webcontainer/api',
         '@xterm/addon-fit', // CJS
         '@xterm/xterm', // CJS
         'birpc',

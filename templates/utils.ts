@@ -1,4 +1,4 @@
-import type { FileSystemTree } from '@webcontainer/api'
+import type { FileSystemTree } from 'almostnode/webcontainer'
 import type { VirtualFile } from '../structures/VirtualFile'
 import type { VirtualFileSystemTree } from '~/structures/VirtualFileSystemTree'
 

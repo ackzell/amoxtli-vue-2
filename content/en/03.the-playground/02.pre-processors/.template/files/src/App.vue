@@ -17,7 +17,8 @@ export default {
 <template lang="pug">
 h1 {{ message }}
 
-Version is: <code>{{ version }}</code>
+p
+  | Version is: <code>{{ version }}</code>
 
 div.box
   p Sass walked so CSS could run

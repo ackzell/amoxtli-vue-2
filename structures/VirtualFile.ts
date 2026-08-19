@@ -1,4 +1,4 @@
-import type { FileNode, WebContainer } from '@webcontainer/api'
+import type { FileNode, WebContainer } from 'almostnode/webcontainer'
 import { dirname } from 'pathe'
 import { isBinaryFile } from '~/lib/binary'
 
