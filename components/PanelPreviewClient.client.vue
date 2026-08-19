@@ -25,6 +25,7 @@ let rpc: any = null
 
 onMounted(() => {
   rpc = createBirpc<FrameFunctions, ParentFunctions>(functions, {
+    eventNames: ['onColorModeChange'],
     post(payload) {
       iframe.value?.contentWindow?.postMessage({
         source: 'nuxt-playground-parent',
@@ -41,6 +42,10 @@ onMounted(() => {
           return
         fn(event.data.payload)
       })
+    },
+    onTimeoutError(method) {
+      console.warn(`[birpc] timeout on "${method}" (iframe may not be ready yet)`)
+      return true
     },
   })
 

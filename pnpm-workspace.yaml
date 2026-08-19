@@ -3,14 +3,18 @@ packages:
 
 overrides:
   '@emmetio/css-parser': 0.4.1
+  just-bash: 2.7.0
 patchedDependencies:
   floating-vue: patches/floating-vue.patch
 shamefullyHoist: true
 
 allowBuilds:
+  '@mongodb-js/zstd': true
   '@parcel/watcher': true
+  '@swc/core': true
   better-sqlite3: true
   esbuild: true
+  node-liblzma: true
   sharp: true
   unrs-resolver: true
   v-code-diff: true
@@ -52,10 +56,9 @@ catalogs:
     '@volar/monaco': ~2.4.28
     '@vue/compiler-sfc': ^3.5.40
     '@vue/language-service': ^2.2.12
-    '@webcontainer/api': ^1.6.4
     '@xterm/addon-fit': ^0.10.0
     '@xterm/xterm': ^5.5.0
-    birpc: ^2.9.0
+    birpc: ^4.0.0
     clsx: ^2.1.1
     dexie: ^4.4.4
     floating-vue: ^5.2.2
