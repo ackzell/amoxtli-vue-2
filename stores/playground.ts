@@ -1,4 +1,4 @@
-import type { WebContainer, WebContainerProcess } from '@webcontainer/api'
+import type { DirEnt, WebContainer, WebContainerProcess } from 'almostnode/webcontainer'
 import type { Raw } from 'vue'
 import type { TemplateType } from '~/types/guides'
 import { filesToWebContainerFs } from '~/templates/utils'
@@ -19,6 +19,241 @@ export const PlaygroundStatusOrder = [
 export type PlaygroundStatus = typeof PlaygroundStatusOrder[number] | 'error'
 
 const DEV_SERVER_PORT = 5173
+
+/**
+ * Enable almostnode / container debugging by setting
+ * `window.__almostnodeDebug = true` in the browser console before
+ * triggering a playground mount. All diagnostic logs are gated behind this.
+ */
+function isDebugEnabled(): boolean {
+  return typeof window !== 'undefined' && !!(window as any).__almostnodeDebug
+}
+
+/**
+ * almostnode's runtime evaluates ESM as CJS inside a synchronous wrapper, so a
+ * top-level `await` in a module body is a SyntaxError. Vite's `bin/vite.js`
+ * contains exactly one top-level `await import('node:inspector')` (its `--profile`
+ * support block), which prevents the real Vite CLI from booting. Neutralize that
+ * line in the container so `pnpm run dev` can start the dev server.
+ */
+async function patchViteBinForAlmostnode(wc: WebContainer) {
+  const binPath = 'node_modules/vite/bin/vite.js'
+  try {
+    const bin = await wc.fs.readFile(binPath, 'utf-8') as string
+    const patched = bin.replace(
+      /await import\(['"]node:inspector['"]\)\.then\(\(r\) => r\.default\)/g,
+      'null',
+    )
+    if (patched !== bin)
+      await wc.fs.writeFile(binPath, patched, 'utf-8')
+  }
+  catch {
+    // vite not installed (e.g. html template) — nothing to patch
+  }
+}
+
+/**
+ * TEMPORARY DEBUG: Print which vite was actually installed in the container
+ * (version + chunk.js shape) to the browser console and the xterm panel.
+ */
+async function logViteDiagnostics(wc: WebContainer) {
+  if (!isDebugEnabled())
+    return
+  const lines: string[] = []
+  let version: string | undefined
+
+  try {
+    const pkg = JSON.parse(await wc.fs.readFile('node_modules/vite/package.json', 'utf-8') as string)
+    version = pkg.version
+    lines.push(`[vite-diag] vite version: ${version}`)
+  }
+  catch (err) {
+    lines.push(`[vite-diag] no vite in node_modules (html template?): ${err instanceof Error ? err.message : err}`)
+  }
+
+  if (version) {
+    try {
+      const chunk = await wc.fs.readFile('node_modules/vite/dist/node/chunks/chunk.js', 'utf-8') as string
+      lines.push(`[vite-diag] chunk.js length: ${chunk.length}`)
+      lines.push(`[vite-diag] chunk.js lines: ${chunk.split('\n').length}`)
+      lines.push('[vite-diag] chunk.js first 600 chars:')
+      lines.push(chunk.slice(0, 600))
+    }
+    catch (err) {
+      lines.push(`[vite-diag] chunk.js MISSING — vite build doesn't use chunks/chunk.js (5.x dep-*.js layout?): ${err instanceof Error ? err.message : err}`)
+      try {
+        const entries = await wc.fs.readdir('node_modules/vite/dist/node/chunks', { withFileTypes: true }) as DirEnt[]
+        lines.push(`[vite-diag] chunks dir entries: ${entries.map(e => e.name).join(', ')}`)
+      }
+      catch {
+        lines.push('[vite-diag] could not list chunks dir')
+      }
+    }
+  }
+
+  const text = lines.join('\n')
+  // eslint-disable-next-line no-console
+  console.log(text)
+  if (import.meta.client)
+    window.dispatchEvent(new CustomEvent<string>('amoxtli:vite-diag', { detail: text }))
+}
+
+/**
+ * TEMPORARY DEBUG: Confirm vite's bin was skipped (still untransformed ESM with
+ * top-level await) by printing its first few lines.
+ */
+async function logViteBinHead(wc: WebContainer) {
+  if (!isDebugEnabled())
+    return
+  try {
+    const bin = await wc.fs.readFile('node_modules/vite/bin/vite.js', 'utf-8') as string
+    const head = bin.split('\n').slice(0, 5).join('\n')
+    const text = `[vite-bin]\n${head}`
+    // eslint-disable-next-line no-console
+    console.log(text)
+    if (import.meta.client)
+      window.dispatchEvent(new CustomEvent<string>('amoxtli:vite-diag', { detail: text }))
+  }
+  catch (err) {
+    console.error('[vite-bin] failed to read vite/bin/vite.js', err)
+  }
+}
+
+/**
+ * TEMPORARY DEBUG: Write `filename` into the container, run it via `node`,
+ * and report its output to the browser console and the xterm panel.
+ */
+async function runNodeDiagnostic(wc: WebContainer, filename: string, script: string, label: string) {
+  if (!isDebugEnabled())
+    return
+  try {
+    await wc.fs.writeFile(filename, script, 'utf-8')
+  }
+  catch (err) {
+    console.error(`[${label}] failed to write ${filename}`, err)
+    return
+  }
+
+  try {
+    const process = await wc.spawn('node', [filename])
+    const reader = process.output.getReader()
+    let output = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done)
+        break
+      output += value
+    }
+    await process.exit
+
+    const text = `[${label}]\n${output.trim()}`
+    // eslint-disable-next-line no-console
+    console.log(text)
+    if (import.meta.client)
+      window.dispatchEvent(new CustomEvent<string>('amoxtli:vite-diag', { detail: text }))
+  }
+  catch (err) {
+    console.error(`[${label}] failed to run node ${filename}`, err)
+  }
+}
+
+/**
+ * TEMPORARY DEBUG: Inspect the runtime's `node:module` shim for a working
+ * `createRequire`.
+ */
+async function logModuleDiagnostics(wc: WebContainer) {
+  if (!isDebugEnabled())
+    return
+  const script = [
+    'const m = require(\'node:module\');',
+    'console.log(\'DEBUG typeof createRequire:\', typeof m.createRequire);',
+    'console.log(\'DEBUG keys:\', JSON.stringify(Object.keys(m)));',
+    'console.log(\'DEBUG own prop:\', Object.prototype.hasOwnProperty.call(m, \'createRequire\'));',
+  ].join('\n')
+  await runNodeDiagnostic(wc, 'debug.js', script, 'module-diag')
+}
+
+/**
+ * TEMPORARY DEBUG: Does `require('vite')` reproduce the failure, and does the
+ * state of `node:module` change afterwards?
+ */
+async function logModuleDiagnostics2(wc: WebContainer) {
+  if (!isDebugEnabled())
+    return
+  const script = [
+    'console.log(\'A typeof:\', typeof require(\'node:module\').createRequire);',
+    'try {',
+    '  const vite = require(\'vite\');',
+    '  console.log(\'B vite loaded, createServer:\', typeof vite.createServer);',
+    '} catch (e) {',
+    '  console.log(\'C vite FAILED:\', e.message);',
+    '  console.log(\'C top of stack:\', e.stack.split(\'\\n\').slice(0, 3).join(\' | \'));',
+    '}',
+    'console.log(\'D typeof:\', typeof require(\'node:module\').createRequire);',
+    'console.log(\'D keys:\', JSON.stringify(Object.keys(require(\'node:module\'))));',
+  ].join('\n')
+  await runNodeDiagnostic(wc, 'debug2.js', script, 'module-diag2')
+}
+
+/**
+ * TEMPORARY DEBUG: HMR bridge probes — check if almostnode's Vite HMR bridge
+ * is wired inside the container (createServer wrapped + ws shim present).
+ */
+async function logHmrBridgeDiagnostics(wc: WebContainer) {
+  if (!isDebugEnabled())
+    return
+  // Probe 2: is createServer wrapped by almostnode-vite-hmr-bridge?
+  const probe2 = [
+    'try {',
+    '  const v = require(\'vite\');',
+    '  const name = v.createServer?.name || \'unnamed\';',
+    '  const body = v.createServer?.toString()?.slice(0, 500) || \'\';',
+    '  const wrapped = body.includes(\'almostnode-vite-hmr-bridge\');',
+    '  console.log(\'PROBE2 createServer.name:\', name);',
+    '  console.log(\'PROBE2 WRAPPED:\', wrapped);',
+    '  console.log(\'PROBE2 body_head:\', body.slice(0, 300));',
+    '} catch(e) {',
+    '  console.log(\'PROBE2 ERROR:\', e.message);',
+    '}',
+  ].join('\n')
+  await runNodeDiagnostic(wc, 'probe2.js', probe2, 'hmr-bridge-probe2')
+
+  // Probe 3: is the ws shim's _setupHmrBridge present?
+  const probe3 = [
+    'try {',
+    '  const WS = require(\'ws\').WebSocketServer;',
+    '  const hasBridge = !!WS.prototype._setupHmrBridge;',
+    '  const keys = Object.getOwnPropertyNames(WS.prototype).join(\', \');',
+    '  console.log(\'PROBE3 SOCKET_BRIDGE:\', hasBridge);',
+    '  console.log(\'PROBE3 WS.prototype keys:\', keys);',
+    '} catch(e) {',
+    '  console.log(\'PROBE3 ws ERROR:\', e.message);',
+    '}',
+  ].join('\n')
+  await runNodeDiagnostic(wc, 'probe3.js', probe3, 'hmr-bridge-probe3')
+}
+
+/**
+ * TEMPORARY DEBUG: Check if BroadcastChannel('vite-hmr-bridge') is reachable
+ * from the parent page. Answers whether cross-frame transport can work.
+ */
+function logBroadcastChannelProbe() {
+  if (!import.meta.client || !isDebugEnabled())
+    return
+  try {
+    const bc = new BroadcastChannel('vite-hmr-bridge-test')
+    bc.postMessage({ probe: true, ts: Date.now() })
+    bc.close()
+    const msg = '[HMR-DIAG] BroadcastChannel OK from parent page'
+    console.warn(msg)
+    window.dispatchEvent(new CustomEvent<string>('amoxtli:vite-diag', { detail: msg }))
+  }
+  catch (e) {
+    const msg = `[HMR-DIAG] BroadcastChannel FAIL from parent page: ${e instanceof Error ? e.message : e}`
+    console.error(msg)
+    window.dispatchEvent(new CustomEvent<string>('amoxtli:vite-diag', { detail: msg }))
+  }
+}
 
 export const usePlaygroundStore = defineStore('playground', () => {
   // console.warn('🔍 [DEBUG] Playground store being created/accessed', {
@@ -70,7 +305,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
       return
 
     const [wc, loadedTemplates] = await Promise.all([
-      import('@webcontainer/api')
+      import('almostnode/webcontainer')
         .then(({ WebContainer }) => WebContainer.boot()),
 
       Promise.all(
@@ -87,6 +322,18 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
     webcontainer.value = wc
 
+    if (import.meta.client && isDebugEnabled()) {
+      (window as any).__viteDiag = async () => {
+        await logViteDiagnostics(wc)
+        await logViteBinHead(wc)
+        await logModuleDiagnostics(wc)
+        await logModuleDiagnostics2(wc)
+        await logHmrBridgeDiagnostics(wc)
+        logBroadcastChannelProbe()
+      }
+      logBroadcastChannelProbe()
+    }
+
     const defaultTemplate = templatesMap.html
 
     Object.entries(defaultTemplate)
@@ -100,6 +347,8 @@ export const usePlaygroundStore = defineStore('playground', () => {
         }
         preview.updateUrl()
         status.value = 'ready'
+        // Fire-and-forget: run HMR bridge probes after server is ready
+        logHmrBridgeDiagnostics(wc).catch(() => {})
       }
     })
 
@@ -156,6 +405,12 @@ export const usePlaygroundStore = defineStore('playground', () => {
           if (pkgFile)
             lastInstalledPackageJson = pkgFile.read()
           status.value = 'start'
+          await logViteDiagnostics(wc)
+          await logViteBinHead(wc)
+          await logModuleDiagnostics(wc)
+          await logModuleDiagnostics2(wc)
+          await logHmrBridgeDiagnostics(wc)
+          logBroadcastChannelProbe()
         }
       }
       catch {
@@ -209,6 +464,14 @@ export const usePlaygroundStore = defineStore('playground', () => {
     }
 
     hasInstalled = true
+    // almostnode can't execute vite's bin as-is (top-level await), so patch it
+    await patchViteBinForAlmostnode(wc)
+    await logViteDiagnostics(wc)
+    await logViteBinHead(wc)
+    await logModuleDiagnostics(wc)
+    await logModuleDiagnostics2(wc)
+    await logHmrBridgeDiagnostics(wc)
+    logBroadcastChannelProbe()
     // Track what was installed so we can detect dep changes later
     const pkgFile = files.get('package.json')
     if (pkgFile)
@@ -258,7 +521,10 @@ export const usePlaygroundStore = defineStore('playground', () => {
       })
     })
 
-    await spawn(wc, 'pnpm', args)
+    const devExitCode = await spawn(wc, 'pnpm', args)
+    if (devExitCode !== 0) {
+      console.error(`[playground] Dev server exited with code ${devExitCode}`)
+    }
     await serverReady
   }
 

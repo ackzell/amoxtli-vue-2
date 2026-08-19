@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-The live preview is a **WebContainer-based** system where user code runs in a **real, full Node.js environment inside the browser** (via `@webcontainer/api`). The preview output is displayed inside an **iframe**, communicating with the parent page via **`postMessage`-based RPC** (using the `birpc` library).
+The live preview is an **almostnode-based** system where user code runs in a **real, full Node.js environment inside the browser** (via the local `almostnode` fork's `webcontainer` facade, a drop-in `@webcontainer/api` replacement). The preview output is displayed inside an **iframe**, communicating with the parent page via **`postMessage`-based RPC** (using the `birpc` library).
 
 ### High-Level Flow
 
@@ -314,3 +314,23 @@ When a `.template/files/` file changes in development:
 3. The playground store handles this and writes the updated content to the WebContainer's virtual filesystem
 4. Since Vite is running inside the WebContainer, the preview auto-updates via Vite HMR
 5. The module also invalidates Vite's module graph and touches the sibling `.md` file to bust Nuxt Content cache
+
+## Debugging the Container (almostnode)
+
+Set `window.__almostnodeDebug = true` in the browser console **before** triggering a
+playground mount. All diagnostic output appears in both the browser console and the
+xterm terminal panel via the `amoxtli:vite-diag` custom event.
+
+Diagnostics gated behind this flag:
+
+| Probe | Source | What it checks |
+|-------|--------|----------------|
+| `logViteDiagnostics` | `playground.ts` | Vite version + chunk.js shape in node_modules |
+| `logViteBinHead` | `playground.ts` | First 5 lines of `vite/bin/vite.js` (patched?) |
+| `logModuleDiagnostics` | `playground.ts` | `node:module` shim — `createRequire` presence |
+| `logModuleDiagnostics2` | `playground.ts` | `require('vite')` success + `createServer` type |
+| `logHmrBridgeDiagnostics` | `playground.ts` | **Probe 2**: `createServer` wrapped by almostnode? **Probe 3**: ws shim `_setupHmrBridge` present? |
+| `logBroadcastChannelProbe` | `playground.ts` | BroadcastChannel('vite-hmr-bridge') reachable from parent? |
+| `checkHmrBridge` | `PanelPreviewClient.client.vue` | **Probe 1**: Fetched `@vite/client` contains HMR bridge shim? |
+
+To run all probes manually: `window.__viteDiag()` (only registered when debug is on).

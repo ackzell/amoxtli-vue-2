@@ -86,6 +86,43 @@ function syncColorMode() {
   }, '*')
 }
 
+/**
+ * TEMPORARY DEBUG — Probe 1: Fetch the served @vite/client module through the
+ * virtual proxy and check if the almostnode HMR bridge shim was injected.
+ * Results go to browser console + xterm panel via amoxtli:vite-diag event.
+ */
+async function checkHmrBridge() {
+  if (!(window as any).__almostnodeDebug)
+    return
+  if (!preview.url)
+    return
+  try {
+    const clientUrl = new URL('@vite/client', preview.url).href
+    const response = await fetch(clientUrl)
+    const text = await response.text()
+    const hasShim = text.includes('window.__almostnodeViteHmrBridge')
+    const detail = [
+      `[HMR-DIAG] Probe 1 — @vite/client from: ${clientUrl}`,
+      `[HMR-DIAG] length: ${text.length}`,
+      `[HMR-DIAG] HAS_SHIM: ${hasShim}`,
+      `[HMR-DIAG] first 200: ${text.slice(0, 200)}`,
+    ].join('\n')
+    // eslint-disable-next-line no-console
+    console.log(detail)
+    window.dispatchEvent(new CustomEvent<string>('amoxtli:vite-diag', { detail }))
+  }
+  catch (e) {
+    const detail = `[HMR-DIAG] Probe 1 FAILED: ${e instanceof Error ? e.message : e}`
+    console.error(detail)
+    window.dispatchEvent(new CustomEvent<string>('amoxtli:vite-diag', { detail }))
+  }
+}
+
+function onLoad() {
+  syncColorMode()
+  checkHmrBridge()
+}
+
 watch(
   colorMode,
   syncColorMode,
@@ -104,6 +141,6 @@ defineExpose({
     :src="preview.url"
     :class="{ 'pointer-events-none': ui.isPanelDragging }"
     bg-transparent h-full w-full inset-0 absolute allow="geolocation; microphone; camera; payment; autoplay; serial; cross-origin-isolated"
-    @load="syncColorMode"
+    @load="onLoad"
   />
 </template>
