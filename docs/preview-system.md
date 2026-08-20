@@ -334,3 +334,33 @@ Diagnostics gated behind this flag:
 | `checkHmrBridge` | `PanelPreviewClient.client.vue` | **Probe 1**: Fetched `@vite/client` contains HMR bridge shim? |
 
 To run all probes manually: `window.__viteDiag()` (only registered when debug is on).
+
+---
+
+## Interactive Terminal & Console Filtering
+
+### jsh Shell
+
+Pressing **Ctrl+C** in the terminal panel kills the running Vite process, displays `^C`, and drops into an interactive **jsh** shell with a `$ ` prompt.
+
+`jsh` is a custom command registered in almostnode's `child_process.ts` before the bash instance is created. It implements a minimal REPL loop:
+
+- Reads stdin via the global `_activeProcessStdin` EventEmitter (set by the streaming spawn path).
+- Writes output to `_streamStdout` / `_streamStderr`.
+- Builtins: `cd`, `pwd`, `exit`.
+- Subcommands are dispatched through `ctx.exec()` (just-bash interpreter), which re-claims `_activeProcessStdin` after each command returns.
+- Respects `_abortSignal` so Ctrl+C during a subcommand also works.
+
+### Console Output Filtering (host-page noise)
+
+`wrapGlobalConsole()` replaces `globalThis.console` methods to route output into the process stream (and thus the terminal panel). Problem: host-page libraries (e.g., `floating-vue`) also call `console.log` from the browser context, and their noise leaks into the terminal.
+
+**Solution**: call-stack inspection. When a wrapped console method fires, `new Error().stack` is captured and checked against `HOST_PAGE_FRAME_PATTERNS` (currently `['floating-vue', 'floatingVue', 'FloatingVue']`). If any pattern matches, the call is skipped (not routed to the stream).
+
+Container code (Vite, user modules) has stack frames with virtual FS paths (`/node_modules/...`, `/src/...`) and does not match host-page patterns, so it passes through normally.
+
+To filter additional host-page libraries, add their names to the `HOST_PAGE_FRAME_PATTERNS` array in `child_process.ts`.
+
+### Streaming Callback Race Condition Fix
+
+almostnode's module-level globals (`_streamStdout`, `_streamStderr`, `_abortSignal`, `_activeProcessStdin`) mean only one process's output can be active at a time. A race existed where `clearStreamingCallbacks()` was called inside `spawnProcess`'s exec callback, which could wipe a newly spawned process's callbacks on fast kill→respawn. The fix removes that call — `setStreamingCallbacks()` in the next process overwrites the globals anyway.
