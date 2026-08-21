@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.4](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.3...v0.2.4) (2026-08-21)
+
+
+### Bug Fixes
+
+* share MonacoEnvironment installer between playground and VueLive ([9862654](https://github.com/ackzell/amoxtli-vue-2/commit/9862654f163f399e40e4a205524ce5e2b0ce34f4))
+
 ## [0.2.3](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.2...v0.2.3) (2026-08-21)
 
 
