@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.5](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.4...v0.2.5) (2026-08-21)
+
 ## [0.2.4](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.3...v0.2.4) (2026-08-21)
 
 
