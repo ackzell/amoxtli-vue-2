@@ -5,6 +5,7 @@ import * as volar from '@volar/monaco'
 import { editor, languages, Uri } from 'monaco-editor-core'
 import { basename, dirname } from 'pathe'
 import stripJsonComments from 'strip-json-comments'
+import { ensureMonacoEnvironment } from './environment'
 import { getOrCreateModel } from './utils'
 
 export type PlaygroundMonacoContext = Pick<PlaygroundStore, 'webcontainer' | 'files'>
@@ -78,6 +79,10 @@ export class WorkerHost {
 
 let disposeVue: undefined | (() => void)
 export async function reloadLanguageTools(ctx: PlaygroundMonacoContext) {
+  // Defensive: guarantee the correct worker mapping even if another consumer
+  // mounted first or the global was replaced at runtime.
+  ensureMonacoEnvironment()
+
   disposeVue?.()
 
   // eslint-disable-next-line no-console
