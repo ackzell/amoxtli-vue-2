@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { LogPayload } from '~/types/console-output'
 import { shikiToMonaco } from '@shikijs/monaco'
-import EditorWorker from 'monaco-editor-core/esm/vs/editor/editor.worker?worker'
 import { useSandboxPreview } from '~/composables/useSandboxPreview'
 import { useSfcCompiler } from '~/composables/useSfcCompiler'
+import { ensureMonacoEnvironment } from '~/monaco/environment'
 import { vue as vueConfig } from '~/monaco/language-configs'
 import { getShiki } from '~/monaco/shiki'
 
@@ -177,11 +177,7 @@ onMounted(async () => {
     import('monaco-editor-core/esm/vs/editor/common/services/treeViewsDndService'),
   ])
 
-  ;(window as any).MonacoEnvironment = {
-    getWorker() {
-      return new EditorWorker()
-    },
-  }
+  ensureMonacoEnvironment()
 
   monaco.languages.register({ id: 'vue', extensions: ['.vue'] })
   monaco.languages.setLanguageConfiguration('vue', vueConfig)

@@ -1,43 +1,11 @@
-/* eslint-disable no-restricted-globals */
-/* eslint-disable new-cap */
 import * as monaco from 'monaco-editor-core'
-import editorWorker from 'monaco-editor-core/esm/vs/editor/editor.worker?worker'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 
 import { reloadLanguageTools } from './env'
+import { ensureMonacoEnvironment } from './environment'
 import * as languageConfigs from './language-configs'
 
-import vueWorker from './vue.worker?worker'
-
 export function initMonaco(ctx: PlaygroundStore) {
-  self.MonacoEnvironment = {
-    async getWorker(_: any, label: string) {
-      switch (label) {
-        case 'typescript':
-        case 'javascript':
-        case 'vue':
-          return new vueWorker()
-
-        case 'json':
-          return new jsonWorker()
-
-        case 'css':
-        case 'scss':
-        case 'less':
-          return new cssWorker()
-
-        case 'html':
-        case 'handlebars':
-        case 'razor':
-          return new htmlWorker()
-
-        default:
-          return new editorWorker()
-      }
-    },
-  }
+  ensureMonacoEnvironment()
 
   monaco.languages.register({ id: 'vue', extensions: ['.vue'] })
   monaco.languages.register({ id: 'javascript', extensions: ['.js'] })
