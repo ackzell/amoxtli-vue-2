@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.2.3](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.2...v0.2.3) (2026-08-21)
+
+
+### Bug Fixes
+
+* **almostnode:** fixing logs, terminal interaction and build not honoring docs only lessons ([2521245](https://github.com/ackzell/amoxtli-vue-2/commit/2521245fe4b86fec7266242a574a083574fef88d))
+* replace import.meta.glob with virtual module for guide-meta-map ([f84ca24](https://github.com/ackzell/amoxtli-vue-2/commit/f84ca24a6b1329c9fd49de0777b726b80cb9d643))
+
 ## [0.2.2](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.1...v0.2.2) (2026-08-19)
 
 ## [0.2.1](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.0...v0.2.1) (2026-08-19)
