@@ -239,5 +239,59 @@ export default defineNuxtModule({
         }
       },
     })
+
+    // ── Virtual module: guide-meta-map ──
+    // import.meta.glob doesn't work in vite 8 / rolldown builds (resolves to empty).
+    // We scan content/**/.template/index.ts with fast-glob at build time and generate
+    // a virtual module with lazy-loading imports for each lesson's meta.
+    const virtualId = 'virtual:guide-meta-map'
+    const resolvedVirtualId = `\0${virtualId}`
+
+    addVitePlugin({
+      name: 'nuxt-playground:guide-meta-map',
+      enforce: 'pre',
+
+      resolveId(id) {
+        if (id === virtualId)
+          return resolvedVirtualId
+      },
+
+      async load(id) {
+        if (id !== resolvedVirtualId)
+          return
+
+        const contentDir = join(process.cwd(), 'content')
+        const files = await fg(['**/.template/index.ts'], {
+          cwd: contentDir,
+          dot: true,
+          absolute: true,
+          onlyFiles: true,
+          ignore: ['**/node_modules/**'],
+        })
+
+        const entries: [string, string][] = files
+          .sort()
+          .map((filePath) => {
+            // contentDir = /Users/.../content, filePath = /Users/.../content/en/01.intro/01.context/.template/index.ts
+            const relativePath = relative(contentDir, filePath)
+            // en/01.intro/01.context/.template/index.ts
+            const routePath = `/${
+              relativePath
+                .replace(/\/\.template\/index\.ts$/, '')
+                .split('/')
+                .map(part => part.replace(/^\d+[a-z]*\./i, ''))
+                .join('/')
+            }`
+
+            return [routePath, filePath]
+          })
+
+        const importLines = entries.map(([route, filePath]) =>
+          `  ${JSON.stringify(route)}: () => import(${JSON.stringify(filePath)})`,
+        )
+
+        return `const map = {\n${importLines.join(',\n')}\n};\nexport default map;\n`
+      },
+    })
   },
 })

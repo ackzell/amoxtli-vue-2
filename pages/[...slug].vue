@@ -5,16 +5,7 @@ const guide = useGuideStore()
 const { width: windowWidth } = useWindowSize()
 const isMobile = computed(() => windowWidth.value > 0 && windowWidth.value < 768)
 
-const templatesMap = Object.fromEntries(
-  Object.entries(import.meta.glob('~/content/**/.template/index.ts'))
-    .map(([key, loader]) => [
-      key
-        .replace(/^\/content/, '')
-        .replace(/\/\.template\/index\.ts$/, '')
-        .replace(/\/\d+[a-z]*\./gi, '/'),
-      loader,
-    ]),
-)
+const templatesMap = await import('virtual:guide-meta-map').then(m => m.default)
 
 function normalizePath(path: string) {
   return path.replace(/\/$/, '').replace(/\/\d+[a-z]*\./gi, '/')

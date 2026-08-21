@@ -20,6 +20,8 @@ export type PlaygroundStatus = typeof PlaygroundStatusOrder[number] | 'error'
 
 const DEV_SERVER_PORT = 5173
 
+const DEBUG = false
+
 /**
  * Enable almostnode / container debugging by setting
  * `window.__almostnodeDebug = true` in the browser console before
@@ -421,9 +423,13 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
     if (!hasInstalled)
       await launchInstallProcess(wc, signal)
+    if (signal.aborted)
+      return
 
     if (hasInstalled)
       await launchDevServerProcess(wc, signal)
+    if (signal.aborted)
+      return
 
     await launchInteractiveProcess(wc, signal)
   }
@@ -439,9 +445,9 @@ export const usePlaygroundStore = defineStore('playground', () => {
       },
     })
     currentProcess.value = process
-    console.log(`[playground-debug] currentProcess set | cmd=${command} args=${args.join(' ')}`)
+    if (DEBUG)
+      console.log(`[playground-debug] currentProcess set | cmd=${command} args=${args.join(' ')}`)
     return process.exit.then((r) => {
-      console.log(`[playground-debug] process exited | cmd=${command} | code=${r}`)
       if (currentProcess.value === process)
         currentProcess.value = undefined
       return r
@@ -522,6 +528,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
       signal.addEventListener('abort', () => {
         clearTimeout(timeout)
         clearInterval(interval)
+        resolve()
       })
     })
 
@@ -537,6 +544,17 @@ export const usePlaygroundStore = defineStore('playground', () => {
       return
     status.value = 'interactive'
     await spawn(wc, 'jsh')
+  }
+
+  async function spawnShell() {
+    const wc = webcontainer.value
+    if (!wc)
+      return
+    status.value = 'interactive'
+    try {
+      await spawn(wc, 'jsh')
+    }
+    catch {}
   }
 
   const CONSOLE_INTERCEPTOR_SCRIPT = `<script type="module">
@@ -672,6 +690,8 @@ export const usePlaygroundStore = defineStore('playground', () => {
     status: safeStatus,
     error: safeError,
     currentProcess: safeCurrentProcess,
+    killPreviousProcess,
+    spawnShell,
 
     restartServer: startServer,
 

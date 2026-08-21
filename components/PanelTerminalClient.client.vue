@@ -6,12 +6,13 @@ import themeDark from 'theme-vitesse/extra/xterm-vitesse-dark.json'
 import themeLight from 'theme-vitesse/extra/xterm-vitesse-light.json'
 import '@xterm/xterm/css/xterm.css'
 
+const DEBUG = false
+
 let globalTerminal: Terminal | undefined
 let globalFitAddon: FitAddon | undefined
 let currentProcess: any
 let currentReader: any
 let onDataDisposable: { dispose: () => void } | undefined
-let init = false
 </script>
 
 <script setup lang="ts">
@@ -76,7 +77,6 @@ watch(
     return play.currentProcess
   },
   (p) => {
-    console.log(`[term-debug] watcher fired | process=${!!p} | globalTerminal=${!!globalTerminal}`)
     if (currentProcess === p) {
       return // Already bound to this process
     }
@@ -102,27 +102,15 @@ watch(
       const readerToUse = currentReader
       function read() {
         readerToUse.read().then(({ done, value }) => {
-          if (done) {
-            console.log('[term-debug] stream done')
-          }
           if (value && globalTerminal) {
-            console.log(`[term-debug] read chunk | type=${typeof value} | len=${value.length}`)
+            if (DEBUG) console.log(`[term-debug] read chunk | type=${typeof value} | len=${value.length}`)
             globalTerminal.write(value)
+            globalTerminal.refresh(0, globalTerminal.rows - 1)
             globalTerminal.scrollToBottom()
           }
           if (!done && currentReader === readerToUse)
             read()
-        })
-      }
-
-      if (!init) {
-        init = true
-      }
-      else {
-        globalTerminal.writeln('')
-        globalTerminal.writeln(`-------------`)
-        globalTerminal.writeln('')
-        globalTerminal.scrollToBottom()
+        }).catch(() => {})
       }
 
       read()
@@ -134,6 +122,16 @@ watch(
     try {
       const writer = p.input.getWriter()
       onDataDisposable = globalTerminal.onData((data) => {
+        if (data === '\x03') {
+          const play = usePlaygroundStore()
+          if (play.currentProcess) {
+            play.killPreviousProcess()
+            globalTerminal?.write('^C\r\n')
+            if (globalTerminal) globalTerminal.refresh(0, globalTerminal.rows - 1)
+            play.spawnShell().catch(() => {})
+          }
+          return
+        }
         try {
           writer.write(data)
         }
@@ -162,6 +160,7 @@ function onViteDiag(e: Event) {
     globalTerminal.writeln('')
     globalTerminal.write(text.replace(/\n/g, '\r\n'))
     globalTerminal.writeln('')
+    globalTerminal.refresh(0, globalTerminal.rows - 1)
     globalTerminal.scrollToBottom()
   }
 }
