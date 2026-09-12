@@ -91,7 +91,7 @@
     "@unocss/eslint-plugin": "catalog:dev",
     "@unocss/extractor-mdc": "catalog:nuxt",
     "@unocss/nuxt": "catalog:nuxt",
-    "@vue/test-utils": "^2.5.0",
+    "@vue/test-utils": "catalog:",
     "@vueuse/nuxt": "catalog:nuxt",
     "better-sqlite3": "catalog:dev",
     "commit-and-tag-version": "catalog:dev",
@@ -100,7 +100,7 @@
     "eslint-plugin-format": "catalog:dev",
     "execa": "catalog:dev",
     "fast-glob": "catalog:dev",
-    "happy-dom": "^18.0.1",
+    "happy-dom": "catalog:",
     "nuxi": "catalog:nuxt",
     "nuxt": "catalog:nuxt",
     "pinia": "catalog:nuxt",
@@ -108,7 +108,7 @@
     "typescript": "catalog:dev",
     "unocss-preset-animations": "catalog:dev",
     "v-code-diff": "catalog:frontend",
-    "vue": "^3.5.41",
+    "vue": "catalog:frontend",
     "vue-tsc": "catalog:dev",
     "wrangler": "catalog:dev"
   }
