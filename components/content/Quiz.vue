@@ -99,7 +99,7 @@ function optionState(q: ResolvedQuizQuestion, oid: string) {
   const selected = isSelected(q, oid)
   const isAnswer = q.answer.includes(oid)
   if (!revealAnswers.value)
-    return { selected, isAnswer, incorrect: false, missed: false }
+    return { selected, isAnswer, missed: false }
   return {
     selected,
     isAnswer,
@@ -110,12 +110,10 @@ function optionState(q: ResolvedQuizQuestion, oid: string) {
 
 function optionClass(q: ResolvedQuizQuestion, oid: string): string {
   const s = optionState(q, oid)
-  if (s.incorrect)
-    return 'border-negative/60 bg-negative/5 text-negative'
-  if (s.missed)
-    return 'border-positive/60 bg-positive/5 text-positive'
   if (s.selected)
     return 'border-challenge bg-bgr-100/60 dark:bg-bgr-700/60'
+  if (s.missed)
+    return 'border-positive/60 bg-positive/5 text-positive'
   return 'border-base hover:border-challenge-700/60 hover:bg-bgr-100/20 dark:hover:bg-bgr-700/20'
 }
 
@@ -258,11 +256,11 @@ function retake() {
       <div
         flex="~ gap-2 items-center"
         text-sm px3 py1.5 rounded-lg
-        :class="passed ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'"
+        :class="completed && passed ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'"
       >
-        <div :class="passed ? 'i-mynaui-check-hexagon-solid' : 'i-mynaui-danger-hexagon-solid'" flex-none />
+        <div :class="completed && passed ? 'i-mynaui-check-hexagon-solid' : 'i-mynaui-danger-hexagon-solid'" flex-none />
         <span font-medium>
-          {{ passed ? $t('quiz.passed') : $t('quiz.failed') }}
+          {{ completed && passed ? $t('quiz.passed') : $t('quiz.failed') }}
         </span>
         <span data-testid="quiz-score" op70>
           {{ $t('quiz.score', { score: result?.score, total: result?.total }) }}
