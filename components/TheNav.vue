@@ -167,6 +167,7 @@ addCommands(
 )
 
 const isFeedbackOpen = ref(false)
+const isChangelogOpen = ref(false)
 </script>
 
 <template>
@@ -179,7 +180,15 @@ const isFeedbackOpen = ref(false)
         {{ $t('amoxtli-vue') }}
       </div>
       <div class="text-xs text-foreground/50 dark:text-foreground-dark/50">
-        {{ $t('a-book-about-vue') }} <span class="text-foreground/55" text-xs font-code inline-block dark:text-primary-dark dark:op65>{{ `[v${version}]` }}</span>
+        {{ $t('a-book-about-vue') }}
+        <button
+          type="button"
+          class="text-xs text-foreground/55 font-code underline-offset-2 inline-block cursor-pointer transition-opacity dark:text-primary-dark hover:text-primary dark:op80 hover:op100 hover:underline dark:hover:text-primary-dark"
+          :title="$t('changelog.title')"
+          @click="isChangelogOpen = true"
+        >
+          {{ `[v${version}]` }}
+        </button>
       </div>
     </div>
     <div class="mx-2 max-w-2xl hidden md:flex md:flex-1">
@@ -352,6 +361,9 @@ const isFeedbackOpen = ref(false)
             <div i-ph-chat-circle-duotone text-xl text-primary dark:text-primary-dark />
           </IconButton>
         </FeedbackWidget>
+      </ClientOnly>
+      <ClientOnly>
+        <ChangelogDialog v-model:open="isChangelogOpen" />
       </ClientOnly>
     </div>
   </nav>

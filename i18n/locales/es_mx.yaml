@@ -138,3 +138,10 @@ feedback:
   toast-success-desc: De verdad aprecio que te hayas tomado el tiempo de compartir tu opinión.
   toast-error: Algo salió mal
   toast-error-desc: No se pudo enviar el comentario. Intenta de nuevo.
+changelog:
+  title: Registro de cambios
+  description: Qué ha cambiado entre versiones.
+  latest: última
+  see-all-changes: Ver todos los cambios en GitHub
+  show-earlier: Mostrar versiones anteriores ({count})
+  show-less: Mostrar menos

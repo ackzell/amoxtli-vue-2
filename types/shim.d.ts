@@ -49,3 +49,7 @@ declare module 'virtual:quiz-map' {
   const map: Record<string, import('./quiz').QuizMapEntry>
   export default map
 }
+declare module '*.md?raw' {
+  const src: string
+  export default src
+}

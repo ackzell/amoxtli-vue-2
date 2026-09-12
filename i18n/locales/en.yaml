@@ -159,3 +159,10 @@ magic-move:
   previous-step: Previous step
   next-step: Next step
 update-the-code-in-the-playground-and-click-check-my-work: Update the code in the playground and click "Check my work"
+changelog:
+  title: Changelog
+  description: What's changed between releases.
+  latest: latest
+  see-all-changes: See all changes on GitHub
+  show-earlier: Show earlier versions ({count})
+  show-less: Show less
