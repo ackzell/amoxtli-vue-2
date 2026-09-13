@@ -17,12 +17,18 @@ function showDocs() {
   if (isDocsOnly.value)
     return
   ui.setMainViewMode('docs')
+  nextTick(() => {
+    document.getElementById('main-content')?.focus()
+  })
 }
 
 function showCode() {
   if (isDocsOnly.value)
     return
   ui.setMainViewMode('code')
+  nextTick(() => {
+    document.getElementById('amx-code-pane')?.focus()
+  })
 }
 </script>
 

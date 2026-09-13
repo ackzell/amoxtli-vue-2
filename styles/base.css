@@ -132,3 +132,41 @@ body {
   color: var(--av-text-primary);
   transition: color 0.4s ease;
 }
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 8px;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--colors-bgr-50, #fff);
+  color: var(--av-text-primary);
+  border: 1px solid var(--colors-primary-700, #005fcc);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  font-size: 0.9rem;
+}
+
+.skip-link:focus-visible {
+  top: 8px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--colors-primary-700, #005fcc);
+  outline-offset: 2px;
+}
+
+:root.dark :focus-visible {
+  outline-color: var(--colors-primary-dark-300, #f2a6cc);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

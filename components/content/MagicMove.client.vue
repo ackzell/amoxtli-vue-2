@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ShikiMagicMove } from '@shikijs/magic-move/vue'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import '@shikijs/magic-move/style.css'
 
 const props = defineProps<{
@@ -81,11 +81,36 @@ function next() {
     currentStep.value++
 }
 
-function handleKey(e: KeyboardEvent) {
-  if (e.key === 'ArrowRight')
-    next()
-  if (e.key === 'ArrowLeft')
-    prev()
+const tablistRef = ref<HTMLElement>()
+
+function focusTab(index: number) {
+  tablistRef.value
+    ?.querySelector<HTMLButtonElement>(`[data-tab-index="${index}"]`)
+    ?.focus()
+}
+
+function onTablistKeydown(e: KeyboardEvent) {
+  const count = steps.value.length
+  if (count === 0)
+    return
+  let target: number | undefined
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    target = (currentStep.value + 1) % count
+  }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    target = (currentStep.value - 1 + count) % count
+  }
+  else if (e.key === 'Home') {
+    target = 0
+  }
+  else if (e.key === 'End') {
+    target = count - 1
+  }
+  if (target === undefined)
+    return
+  e.preventDefault()
+  currentStep.value = target
+  nextTick(() => focusTab(target!))
 }
 
 function handleIncreaseFontSize() {
@@ -123,9 +148,6 @@ function handleCopy() {
     class="magic-move-slot-container my-8 outline-none rounded-md overflow-hidden hover:shadow-md"
     bg="bgr-50 dark:bgr-900"
     border="~ bgr-700/10 dark:bgr-50/10"
-    focus-visible:ring-1 focus-visible:ring-primary-300 dark:focus-visible:ring-primary-dark-900
-    tabindex="0"
-    @keydown="handleKey"
   >
     <!-- top bar -->
     <div
@@ -140,7 +162,7 @@ function handleCopy() {
           :tooltip="$t('magic-move.previous-step')"
           @click="prev"
         >
-          <div i-mynaui-chevron-left h4 w4 />
+          <div aria-hidden="true" i-mynaui-chevron-left h4 w4 />
         </IconButton>
 
         <IconButton
@@ -150,17 +172,22 @@ function handleCopy() {
           :tooltip="$t('magic-move.next-step')"
           @click="next"
         >
-          <div i-mynaui-chevron-right h4 w4 />
+          <div aria-hidden="true" i-mynaui-chevron-right h4 w4 />
         </IconButton>
       </div>
 
       <!-- Step pills -->
-      <div flex gap-2 role="tablist" aria-label="Code steps">
+      <div ref="tablistRef" flex gap-2 role="tablist" aria-label="Code steps" @keydown="onTablistKeydown">
         <button
           v-for="(_, i) in steps"
+          :id="`mm-${instanceId}-tab-${i}`"
           :key="i"
+          :data-tab-index="i"
+          type="button"
           role="tab"
           :aria-selected="i === currentStep"
+          :aria-controls="`mm-${instanceId}-panel`"
+          :tabindex="i === currentStep ? 0 : -1"
           class="text-[11px] font-mono p-0 border rounded-full grid h6.5 w6.5 cursor-pointer transition-colors duration-180 place-items-center"
           :class="i === currentStep
             ? 'bg-primary-300 dark:bg-primary-dark-200/90 border-primary-300 dark:border-primary-dark-100 text-slate-900 font-bold'
@@ -172,44 +199,51 @@ function handleCopy() {
       </div>
     </div>
 
-    <Transition name="fade" mode="out-in">
-      <div
-        v-if="currentLabel"
-        :key="currentLabel"
-        text="~ xs primary-700 dark:primary-dark-200"
-        font-mono p1.5 text-center select-none text-wrap
-        class="dark:bg-bgr-800/60"
-      >
-        {{ currentLabel }}
+    <div
+      :id="`mm-${instanceId}-panel`"
+      role="tabpanel"
+      :aria-labelledby="`mm-${instanceId}-tab-${currentStep}`"
+      tabindex="0"
+    >
+      <Transition name="fade" mode="out-in">
+        <div
+          v-if="currentLabel"
+          :key="currentLabel"
+          text="~ xs primary-700 dark:primary-dark-200"
+          font-mono p1.5 text-center select-none text-wrap
+          class="dark:bg-bgr-800/60"
+        >
+          {{ currentLabel }}
+        </div>
+      </Transition>
+
+      <!-- Animated code block -->
+      <div class="shiki-magic-move-container group text-sm min-h-20 relative">
+        <ProsePreDecreaseFontSizeButton
+          right-18 top-2 absolute
+          @decrease-font-size="handleDecreaseFontSize"
+        />
+
+        <ProsePreIncreaseFontSizeButton
+          right-10 top-2 absolute
+          @increase-font-size="handleIncreaseFontSize"
+        />
+
+        <ProsePreCopyButton
+          right-2 top-2 absolute
+          :copied="copied"
+          @copy="handleCopy"
+        />
+
+        <ShikiMagicMove
+          :key="activeTheme"
+          :lang="props.lang ?? 'ts'"
+          :theme="activeTheme"
+          :highlighter="highlighter"
+          :code="currentCode"
+          :options="{ duration: 550, stagger: 0.25, lineNumbers: true }"
+        />
       </div>
-    </Transition>
-
-    <!-- Animated code block -->
-    <div class="shiki-magic-move-container group text-sm min-h-20 relative">
-      <ProsePreDecreaseFontSizeButton
-        right-18 top-2 absolute
-        @decrease-font-size="handleDecreaseFontSize"
-      />
-
-      <ProsePreIncreaseFontSizeButton
-        right-10 top-2 absolute
-        @increase-font-size="handleIncreaseFontSize"
-      />
-
-      <ProsePreCopyButton
-        right-2 top-2 absolute
-        :copied="copied"
-        @copy="handleCopy"
-      />
-
-      <ShikiMagicMove
-        :key="activeTheme"
-        :lang="props.lang ?? 'ts'"
-        :theme="activeTheme"
-        :highlighter="highlighter"
-        :code="currentCode"
-        :options="{ duration: 550, stagger: 0.25, lineNumbers: true }"
-      />
     </div>
 
     <!-- bottom bar -->
@@ -221,25 +255,25 @@ function handleCopy() {
         <IconButton
           tooltip-placement="bottom"
           :disabled="isFirst"
-          aria-label="Previous step"
-          tooltip="Previous step"
+          :aria-label="$t('magic-move.previous-step')"
+          :tooltip="$t('magic-move.previous-step')"
           @click="prev"
         >
-          <div i-mynaui-chevron-left h4 w4 />
+          <div aria-hidden="true" i-mynaui-chevron-left h4 w4 />
         </IconButton>
 
         <IconButton
           tooltip-placement="bottom"
           :disabled="isLast"
-          aria-label="Next step"
-          tooltip="Next step"
+          :aria-label="$t('magic-move.next-step')"
+          :tooltip="$t('magic-move.next-step')"
           @click="next"
         >
-          <div i-mynaui-chevron-right h4 w4 />
+          <div aria-hidden="true" i-mynaui-chevron-right h4 w4 />
         </IconButton>
       </div>
 
-      <span class="text-xs tracking-wide font-mono">
+      <span class="text-xs tracking-wide font-mono" role="status">
         {{ currentStep + 1 }}<span class="mx-1 opacity-40" />{{ $t('slash') }} {{ steps.length }}
       </span>
     </div>

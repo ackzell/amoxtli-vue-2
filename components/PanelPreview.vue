@@ -133,7 +133,7 @@ watch(
           <form w-full @submit.prevent="navigate">
             <input
               v-model="inputUrl" type="text"
-              bg-transparent flex-1 w-full focus:outline-none
+              bg-transparent flex-1 w-full rounded-sm focus:outline-none focus="ring-2 ring-primary/50 dark:ring-primary-dark/50"
             >
           </form>
         </div>

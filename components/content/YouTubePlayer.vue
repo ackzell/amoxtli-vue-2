@@ -41,7 +41,7 @@ const canEmbed = import.meta.client
       ${props.class}
     `"
   >
-    <div i-mynaui-video-solid class="text-bgr-500 flex-shrink-0 h-16 w-16" />
+    <div aria-hidden="true" i-mynaui-video-solid class="text-bgr-500 flex-shrink-0 h-16 w-16" />
 
     <div class="min-w-0">
       <h4 class="text-sm text-bgr-900 leading-tight font-semibold mb-1 dark:text-bgr-100">

@@ -13,15 +13,16 @@ const emit = defineEmits<{
 <template>
   <IconButton
     unstyled
-    tooltip="Copy code to clipboard"
+    :tooltip="copied ? $t('copied-code') : $t('copy-code')"
     tooltip-placement="top"
     border border-base rounded-md bg-base op0
     inline-flex size-7 pointer-events-none
     items-center justify-center z-1
     class="transition-opacity duration-200 group-focus-within/avPre:op75 group-hover/avPre:op75 hover:op100 group-focus-within/avPre:pointer-events-auto group-hover/avPre:pointer-events-auto"
-    aria-label="Copy code to clipboard"
+    :aria-label="copied ? $t('copied-code') : $t('copy-code')"
     @click="emit('copy')"
   >
+    <span class="sr-only" role="status">{{ copied ? $t('copied-code') : '' }}</span>
     <div class="h4 w4 relative">
       <AnimatePresence mode="wait">
         <Motion

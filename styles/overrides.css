@@ -26,6 +26,15 @@
   outline: none;
 }
 
+[data-scope='splitter'][data-part='resize-trigger']:focus-visible {
+  outline: 2px solid var(--colors-primary-700, #005fcc);
+  outline-offset: -2px;
+}
+
+:root.dark [data-scope='splitter'][data-part='resize-trigger']:focus-visible {
+  outline-color: var(--colors-primary-dark-300, #f2a6cc);
+}
+
 [data-scope='splitter'][data-part='resize-trigger'][data-orientation='horizontal'] {
   width: 8px;
   margin: 0 -4px;

@@ -54,7 +54,7 @@ watch(isOpen, (val) => {
                   :title="$t('changelog.see-all-changes')"
                   class="transition-ok op40 flex items-center hover:text-primary hover:op100 dark:hover:text-primary-dark"
                 >
-                  <div i-ph-arrow-square-out text-sm />
+                  <div aria-hidden="true" i-ph-arrow-square-out text-sm />
                 </a>
               </header>
 
@@ -73,7 +73,7 @@ watch(isOpen, (val) => {
                     flex="~ gap-1.5 items-baseline"
                     text-sm leading-snug
                   >
-                    <span i-ph-dot-outline op30 flex-none />
+                    <span aria-hidden="true" i-ph-dot-outline op30 flex-none />
                     <span>
                       <strong v-if="item.scope" text-primary font-medium dark:text-primary-dark>
                         {{ `${item.scope}: ` }}

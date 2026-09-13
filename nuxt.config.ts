@@ -50,9 +50,6 @@ export default defineNuxtConfig({
   app: {
     head: {
       titleTemplate: '%s - Amoxtli Vue',
-      htmlAttrs: {
-        lang: 'en-US',
-      },
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
@@ -478,11 +475,13 @@ export default defineNuxtConfig({
       {
         name: 'English',
         code: 'en',
+        language: 'en-US',
         file: 'en.yaml',
       },
       {
         name: 'Español (MX)',
         code: 'es_mx',
+        language: 'es-MX',
         file: 'es_mx.yaml',
       },
     ],

@@ -54,6 +54,8 @@ const folderCaret = computed(() => {
     <button
       v-if="name"
       hover="bg-active"
+      :aria-expanded="!!props.directory"
+      :aria-current="isFileSelected ? 'true' : undefined"
       :style="{
         paddingLeft: `${0.2 + 0.8 * (props.depth)}rem`,
       }"
@@ -61,12 +63,13 @@ const folderCaret = computed(() => {
       text-sm px2 py1 text-left flex gap-1 w-full items-center
       @click="handleClick"
     >
-      <div :class="folderCaret" flex-none h-4 w-4 />
+      <div :class="folderCaret" flex-none h-4 w-4 aria-hidden="true" />
       <FileIcon
         flex-none h-4 w-4
         :path="name"
         :is-directory="!!props.directory"
         :is-directory-open="isDirectoryOpen"
+        aria-hidden="true"
       />
       <span ml1>{{ name }}</span>
     </button>

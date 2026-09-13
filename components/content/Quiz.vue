@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nextTick } from 'vue'
 import type { QuizResult, ResolvedQuizQuestion } from '~/types/quiz'
 import { gradeQuiz, normalizeLessonPath, useQuiz } from '~/composables/useQuiz'
 import { useQuizProgress } from '~/composables/useQuizProgress'
@@ -128,6 +129,10 @@ function optionMarkerClass(q: ResolvedQuizQuestion, oid: string): string {
   return 'i-mynaui-circle-outline op40'
 }
 
+// Focus targets used by `submit` and `retake`.
+const resultSectionRef = ref<HTMLElement>()
+const submitBtnRef = ref<HTMLButtonElement>()
+
 function submit() {
   if (!quiz.value || submitted.value || !result.value)
     return
@@ -138,6 +143,9 @@ function submit() {
   else {
     void quizzes.recordAttempt(sessionName.value, result.value.percentage)
   }
+  nextTick(() => {
+    resultSectionRef.value?.focus()
+  })
 }
 
 function retake() {
@@ -145,6 +153,9 @@ function retake() {
   submitted.value = false
   retaking.value = true
   reshuffle()
+  nextTick(() => {
+    submitBtnRef.value?.focus()
+  })
 }
 </script>
 
@@ -180,13 +191,13 @@ function retake() {
       p3 rounded-md
     >
       <!-- Question Prompt -->
-      <div flex="~ gap-1 items-start justify-start col" text-medium text-sm>
+      <div :id="`amx-quiz-q-${q.id}`" flex="~ gap-1 items-start justify-start col" text-medium text-sm>
         <span text-lg text-challenge-600 flex-none>{{ $t('quiz.question', { n: qi + 1 }) }}</span>
         <MDC class="amx-md text-challenge-700 dark:text-challenge-200" :value="q.prompt" />
       </div>
 
       <!-- Option List -->
-      <div grid="~ cols-1 sm:cols-2 gap-2">
+      <div grid="~ cols-1 sm:cols-2 gap-2" role="group" :aria-labelledby="`amx-quiz-q-${q.id}`">
         <label
           v-for="opt in q.options"
           :key="opt.id"
@@ -205,6 +216,15 @@ function retake() {
             :disabled="revealAnswers"
             @change="toggleOption(q, opt.id)"
           >
+          <span v-if="revealAnswers && optionState(q, opt.id).incorrect" class="sr-only">
+            {{ $t('quiz.incorrect') }}
+          </span>
+          <span v-else-if="revealAnswers && optionState(q, opt.id).missed" class="sr-only">
+            {{ $t('quiz.missed-answer') }}
+          </span>
+          <span v-else-if="revealAnswers" class="sr-only">
+            {{ $t('quiz.correct') }}
+          </span>
           <div min-w-0>
             <MDC class="amx-md option-md text-challenge-800 dark:text-challenge-400" :value="opt.label" tag="span" unwrap="p" />
           </div>
@@ -241,6 +261,7 @@ function retake() {
       <span v-if="unanswered" text-xs op50>{{ $t('quiz.answer-all-hint') }}</span>
       <span v-else />
       <button
+        ref="submitBtnRef"
         type="button"
         :disabled="unanswered"
         text-sm text-white font-medium px3 py1.5 rounded-lg dark:bg-primary-dark-500
@@ -252,13 +273,13 @@ function retake() {
       </button>
     </div>
 
-    <div v-else-if="showFeedback && !completed" flex="~ gap-2 items-center justify-between" border="t base" mt1 pt3>
+    <div v-else-if="showFeedback && !completed" ref="resultSectionRef" tabindex="-1" role="status" flex="~ gap-2 items-center justify-between" border="t base" mt1 pt3>
       <div
         flex="~ gap-2 items-center"
         text-sm px3 py1.5 rounded-lg
         :class="completed && passed ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'"
       >
-        <div :class="completed && passed ? 'i-mynaui-check-hexagon-solid' : 'i-mynaui-danger-hexagon-solid'" flex-none />
+        <div aria-hidden="true" :class="completed && passed ? 'i-mynaui-check-hexagon-solid' : 'i-mynaui-danger-hexagon-solid'" flex-none />
         <span font-medium>
           {{ completed && passed ? $t('quiz.passed') : $t('quiz.failed') }}
         </span>
@@ -278,13 +299,13 @@ function retake() {
       </button>
     </div>
 
-    <div v-else flex="~ gap-2 items-center justify-between" border="t base" mt1 pt3>
+    <div v-else ref="resultSectionRef" tabindex="-1" role="status" flex="~ gap-2 items-center justify-between" border="t base" mt1 pt3>
       <div
         flex="~ gap-2 items-center"
         text-sm px3 py1.5 rounded-lg
         class="text-positive bg-positive/10"
       >
-        <div i-mynaui-check-hexagon-solid flex-none />
+        <div aria-hidden="true" i-mynaui-check-hexagon-solid flex-none />
         <span font-medium>
           {{ $t('quiz.passed') }}
         </span>

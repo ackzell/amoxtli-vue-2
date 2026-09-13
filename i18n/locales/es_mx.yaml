@@ -1,4 +1,5 @@
 guide: Guía
+skip-to-main: Saltar al contenido principal
 edit-this-page: Editar esta página
 terminal:
   name: Terminal
@@ -34,6 +35,11 @@ quiz:
   completed: Has aprobado este quiz
   answer-all-hint: Intenta responder todas las preguntas primero
   score: "{score}/{total}"
+  correct: Correcta
+  incorrect: Incorrecta
+  missed-answer: Respuesta correcta, no seleccionada
+copy-code: Copiar código al portapapeles
+copied-code: Copiado al portapapeles
 search-dots: Buscar...
 steps:
   initializing-webcontainer: Inicializando WebContainer
@@ -60,6 +66,7 @@ yt-player:
   watch: Ver
 more: más
 no-snapshots-saved-in-this-session: No se han guardado snapshots en esta sesión
+snapshots: Instantáneas
 updated: Actualizado
 no-changes: Sin cambios
 restore: Restaurar
@@ -70,6 +77,9 @@ one-file: 1 archivo
 file: archivo
 loading: Cargando…
 slash: /
+magic-move:
+  previous-step: Paso anterior
+  next-step: Siguiente paso
 composition-api: Composition API
 options-api: Options API
 script-setup: Script setup

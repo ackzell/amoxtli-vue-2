@@ -63,7 +63,7 @@ function clearLunaConsole() {
         <div i-carbon-clean />
       </IconButton>
     </div>
-    <div class="luna-container">
+    <div class="luna-container" role="log" :aria-label="$t('console-output.name')">
       <div ref="luna-ref" />
     </div>
   </div>

@@ -105,7 +105,7 @@ useEventListener('keydown', (e) => {
       grid="~ rows-[max-content_1fr]"
     >
       <div flex="~ items-center">
-        <div class="i-ph-magnifying-glass-duotone" text-xl m4 />
+        <div class="i-ph-magnifying-glass-duotone" aria-hidden="true" text-xl m4 />
         <input
           ref="input"
           v-model="commands.search"
@@ -125,7 +125,7 @@ useEventListener('keydown', (e) => {
           :class="selected === idx ? 'bg-active' : ''"
           @click="runCommand(c)"
         >
-          <div :class="c.icon || 'i-ph-dot-duotone'" />
+          <div aria-hidden="true" :class="c.icon || 'i-ph-dot-duotone'" />
           {{ getTitle(c) }}
         </component>
       </div>

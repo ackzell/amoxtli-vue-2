@@ -177,6 +177,8 @@ const sizes = computed<number[]>({
       <div
         h-full
         grid="~ rows-[min-content_1fr]"
+        role="region"
+        aria-label="Files"
       >
         <div
           flex="~ gap-2 items-center"
@@ -184,7 +186,7 @@ const sizes = computed<number[]>({
           px4 py2
           bg="dark:bgr-dark bgr-50"
         >
-          <div i-ph-tree-structure-duotone flex-none />
+          <div i-ph-tree-structure-duotone flex-none aria-hidden="true" />
           <span text-sm>{{ $t('files') }}</span>
         </div>
         <div py2>

@@ -54,8 +54,8 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
             hover="text-primary dark:text-primary-dark-300 bg-bgr-100/35 dark:bg-bgr-700/45"
             :style="{ paddingLeft }"
           >
-            <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op80 flex-none duration-400 />
-            <div i-mynaui-folder-solid opacity-80 flex-none />
+            <div class="caret" aria-hidden="true" un-transition i-mynaui-chevron-right-solid text-sm op80 flex-none duration-400 />
+            <div aria-hidden="true" i-mynaui-folder-solid opacity-80 flex-none />
             <div ml1>
               {{ resolved.title }}
             </div>
@@ -76,15 +76,17 @@ const paddingLeft = computed(() => `${0.5 + props.level * 0.8}rem`)
       v-else
       :to="resolved.path"
       :style="{ paddingLeft }"
+      :aria-current="resolved.path === route.path ? 'page' : undefined"
       :class="{ 'text-primary dark:text-primary-dark-300  bg-bgr-50 dark:bg-bgr-900': resolved.path === route.path }"
       flex="~ gap-1 items-center"
       hover="text-primary dark:text-primary-dark-300 bg-bgr-100/35 dark:bg-bgr-700/45" px1 py0.5
       @click="ui.isContentDropdownShown = false"
     >
-      <div class="caret" un-transition i-mynaui-chevron-right-solid text-sm op0 flex-none duration-400 />
-      <div v-if="isChallenge && completed" i-mynaui-check-solid text-positive flex-none />
-      <div v-else-if="isChallenge" i-mynaui-lightning-solid text-challenge op90 flex-none />
-      <div v-else i-mynaui-file-solid op80 flex-none />
+      <div class="caret" aria-hidden="true" un-transition i-mynaui-chevron-right-solid text-sm op0 flex-none duration-400 />
+      <div v-if="isChallenge && completed" aria-hidden="true" i-mynaui-check-solid text-positive flex-none />
+      <div v-else-if="isChallenge" aria-hidden="true" i-mynaui-lightning-solid text-challenge op90 flex-none />
+      <div v-else aria-hidden="true" i-mynaui-file-solid op80 flex-none />
+      <span class="sr-only">{{ isChallenge ? (completed ? $t('challenge.completed') : $t('challenge.check-title')) : '' }}</span>
       <div ml1>
         {{ resolved.title }}
       </div>

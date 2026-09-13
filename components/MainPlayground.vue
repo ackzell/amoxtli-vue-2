@@ -439,9 +439,13 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
       <!-- Code dock stays mounted so the preview iframe keeps running and
            challenge DOM validation can inspect it from the docs view. -->
       <div
+        id="amx-code-pane"
         key="code-pane"
         grid="~ rows-[max-content_1fr]"
         h-full inset-0 absolute
+        tabindex="-1"
+        role="region"
+        :aria-label="$t('code')"
         :style="codePaneStyle"
       >
         <PanelCodeToolbar />

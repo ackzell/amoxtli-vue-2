@@ -56,6 +56,8 @@ onMounted(() => {
 
 <template>
   <main
+    id="main-content"
+    tabindex="-1"
     h-100dvh w-screen of-hidden
     grid="~ rows-[max-content_1fr]"
   >

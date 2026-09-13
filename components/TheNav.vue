@@ -204,7 +204,7 @@ const isChangelogOpen = ref(false)
             tooltip="Languages"
             tooltip-placement="bottom"
           >
-            <div i-ph-translate-duotone text-xl />
+            <div aria-hidden="true" i-ph-translate-duotone text-xl />
           </IconButton>
           <template #popper>
             <div class="layout-menu-panel">
@@ -270,7 +270,7 @@ const isChangelogOpen = ref(false)
             :tooltip="$t('this-is-a-docs-only-lesson')"
             tooltip-placement="bottom"
           >
-            <div i-mynaui-book-open text-xl />
+            <div aria-hidden="true" i-mynaui-book-open text-xl />
           </IconButton>
         </template>
 
@@ -283,6 +283,7 @@ const isChangelogOpen = ref(false)
             @click="toggleDocsOnly"
           >
             <div
+              aria-hidden="true"
               i-mynaui-book-open
               text-xl hover:i-mynaui-book-open-solid
               :class="{ 'i-mynaui-book-open-solid': isDocsFocusApplied }"
@@ -296,7 +297,7 @@ const isChangelogOpen = ref(false)
             :class="isCodeFocusApplied ? 'text-primary bg-active/40 dark:text-primary-dark' : ''"
             @click="toggleCodeOnly"
           >
-            <div i-mynaui-code text-xl />
+            <div aria-hidden="true" i-mynaui-code text-xl />
           </IconButton>
 
           <VDropdown theme="layout-dropdown">
@@ -306,6 +307,7 @@ const isChangelogOpen = ref(false)
               :disabled="!isSplitMode"
             >
               <div
+                aria-hidden="true"
                 i-mynaui-layout
                 class="transition-all duration-200 hover:i-mynaui:layout-solid"
                 text-xl
@@ -322,6 +324,7 @@ const isChangelogOpen = ref(false)
                       @click="ui.toggleMainLayoutOrientation()"
                     >
                       <div
+                        aria-hidden="true"
                         class="transition-transform duration-200"
                         text-xl
                         :class="ui.mainLayoutOrientation === 'horizontal'
@@ -337,6 +340,7 @@ const isChangelogOpen = ref(false)
                       @click="ui.toggleMainLayoutReverse()"
                     >
                       <div
+                        aria-hidden="true"
                         class="transition-transform duration-200"
                         text-xl
                         :class="ui.mainLayoutOrientation === 'horizontal'
@@ -358,7 +362,7 @@ const isChangelogOpen = ref(false)
             :tooltip="$t('feedback.button-tooltip')"
             tooltip-placement="bottom"
           >
-            <div i-ph-chat-circle-duotone text-xl text-primary dark:text-primary-dark />
+            <div aria-hidden="true" i-ph-chat-circle-duotone text-xl text-primary dark:text-primary-dark />
           </IconButton>
         </FeedbackWidget>
       </ClientOnly>

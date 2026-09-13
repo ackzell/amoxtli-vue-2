@@ -19,7 +19,7 @@ defineProps<{
     h-full block transition-all relative
   >
     <span
-
+      aria-hidden="true"
       text-lg mb4 inline-flex flex-none h-7 w-7 pointer-events-none transition-colors items-center
       class="group-hover:text-primary dark:group-hover:text-primary-dark"
       :class="icon"

@@ -25,6 +25,6 @@ addCommands(
     tooltip-placement="bottom"
     @click="toggleMode"
   >
-    <div i-mynaui-sun-solid text-xl dark:i-mynaui-moon-solid />
+    <div aria-hidden="true" i-mynaui-sun-solid text-xl dark:i-mynaui-moon-solid />
   </IconButton>
 </template>

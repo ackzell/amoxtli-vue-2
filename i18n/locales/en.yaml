@@ -1,4 +1,5 @@
 guide: Guide
+skip-to-main: Skip to main content
 edit-this-page: Edit this page
 terminal:
   name: Terminal
@@ -34,6 +35,11 @@ quiz:
   completed: You've passed this quiz
   answer-all-hint: Try answering all the questions first
   score: '{score}/{total}'
+  correct: Correct
+  incorrect: Incorrect
+  missed-answer: Correct answer — not selected
+copy-code: Copy code to clipboard
+copied-code: Copied to clipboard
 search-dots: Search...
 steps:
   initializing-webcontainer: Initializing WebContainer
@@ -60,6 +66,7 @@ yt-player:
   watch: Watch
 more: more
 no-snapshots-saved-in-this-session: No snapshots saved in this session
+snapshots: Snapshots
 updated: updated
 no-changes: no changes
 restore: Restore

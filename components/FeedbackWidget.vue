@@ -128,7 +128,7 @@ async function submit() {
 
       <div v-else-if="sending">
         <p my-8 text-center flex gap2 items-center justify-center>
-          <span i-svg-spinners-pulse-multiple h6 inline-block />{{ $t('feedback.sending') }}
+          <span aria-hidden="true" i-svg-spinners-pulse-multiple h6 inline-block />{{ $t('feedback.sending') }}
         </p>
       </div>
 

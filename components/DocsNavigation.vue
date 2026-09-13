@@ -155,7 +155,7 @@ onKeyStroke('Escape', () => {
       hover="bg-bgr-50 dark:bg-bgr-dark border border-primary dark:hover:border-primary-dark scale-102 shadow-md text-primary-600 dark:text-primary-dark op100"
       transition-all
     >
-      <div i-carbon-arrow-left />
+      <div aria-hidden="true" i-carbon-arrow-left />
     </NuxtLink>
     <!-- flex-grow spacer so the absolute child can anchor to the bar position -->
     <div ref="navRoot" class="nav-bar-anchor group flex-grow min-w-0 relative z-docs-nav">
@@ -168,16 +168,16 @@ onKeyStroke('Escape', () => {
         <div
           flex="~ gap-x-1 gap-y-1 items-center"
 
-          px4 py2 outline-none bg-bgr-50 overflow-hidden dark:bg-bgr-800
+          px4 py2 outline-none focus-visible:outline-none focus-visible="ring-2 ring-primary/50 dark:ring-primary-dark/50" bg-bgr-50 overflow-hidden dark:bg-bgr-800
           role="button"
           tabindex="0"
           @click="toggleDropdownFromNav"
           @keydown.enter.prevent="ui.isContentDropdownShown = !ui.isContentDropdownShown"
           @keydown.space.prevent="ui.isContentDropdownShown = !ui.isContentDropdownShown"
         >
-          <div i-mynaui-book flex-none />
+          <div aria-hidden="true" i-mynaui-book flex-none />
           <template v-for="bc, idx of breadcrumbs" :key="bc.path">
-            <div v-if="idx !== 0" i-mynaui-chevron-right text-sm op50 flex-none />
+            <div v-if="idx !== 0" aria-hidden="true" i-mynaui-chevron-right text-sm op50 flex-none />
             <NuxtLink
               :to="bc.path"
               hover="text-primary dark:text-primary-dark-300"
@@ -192,6 +192,7 @@ onKeyStroke('Escape', () => {
           </template>
           <div flex-auto h-1em />
           <div
+            aria-hidden="true"
             un-transition i-mynaui-chevron-down-solid text-sm op50 duration-400
             :class="ui.isContentDropdownShown ? 'rotate-180' : ''"
           />
@@ -229,7 +230,7 @@ onKeyStroke('Escape', () => {
       hover="bg-bgr-50 dark:bg-bgr-dark border border-primary dark:hover:border-primary-dark scale-102 shadow-md text-primary-600 dark:text-primary-dark op100"
       transition-all
     >
-      <div i-mynaui-arrow-right />
+      <div aria-hidden="true" i-mynaui-arrow-right />
     </NuxtLink>
   </div>
 </template>

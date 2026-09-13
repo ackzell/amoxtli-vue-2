@@ -19,6 +19,25 @@ function handleScroll() {
     isScrolling.value = false
   }, 100)
 }
+
+// Focus management for the drawer: on open, move focus to the heading inside
+// the drawer; on close, return focus to the toggle that opened it.
+const snapshotsHeadingRef = ref<HTMLElement>()
+let restoreFocusTarget: HTMLElement | null = null
+
+watch(() => ui.isSnapshotSidebarOpen, (open) => {
+  if (open) {
+    restoreFocusTarget = document.activeElement as HTMLElement | null
+    // Wait for the drawer + inner reveal animation so the heading exists.
+    window.setTimeout(() => {
+      snapshotsHeadingRef.value?.focus()
+    }, 200)
+  }
+  else {
+    restoreFocusTarget?.focus()
+    restoreFocusTarget = null
+  }
+})
 </script>
 
 <template>
@@ -48,6 +67,9 @@ function handleScroll() {
           </div> -->
 
           <div class="sidebar-content">
+            <h2 ref="snapshotsHeadingRef" tabindex="-1" class="sr-only">
+              {{ $t('snapshots') }}
+            </h2>
             <div
               v-if="!fm.snapshotsList.length"
               class="dark:bg-accent/10 bg-accent/40 text-sm text-bgr-200 dark:text-bgr-600"

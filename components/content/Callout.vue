@@ -46,11 +46,13 @@ const variant = computed(() => {
     text-sm py4 pr2 relative
   >
     <div
+      aria-hidden="true"
       :class="[variant.icon, `text-${variant.color}`]"
       opacity-10 flex-shrink-0 h15 w15 left-1.5 absolute
     />
 
     <div
+      aria-hidden="true"
       :class="[variant.icon, `text-${variant.color}`]"
       mx6 flex-shrink-0 h6.5 w6.5
     />

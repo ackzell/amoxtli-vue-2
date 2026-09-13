@@ -7,6 +7,7 @@ import './styles/twoslash.css'
 
 const config = useRuntimeConfig()
 const router = useRouter()
+const { t } = useI18n()
 const showAgreement = ref(false)
 const alias = ref('')
 useThemeTransition()
@@ -45,6 +46,14 @@ function onAgreementClose() {
 </script>
 
 <template>
+  <a
+    href="#main-content"
+    class="skip-link"
+    :aria-label="t('skip-to-main')"
+  >
+    {{ t('skip-to-main') }}
+  </a>
+
   <NuxtPage page-key="playground" />
 
   <AgreementDialog v-if="showAgreement" :name="alias" @close="onAgreementClose" />

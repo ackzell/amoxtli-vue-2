@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nextTick } from 'vue'
 import { challengeDebug } from '~/composables/useChallengeDebug'
 import { useChallengeProgress } from '~/composables/useChallengeProgress'
 import { useChallengeValidation } from '~/composables/useChallengeValidation'
@@ -49,6 +50,10 @@ const showFeedback = computed(() => status.value === 'pass' || status.value === 
 
 const retaking = ref(false)
 
+// Focus targets used by `check`/`retake` and the status watcher below.
+const feedbackRef = ref<HTMLElement>()
+const checkBtnRef = ref<HTMLButtonElement>()
+
 async function retake() {
   if (computing.value)
     return
@@ -65,6 +70,10 @@ async function retake() {
   const sessionName = guide.currentGuide?.sessionName
   if (sessionName)
     await challenges.recordAttempt(sessionName)
+  // The "Check my work" button re-appears after the retake; land focus on it.
+  nextTick(() => {
+    checkBtnRef.value?.focus()
+  })
 }
 
 // Show "Check my work" for fresh or failing states; during a retake the user
@@ -74,10 +83,16 @@ const showCheck = computed(() => !completed.value || retaking.value)
 const showRetake = computed(() => completed.value && !retaking.value)
 
 // End the retake session as soon as a check finishes so the correct button
-// reappears immediately (pass → Retake, fail → Check my work).
+// reappears immediately (pass → Retake, fail → Check my work). Move focus to
+// the result so screen reader + keyboard users land on the outcome without
+// scanning the whole component.
 watch(status, (s) => {
-  if (s === 'pass' || s === 'fail')
-    retaking.value = false
+  if (s !== 'pass' && s !== 'fail')
+    return
+  retaking.value = false
+  nextTick(() => {
+    feedbackRef.value?.focus()
+  })
 })
 
 const statusSummary = computed(() => {
@@ -98,15 +113,16 @@ const statusSummary = computed(() => {
     bg="bgr dark:bgr-dark"
     my-4 p4 rounded-xl
     :class="{ 'border-positive': completed && passed }"
+    :aria-busy="computing ? 'true' : undefined"
   >
     <div flex="~ gap-2 items-center justify-between">
       <div v-if="passed" flex="~ gap-2 items-center" text-positive>
-        <div i-mynaui-check-hexagon-solid flex-none />
+        <div aria-hidden="true" i-mynaui-check-hexagon-solid flex-none />
         <span text-sm>{{ $t('challenge.completed') }}</span>
       </div>
       <div v-else text-challenge>
         <div flex="~ gap-2 items-center">
-          <div i-mynaui-lightning-solid flex-none />
+          <div aria-hidden="true" i-mynaui-lightning-solid flex-none />
           <span>{{ $t('challenge.check-title') }}</span>
         </div>
         <span text-xs op60>
@@ -116,6 +132,7 @@ const statusSummary = computed(() => {
       <div flex="~ gap-2 items-center flex-wrap justify-end">
         <button
           v-if="showCheck"
+          ref="checkBtnRef"
           type="button"
           text-sm text-white font-medium px3 py1.5 rounded-lg dark:bg-primary-dark-500
           class="bg-challenge! disabled:op60 disabled:cursor-not-allowed"
@@ -144,7 +161,7 @@ const statusSummary = computed(() => {
           <span v-else>{{ $t('challenge.retake') }}</span>
         </button>
 
-        <span v-if="statusSummary" text-md op60 data-testid="challenge-status-summary">
+        <span v-if="statusSummary" role="status" text-md op60 data-testid="challenge-status-summary">
           {{ statusSummary }}
         </span>
       </div>
@@ -152,16 +169,20 @@ const statusSummary = computed(() => {
 
     <div
       v-if="showFeedback"
+      ref="feedbackRef"
+      tabindex="-1"
+      role="status"
       flex="~ gap-2 items-center"
       class="text-sm px3 py2 rounded-lg"
-      :class="passed ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'"
+      :class="completed && passed ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'"
     >
       <div
-        :class="passed ? 'i-mynaui-check-hexagon-solid' : 'i-mynaui-danger-hexagon-solid'"
+        aria-hidden="true"
+        :class="completed && passed ? 'i-mynaui-check-hexagon-solid' : 'i-mynaui-danger-hexagon-solid'"
         flex-none
       />
       <span font-medium>
-        {{ passed ? $t('challenge.pass') : $t('challenge.fail') }}
+        {{ completed && passed ? $t('challenge.pass') : $t('challenge.fail') }}
       </span>
     </div>
 
@@ -174,10 +195,11 @@ const statusSummary = computed(() => {
         :class="result.passed ? 'bg-positive/5' : 'bg-negative/5'"
       >
         <div
-          mt0.5 flex-none
+          mt0.5 flex-none aria-hidden="true"
           :class="result.passed ? 'i-mynaui-check-solid text-positive' : 'i-mynaui-x-solid text-negative'"
         />
         <div flex="~ col gap-0.5 min-w-0">
+          <span class="sr-only">{{ result.passed ? $t('challenge.pass') : $t('challenge.fail') }}</span>
           <span font-medium>{{ result.name }}</span>
           <span v-if="result.hint && !result.passed" text-xs op50 italic>{{ result.hint }}</span>
           <span v-if="result.message" op70 break-words>{{ result.message }}</span>
