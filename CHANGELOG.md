@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.1](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.0...v0.3.1) (2026-09-14)
+
+
+### Features
+
+* **a11y:** core accessibility foundations and component fixes ([30395dd](https://github.com/ackzell/amoxtli-vue-2/commit/30395dda27b08609f867d34ba14713154c1d654e))
+* **changelog:** show release changelog in dialog from the version tag ([a36f338](https://github.com/ackzell/amoxtli-vue-2/commit/a36f338c4d903d2e2177e84c6fca07c70c243bcd))
+
+
+### Bug Fixes
+
+* **quiz:** keep challenge border on selected options after reveal ([9c9fa6f](https://github.com/ackzell/amoxtli-vue-2/commit/9c9fa6f361115a02ead9c8b33b1fbfd33ce7d73a))
+
 ## [0.3.0](https://github.com/ackzell/amoxtli-vue-2/compare/v0.2.5...v0.3.0) (2026-09-12)
 
 
