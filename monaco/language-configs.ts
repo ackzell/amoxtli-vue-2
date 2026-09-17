@@ -32,6 +32,39 @@ export const vue: languages.LanguageConfiguration = {
   ],
 }
 
+export const html: languages.LanguageConfiguration = {
+  comments: {
+    blockComment: ['<!--', '-->'],
+  },
+  brackets: [
+    ['<!--', '-->'],
+    ['<', '>'],
+    ['{', '}'],
+    ['(', ')'],
+  ],
+  autoClosingPairs: [
+    { open: '{', close: '}' },
+    { open: '[', close: ']' },
+    { open: '(', close: ')' },
+    { open: '\'', close: '\'' },
+    { open: '"', close: '"' },
+    { open: '<', close: '>' },
+    { open: '</', close: '>', notIn: ['comment', 'string'] },
+    { open: '<!--', close: '-->', notIn: ['comment', 'string'] },
+    { open: '`', close: '`', notIn: ['string', 'comment'] },
+  ],
+  autoCloseBefore: ';:.,=}])><`\'" \n\t',
+  surroundingPairs: [
+    { open: '\'', close: '\'' },
+    { open: '"', close: '"' },
+    { open: '{', close: '}' },
+    { open: '[', close: ']' },
+    { open: '(', close: ')' },
+    { open: '<', close: '>' },
+    { open: '`', close: '`' },
+  ],
+}
+
 export const ts: languages.LanguageConfiguration = {
   comments: {
     lineComment: '//',

@@ -423,7 +423,9 @@ export default defineNuxtConfig({
             showPreview = spMatch[1] ?? 'true'
           const spAttr = showPreview ? ` :showPreview="${showPreview}"` : ''
 
-          return `:vue-live{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}${scAttr}${spAttr}}`
+          const component = lang === 'html' ? 'html-live' : 'vue-live'
+
+          return `:${component}{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}${scAttr}${spAttr}}`
         },
       )
 

@@ -482,5 +482,6 @@ between iframes.
 
 ## Related
 
+- `docs/html-live.md` — the raw-HTML variant of this component (same UX, no SFC compile)
 - `docs/preview-system.md` — the older WebContainer-based preview (used for
   full project previews with Vite dev server)
