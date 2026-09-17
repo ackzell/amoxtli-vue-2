@@ -89,6 +89,37 @@ function focusTab(index: number) {
     ?.focus()
 }
 
+function onContainerKeydown(e: KeyboardEvent) {
+  const target = e.target as HTMLElement | null
+  if (!target)
+    return
+  if (e.metaKey || e.ctrlKey || e.altKey)
+    return
+  if (target.closest('input, textarea, select') || target.isContentEditable)
+    return
+  if (
+    tablistRef.value?.contains(target)
+    && (e.key.startsWith('Arrow') || e.key === 'PageUp' || e.key === 'PageDown')
+  ) {
+    return
+  }
+
+  let targetStep: number | undefined
+  const last = steps.value.length - 1
+
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown')
+    targetStep = Math.min(currentStep.value + 1, last)
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp')
+    targetStep = Math.max(currentStep.value - 1, 0)
+  else if (/^[1-9]$/.test(e.key))
+    targetStep = Math.min(Number(e.key) - 1, last)
+
+  if (targetStep === undefined || targetStep === currentStep.value)
+    return
+  e.preventDefault()
+  currentStep.value = targetStep
+}
+
 function onTablistKeydown(e: KeyboardEvent) {
   const count = steps.value.length
   if (count === 0)
@@ -148,6 +179,7 @@ function handleCopy() {
     class="magic-move-slot-container my-8 outline-none rounded-md overflow-hidden hover:shadow-md"
     bg="bgr-50 dark:bgr-900"
     border="~ bgr-700/10 dark:bgr-50/10"
+    @keydown="onContainerKeydown"
   >
     <!-- top bar -->
     <div
