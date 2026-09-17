@@ -135,7 +135,7 @@ const clappingMessage = computed(() => {
 </template>
 ```
 
-```vue title="Computed props in templates" collapse={1-4, 12-20} /clappingMessage/ {"Render the variable on the template instead of the whole logic to calculate (or compute) the new text": 23}
+```vue title="Computed props in templates" collapse={1-4, 12-20} "clappingMessage" {"Render the variable on the template instead of the whole logic to calculate (or compute) the new text": 23}
 <script setup>
 import { computed, ref } from 'vue'
 
@@ -320,7 +320,7 @@ function clappifyString(theMessage) {
 </template>
 ```
 
-```vue title="Computed vs Method" {"the v-if will force the rerender":37} /isDisplayed/ collapse={9-13, 18-22, 27-36} {"Executes the method every time the div is added to the DOM + message changes":42} {"Executes the getter callback from the computed only when message changes":49}
+```vue title="Computed vs Method" {"the v-if will force the rerender":37} "isDisplayed" collapse={9-13, 18-22, 27-36} {"Executes the method every time the div is added to the DOM + message changes":42} {"Executes the getter callback from the computed only when message changes":49}
 <script setup>
 import { computed, ref } from 'vue'
 
@@ -377,7 +377,7 @@ function clappifyString(theMessage) {
 
 If I **didn't type anything in the input but still toggled the checkbox a few times**, I get in the console:
 
-```md /5/ showLineNumbers=false
+```md "5" showLineNumbers=false
 clappifyString method ran
 clappingMessage computed getter ran
 5 clappifyString method ran
@@ -607,7 +607,7 @@ function getRandomIntInclusive(min, max) {
 
 Note that the getter is the same, we just read the previous value and we do _something_ with it.
 
-```vue title="The previous argument" showConsole collapse={15-33} {"Passing a previous value and adding a default too":7} /previous/
+```vue title="The previous argument" showConsole collapse={15-33} {"Passing a previous value and adding a default too":7} "previous"
 <script setup>
 import { computed, ref } from 'vue'
 

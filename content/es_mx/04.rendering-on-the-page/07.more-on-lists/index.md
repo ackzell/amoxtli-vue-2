@@ -66,7 +66,7 @@ One last thing before we move on to other topics: you probably also noticed the 
 
 Making this syntax also valid:
 
-```vue showLineNumbers=false /(item, idx)/
+```vue showLineNumbers=false "(item, idx)"
 <some-tag v-for="(item, idx) in items" :key="..." />
 ```
 

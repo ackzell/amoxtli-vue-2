@@ -11,6 +11,8 @@ export interface CollapseRange {
 export interface Highlight {
   pattern: string
   lines?: number[]
+  // When true, `pattern` is a plaintext substring (quoted marker), not a regex
+  plain?: boolean
 }
 
 export interface ParsedEcInfo {
@@ -128,7 +130,7 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
     (_, val) => { result.showLineNumbers = val !== 'false'; return '' },
   )
 
-  // Decode whole /pattern/ highlight specs from hex encoding
+  // Decode whole /pattern/ and "plain text" markers from hex encoding
   workingString = workingString.replace(/__ECPT_([0-9a-f]+)__/g, (_, hex) => {
     const raw = (hex.match(/.{2}/g) ?? []).map(
       (b: string) => String.fromCharCode(Number.parseInt(b, 16)),
@@ -136,7 +138,23 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
     return raw
   })
 
-  const highlightRegex = /\/([^/]+)\/(?=[\s\d,\-]|$)/g
+  // Extract quoted plaintext markers ("text" / 'text'). These are literal
+  // substring matches (Expressive Code semantics), not regular expressions.
+  // Removed from the string so the slash parser below can't see their content.
+  // An optional trailing line range (`"text" 5-8`) restricts the match.
+  const plainMarkerRegex = /(?:^|\s)(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')(?:[ \t]+([0-9,\-]+))?(?=\s|$)/g
+  workingString = workingString.replace(plainMarkerRegex, (_, dq, sq, rawLines) => {
+    const text = (dq ?? sq ?? '').replace(/\\(["'\\])/g, '$1')
+    if (text) {
+      const lines = (rawLines && rawLines.length > 0)
+        ? parseRanges(rawLines)
+        : undefined
+      result.highlights.push({ pattern: text, lines, plain: true })
+    }
+    return ' '
+  })
+
+  const highlightRegex = /\/([^/]+)\/(?:[ \t]+([0-9,\-]+))?(?=[\s\d,\-]|$)/g
   let hMatch: RegExpExecArray | null
 
   hMatch = highlightRegex.exec(workingString)

@@ -126,7 +126,7 @@ async function myFunction() {
 
 Here are the solutions to both scenarios, I collapsed some of the code to make it easier to read, but feel free to take your time with it and use it in the playground:
 
-```vue title="Check DOM - Fixed" /nextTick/ {"After the DOM is updated, the callback will run and we'll log the list elements":9} collapse={16-33}
+```vue title="Check DOM - Fixed" "nextTick" {"After the DOM is updated, the callback will run and we'll log the list elements":9} collapse={16-33}
 <script setup>
 import { nextTick, ref } from 'vue'
 
@@ -162,7 +162,7 @@ function addElement() {
 </template>
 ```
 
-```vue title="Focus Input - Fixed" /nextTick/ {"After the DOM is updated, we'll await the promise and then focus the input":9} collapse={14-29}
+```vue title="Focus Input - Fixed" "nextTick" {"After the DOM is updated, we'll await the promise and then focus the input":9} collapse={14-29}
 <script setup>
 import { nextTick, ref } from 'vue'
 

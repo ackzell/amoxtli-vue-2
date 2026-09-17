@@ -60,7 +60,7 @@ Keep in mind that when you update the value in the code above, it changes becaus
 
 We'll do so by applying the knowledge we have gained so far about reactivity and turn the variables reactive. After our changes are made, when there is interaction with the buttons, the component will re-render and the styles will be updated.
 
-```vue title="Reactive style tag binding" {"Make the vars reactive": 4-5} {"Methods to update the values": 7-17} {"Updating the values through the buttons": 21-30} /activeColor/ /myFontSize/
+```vue title="Reactive style tag binding" {"Make the vars reactive": 4-5} {"Methods to update the values": 7-17} {"Updating the values through the buttons": 21-30} "activeColor" "myFontSize"
 <script setup>
 import { ref } from 'vue'
 

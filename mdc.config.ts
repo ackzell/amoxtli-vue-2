@@ -54,14 +54,18 @@ export default defineConfig({
           options.decorations ??= []
           const lines = code.split('\n')
 
-          for (const { pattern, lines: targetLines } of parsed.highlights) {
+          for (const { pattern, lines: targetLines, plain } of parsed.highlights) {
             let regex: RegExp
             try {
-              regex = new RegExp(pattern, 'g')
+              // Quoted markers are literal substrings; slash markers are regex.
+              regex = plain
+                ? new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
+                : new RegExp(pattern, 'g')
             }
             catch {
               continue
             }
+
             lines.forEach((lineText, lineIndex) => {
               if (targetLines && !targetLines.includes(lineIndex + 1))
                 return

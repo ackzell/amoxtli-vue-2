@@ -304,19 +304,39 @@ export default defineNuxtConfig({
         console.log(`[beforeParse] Label encoding modified: ${file.id}`)
       }
 
-      // Encode entire /pattern/ highlight specs as opaque hex tokens so MDC
-      // never sees { }, [ ], or other special characters inside them.
-      // Require leading whitespace so we don't match / in file: paths.
+      // Encode text markers as opaque hex tokens so MDC never sees quotes,
+      // { }, [ ], /, or other special characters inside them:
+      //   - quoted markers `"plain text"` / `'plain text'` (plaintext match)
+      //   - slash markers `/regex/` (regular expression)
+      // `title="..."` is shielded first so quotes inside a title (e.g.
+      // title="called 'useGreeter'") can't be mistaken for markers.
+      // Quoted markers are encoded first so a slash inside a quoted string
+      // can't be mistaken for a regex marker. Require leading whitespace so we
+      // don't match quotes/slashes in `file:` paths.
       file.body = file.body.replace(
         /^(`{3}[^\n]*)$/gm,
         (fullLine) => {
-          return fullLine.replace(
-            /(?<=\s)\/([^/]+)\/(?=[\s\d,\-]|$)/g,
-            (_match) => {
-              const hex = Buffer.from(_match).toString('hex')
-              return `__ECPT_${hex}__`
-            },
-          )
+          const titles: string[] = []
+          const shielded = fullLine.replace(/title="((?:[^"\\]|\\.)*)"/g, (match) => {
+            titles.push(match)
+            return `__ECTITLE_${titles.length - 1}__`
+          })
+
+          const encoded = shielded
+            .replace(
+              /(?<=\s)"((?:[^"\\]|\\.)*)"(?=[\s\d,\-]|$)/g,
+              match => `__ECPT_${Buffer.from(match).toString('hex')}__`,
+            )
+            .replace(
+              /(?<=\s)'((?:[^'\\]|\\.)*)'(?=[\s\d,\-]|$)/g,
+              match => `__ECPT_${Buffer.from(match).toString('hex')}__`,
+            )
+            .replace(
+              /(?<=\s)\/([^/]+)\/(?=[\s\d,\-]|$)/g,
+              match => `__ECPT_${Buffer.from(match).toString('hex')}__`,
+            )
+
+          return encoded.replace(/__ECTITLE_(\d+)__/g, (_, i) => titles[Number(i)] ?? '')
         },
       )
 

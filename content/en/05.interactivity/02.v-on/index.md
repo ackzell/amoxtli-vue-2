@@ -7,7 +7,23 @@ ogImage: true
 
 The equivalent to the previous logic in Vue would be:
 
-```vue title="App.vue" /v-on:click=/ /handleClick/
+```vue title="App.vue" "v-on:click" "console.log('Button clicked!')"
+<template>
+  <button v-on:click="console.log('Button clicked!')">
+    Click me
+  </button>
+</template>
+```
+
+```vue live showConsole
+<template>
+  <button v-on:click="console.log('Button clicked!')">
+    Click me
+  </button>
+</template>
+```
+
+```vue title="App.vue" "v-on:click=" "handleClick"
 <script setup>
 function handleClick() {
   alert('Button clicked!')
@@ -21,16 +37,26 @@ function handleClick() {
 </template>
 ```
 
-`v-on` is another built in [directive](/rendering-on-the-page/directives) that Vue provides so we can avoid the whole boilerplate that `addEventListener` requires.
+`v-on` is another built-in [directive](/rendering-on-the-page/directives) that Vue provides so we can avoid the whole boilerplate that `addEventListener` requires.
 
-The argument we pass to `v-on` is the event we want to listen to, in this case `click`, and the value is the method we want to call when that event happens, in this case `handleClick`.
+The _value_ we pass to `v-on` can be inline code that is executed when the event (in this case `click`) set in the _argument_ fires. Great for simple cases:
+
+```vue live showConsole
+<template>
+  <button v-on:click="console.log('Button clicked!')">
+    Click me
+  </button>
+</template>
+```
+
+We can also pass a, , and the value is the method we want to call when that event happens, in this case `handleClick`.
 
 See it in action:
 
-```vue live
+```vue live showConsole
 <script setup>
 function handleClick() {
-  alert('Button clicked!')
+  console.log('Button clicked!')
 }
 </script>
 
@@ -45,7 +71,7 @@ function handleClick() {
 
 Just like the shorthand for `v-bind` is `:`, the shorthand for `v-on` is `@`. So the above code can be rewritten as:
 
-```vue title="App.vue" /@click=/
+```vue title="App.vue" "@click="
   <button @click="handleClick">
     Click me
   </button>

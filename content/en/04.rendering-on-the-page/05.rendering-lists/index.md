@@ -34,7 +34,7 @@ And we want to show their data on the page.
 
 Maybe your first instinct would be to use `{{ }}`. So let's try that first.
 
-```file:/src/App.vue title="App.vue"  /theBeatles/ collapse={1-23,28-58}
+```file:/src/App.vue title="App.vue"  "theBeatles" collapse={1-23,28-58}
 -
 ```
 

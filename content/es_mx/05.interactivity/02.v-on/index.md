@@ -7,7 +7,7 @@ ogImage: true
 
 The equivalent to the previous logic in Vue would be:
 
-```vue title="App.vue" /v-on:click=/ /handleClick/
+```vue title="App.vue" "v-on:click=" "handleClick"
 <script setup>
 function handleClick() {
   alert('Button clicked!')
@@ -45,7 +45,7 @@ function handleClick() {
 
 Just like the shorthand for `v-bind` is `:`, the shorthand for `v-on` is `@`. So the above code can be rewritten as:
 
-```vue title="App.vue" /@click=/
+```vue title="App.vue" "@click="
   <button @click="handleClick">
     Click me
   </button>

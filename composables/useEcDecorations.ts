@@ -124,13 +124,16 @@ export function useEcDecorations(
     const highlights = parsedEc.value.highlights
     const paletteCount = highlightPalette.length
 
-    // Dedupe identical patterns: every occurrence of the same /pattern/ should
+    // Dedupe identical markers (same pattern + kind): every occurrence should
     // share one hover group and one color, and shouldn't consume extra palette
     // slots. Preserve first-seen order.
-    const uniquePatterns: string[] = []
+    const uniquePatterns: { pattern: string, plain: boolean }[] = []
     for (const hl of highlights) {
-      if (hl && !uniquePatterns.includes(hl.pattern))
-        uniquePatterns.push(hl.pattern)
+      if (!hl)
+        continue
+      const plain = !!hl.plain
+      if (!uniquePatterns.some(u => u.pattern === hl.pattern && u.plain === plain))
+        uniquePatterns.push({ pattern: hl.pattern, plain })
     }
 
     const marks = codeEl.querySelectorAll<HTMLElement>('.ec-highlight')
@@ -139,9 +142,16 @@ export function useEcDecorations(
       if (!text)
         return
       for (let i = 0; i < uniquePatterns.length; i++) {
-        const pattern = uniquePatterns[i]
+        const entry = uniquePatterns[i]
+        if (!entry || !entry.pattern)
+          continue
+        const { pattern, plain } = entry
         try {
-          const regex = new RegExp(`^(?:${pattern})$`)
+          // Quoted markers are literal substrings; slash markers are regex.
+          const source = plain
+            ? pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+            : pattern
+          const regex = new RegExp(`^(?:${source})$`)
           if (regex.test(text)) {
             mark.setAttribute('data-ec-hl-group', String(i))
             mark.setAttribute('data-ec-hl-color', String(i % paletteCount))

@@ -66,7 +66,7 @@ You probably also noticed the `index` in the inner loop, to which we bound the `
 
 Making this syntax also valid:
 
-```vue showLineNumbers=false /(item, idx)/
+```vue showLineNumbers=false "(item, idx)"
 <some-tag v-for="(item, idx) in items" :key="..." />
 ```
 

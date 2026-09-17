@@ -47,23 +47,40 @@ but not rendered visually — reserved for future use.
 
 `````
 
-### 3. Pattern highlights — `/pattern/`
+### 3. Text markers — `"text"` and `/pattern/`
 
-Highlights text that matches a regex pattern.
+Highlights text inside a code block. There are two forms, matching
+[Expressive Code](https://expressive-code.com/) semantics:
+
+- **`"text"` / `'text'`** — a **plaintext** match. `text` is matched literally,
+  so `"console.log('hi')"` highlights that exact substring, parentheses and all.
+  Use this for literal text (including `.`, `(`, `)`, `/`, and URLs).
+- **`/pattern/`** — a **JavaScript regex** match (without flags). Use this for
+  ranges/variants, e.g. `/v-if="[^"]+"/`.
 
 ````markdown
-```ts /setup()/ /:class="entry.sender"/
+```ts "setup()" /:class="entry.sender"/
 
 `````
 
 ``````
 
-- The pattern is a JavaScript regex (without flags)
-- Can be combined with line filters: `/pattern/ 5-8` highlights only on lines 5-8
-- Requires leading whitespace (so `/` in `file:/path` isn't mistaken for a pattern)
+- A marker must be preceded by whitespace, so `/` in `file:/path` and quotes in
+  `title="App.vue"` aren't mistaken for markers.
+- Use single quotes when the literal contains a double quote: `'type="module"'`.
+- Escapes inside quotes: `\"`, `\'`, and `\\` are unescaped before matching.
+- Either form accepts an optional trailing line range: `"setup()" 5-8` or
+  `/pattern/ 5-8` restricts the highlight to those lines.
 
 Rendered with `.ec-highlight` class (a colored border/background around the
 matching text).
+
+> **Prettier and regex escapes.** Prettier's markdown formatter strips
+> backslashes before ASCII punctuation (`\.` `\(` `\)` `\/` `\\`) on fence
+> lines, but keeps `\d`, `\s`, `\b`, `\w`. A literal-punctuation regex such as
+> `/\.me\b/` therefore loses its escapes the next time the file is formatted.
+> Prefer a quoted plaintext marker (`".me"`), or a character class
+> (`/[.]me\b/`); real regex classes and word boundaries survive fine.
 
 ### 4. Collapse ranges — `collapse={...}`
 
@@ -119,12 +136,12 @@ interfere with Shiki or the MDC parser.
 
 **Encodings produced:**
 
-| Source syntax    | Encoded token              |
-| ---------------- | -------------------------- |
-| `{"text":lines}` | `__EANN_<hex>_L_<lines>__` |
-| `{"text"}`       | `__ELBL_<hex>__`           |
-| `/pattern/`      | `__ECPT_<hex>__`           |
-| `collapse={...}` | `collapse=__ECOL_<val>__`  |
+| Source syntax        | Encoded token              |
+| -------------------- | -------------------------- |
+| `{"text":lines}`     | `__EANN_<hex>_L_<lines>__` |
+| `{"text"}`           | `__ELBL_<hex>__`           |
+| `"text"` / `/regex/` | `__ECPT_<hex>__`           |
+| `collapse={...}`     | `collapse=__ECOL_<val>__`  |
 
 The `hex` portion is the UTF-8 hex-encoded text. For example, `hello` → `68656c6c6f`.
 
@@ -163,8 +180,9 @@ Decoding order:
 4. Strip `file:` and `title="..."` → populate `file`, `title`
 5. Strip `collapse=...` → populate `collapseRanges[]`
 6. Strip `showLineNumbers=...`
-7. Decode `__ECPT_` tokens back to `/pattern/` strings
-8. Parse remaining `/pattern/ [lines]` → populate `highlights[]`
+7. Decode `__ECPT_` tokens back to `"text"` / `/regex/` strings
+8. Extract quoted `"text" [lines]` markers → `highlights[]` (`plain: true`)
+9. Parse remaining `/regex/ [lines]` → populate `highlights[]`
 
 Helper functions:
 
@@ -175,13 +193,11 @@ Helper functions:
 
 Two transformers run during Shiki's server-side rendering:
 
-**`ec-highlight`** — handles `/pattern/` highlighting:
+**`ec-highlight`** — handles text-marker (`"text"` / `/regex/`) highlighting:
 
 - `preprocess(code, options)`: parses fence meta, creates Shiki `decorations[]`
-  entries with `{line, character}` offsets for each regex match, setting
+  entries with `{line, character}` offsets for each literal/regex match, setting
   `class: 'ec-highlight'`
-- `line(lineNode, lineIndex)`: fallback that adds `ec-highlight` class to
-  HAST `<span>` elements whose text matches the pattern
 
 **`ec-fix-popup-code-lang`** — overrides `this.codeToHast` to use `typescript`
 lang for Vue SFC twoslash popup content.

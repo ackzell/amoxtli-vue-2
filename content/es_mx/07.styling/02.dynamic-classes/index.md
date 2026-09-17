@@ -21,7 +21,7 @@ In the following example, we will bind the `class` attribute to a dynamic value 
 
 Here is the whole implementation, with some notes that explain more about what is going on with the code.
 
-```file:/src/App.vue title="Explicit class names" extract={1-4, 14-23, 57-76, 200-210, 250} /\bchecked-class\b/ /unchecked-class/ {"We can still have static classes as well as the dynamic ones just like with any other attribute binding": 22} {"When the condition is true a class is applied, and a different class is applied otherwise":23-25} /isChecked/ collapse={8-11}
+```file:/src/App.vue title="Explicit class names" extract={1-4, 14-23, 57-76, 200-210, 250} "checked-class" "unchecked-class" {"We can still have static classes as well as the dynamic ones just like with any other attribute binding": 22} {"When the condition is true a class is applied, and a different class is applied otherwise":23-25} "isChecked" collapse={8-11}
 -
 ```
 
@@ -85,7 +85,7 @@ In our example, the user has the ability to toggle custom styles for the content
 -
 ```
 
-```file:/src/App.vue title="Objects in arrays" extract={1-2,[1],10-13,[1],51-59,167-198,200-202,226-245,250} collapse={19-41} {"These will be used as keys for the object we dynamically assign to the class attribute":6} {"Using the ternary operator we saw before":44} {"The classname is derived from the value of the reactive variable":45}  /error/ /warning/ /info/ /success/
+```file:/src/App.vue title="Objects in arrays" extract={1-2,[1],10-13,[1],51-59,167-198,200-202,226-245,250} collapse={19-41} {"These will be used as keys for the object we dynamically assign to the class attribute":6} {"Using the ternary operator we saw before":44} {"The classname is derived from the value of the reactive variable":45}  "error" "warning" "info" "success"
 -
 ```
 
