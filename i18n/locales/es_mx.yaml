@@ -10,8 +10,13 @@ download-zip: Descargar playground como zip
 work-in-progress: En progreso
 search: Buscar
 color-mode:
+  title: Modo de color
+  system: Sistema
+  light: Claro
+  dark: Oscuro
   to-dark: Cambiar a modo oscuro
   to-light: Cambiar a modo claro
+  to-system: Usar el tema del sistema
 coming-soon: Próximamente
 reset-challenge: Reiniciar desafío
 show-solution: Mostrar solución
@@ -155,3 +160,7 @@ changelog:
   see-all-changes: Ver todos los cambios en GitHub
   show-earlier: Mostrar versiones anteriores ({count})
   show-less: Mostrar menos
+vue-live:
+  title: Vue
+html-live:
+  title: HTML

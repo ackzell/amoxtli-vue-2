@@ -72,7 +72,7 @@ markdown. Uses Monaco (no Volar), Shiki tokenization, and
 | `monaco/shiki.ts`                       | Shiki highlighter setup with custom themes (`amoxtli-light`, `vesper`)                                                                           |
 | `composables/useConsoleOutput.ts`       | Shared LunaConsole lifecycle, theme management, log deserialization for both VueLive and Playground                                                |
 | `templates/console-interceptor.ts`      | Console interceptor injected into preview iframes — detects reactive objects, refs, DOM elements, errors, etc.                                    |
-| `i18n/locales/en.yaml`                  | i18n keys: `vue-live.reset-contents`, `vue-live.reload-preview`, `vue-live.clear-console`                                                         |
+| `i18n/locales/en.yaml`                  | i18n keys: `vue-live.title`, `vue-live.reset-contents`, `vue-live.reload-preview`, `vue-live.clear-console`                                     |
 | `nuxt.config.ts` (lines 334–358)        | `content:file:beforeParse` hook — live fence detection, `hide`/`showLineNumbers` parsing                                                         |
 
 ---
@@ -285,6 +285,8 @@ const slnMatch = (`${before} ${after}`).match(
 
 ### Layout
 
+- A title bar above the editor/preview shows the Vue logo (`i-logos-vue`) and
+  a `vue-live.title` label, mirroring fenced-code headers
 - Mobile (<768px): preview above, editor below
 - Desktop (≥768px): editor left, preview right
 - Preview has `min-height: 200px` and flex-centers its content

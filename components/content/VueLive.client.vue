@@ -264,6 +264,10 @@ watch(blobUrl, (url) => {
     border="~ base rounded-lg"
     my-5 overflow-hidden
   >
+    <div class="vl-title" border="b base" bg="base dark:bgr-dark" flex="~ gap-1.5" px-4 pb-2 pt-3 items-center>
+      <div aria-hidden="true" class="i-logos-vue shrink-0 size-4" />
+      <span class="text-sm/6 op80">{{ $t('vue-live.title') }}</span>
+    </div>
     <div class="vl-body">
       <div
         ref="editorEl"

@@ -100,6 +100,9 @@ Same setup as VueLive (`monaco-editor-core` + Shiki tokenization bridge):
   `shikiToMonaco` registers the tokens provider
 - Same editor options, auto-grow, `hide` via `setHiddenAreas`, reset via
   `model.applyEdits()`
+- A title bar above the editor/preview shows the HTML logo
+  (`i-logos-html-5`) and an `html-live.title` label, mirroring fenced-code
+  headers
 
 ---
 
