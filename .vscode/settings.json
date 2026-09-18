@@ -3,6 +3,10 @@
   "prettier.enable": false,
   "editor.formatOnSave": false,
 
+  "window.autoDetectColorScheme": true,
+  "workbench.preferredDarkColorTheme": "Tlapalli 02: Turquoise",
+  "workbench.preferredLightColorTheme": "Tlapalli l-02: Turquoise Light",
+
   // Auto fix
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
@@ -39,8 +43,28 @@
     "vue"
   ],
   "i18n-ally.localesPaths": [
+    "i18n",
     "i18n/locales"
   ],
   "i18n-ally.keystyle": "nested",
-  "i18n-ally.sourceLanguage": "en"
+  "i18n-ally.sourceLanguage": "en",
+
+  "yaml.schemas": {
+    "./schema/quiz.schema.json": "quizzes/**/*.yaml"
+  },
+
+  "conventionalCommits.scopes": [
+    "release",
+    "deps",
+    "helper-components",
+    "content",
+    "ui",
+    "templates",
+    "challenge",
+    "quiz",
+    "invites",
+    "playground",
+    "changelog",
+    "content-cli"
+  ]
 }
