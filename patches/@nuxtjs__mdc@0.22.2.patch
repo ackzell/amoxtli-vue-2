@@ -1,0 +1,18 @@
+diff --git a/dist/runtime/highlighter/shiki.js b/dist/runtime/highlighter/shiki.js
+index 9741ff191e459a5db9822f206f573b01f0771f6f..e22ce5c74c8add61276730e1424e28a715874519 100644
+--- a/dist/runtime/highlighter/shiki.js
++++ b/dist/runtime/highlighter/shiki.js
+@@ -128,12 +128,7 @@ export function createShikiHighlighter({
+                 }];
+                 return;
+               }
+-              const last = node.children.at(-1);
+-              if (last?.type === "element" && last.tagName === "span") {
+-                const text = last.children.at(-1);
+-                if (text?.type === "text")
+-                  text.value += "\n";
+-              }
++              node.children.push({ type: "text", value: "\n" });
+             }
+           }
+         }

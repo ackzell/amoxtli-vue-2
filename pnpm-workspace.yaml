@@ -5,6 +5,7 @@ overrides:
   '@emmetio/css-parser': 0.4.1
   just-bash: 2.7.0
 patchedDependencies:
+  '@nuxtjs/mdc@0.22.2': patches/@nuxtjs__mdc@0.22.2.patch
   floating-vue: patches/floating-vue.patch
 shamefullyHoist: true
 

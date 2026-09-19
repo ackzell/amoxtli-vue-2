@@ -4,7 +4,7 @@ import langPug from 'shiki/langs/pug.mjs'
 import langScss from 'shiki/langs/scss.mjs'
 import { createTwoslasher } from 'twoslash-vue'
 import { parseEcInfo } from './composables/useEcParser'
-import { rendererAmoxtli } from './shiki/renderer'
+import { amoxtliHoverInfoProcessor, rendererAmoxtli } from './shiki/renderer'
 
 export default defineConfig({
   shiki: {
@@ -32,7 +32,7 @@ export default defineConfig({
 
       createTransformerFactory(
         createTwoslasher({}),
-        rendererAmoxtli({}),
+        rendererAmoxtli({ processHoverInfo: amoxtliHoverInfoProcessor }),
       )({
         // Only process blocks that explicitly have "twoslash" in the meta
         explicitTrigger: true,

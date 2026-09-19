@@ -40,6 +40,26 @@ import { defaultHandlers, toHast } from 'mdast-util-to-hast'
 
 export { defaultHoverInfoProcessor }
 
+// Same as defaultHoverInfoProcessor, but keeps standalone "interface Foo" /
+// "namespace Foo" headers. The default strips them, which leaves an empty
+// string and makes highlightPopupContent drop the whole hover (docs included).
+const RE_LEADING_MODIFIER = /^\(([\w-]+)\)\s+/gm
+const RE_IMPORT_STATEMENT = /\nimport .*$/
+const RE_HOVER_TYPE = /^[A-Z]\w*(?:<[^>]*>)?:/
+const RE_HOVER_FUNCTION = /^\w*\(/
+
+export function amoxtliHoverInfoProcessor(type: string) {
+  let content = type
+    .replace(RE_LEADING_MODIFIER, '')
+    .replace(RE_IMPORT_STATEMENT, '')
+    .trim()
+  if (RE_HOVER_TYPE.test(content))
+    content = `type ${content}`
+  else if (RE_HOVER_FUNCTION.test(content))
+    content = `function ${content}`
+  return content
+}
+
 // ─── tiny JSDoc link pattern (same as rendererFloatingVue) ───────────────────
 const RE_JSDOC_LINK = /\{@link ([^}]*)\}/g
 const RE_PARAM_NAME = /^([\w$-]+)/
