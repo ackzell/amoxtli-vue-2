@@ -87,10 +87,13 @@ export default defineConfig({
 
     // Ensure the UnoCSS theme color CSS vars are emitted for use by the
     // /pattern/ highlight palette vars in ProsePre.vue (--colors-tip-500,
-    // --colors-info-500, --colors-challenge-500).
+    // --colors-info-500, --colors-challenge-500) and the inline diff
+    // ins/del tints (--colors-positive-500, --colors-negative-500).
     'bg-tip-500',
     'bg-info-500',
     'bg-challenge-500',
+    'bg-positive-500',
+    'bg-negative-500',
   ],
   theme: {
     colors: {

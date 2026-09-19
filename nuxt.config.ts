@@ -244,6 +244,17 @@ export default defineNuxtConfig({
         console.log('[beforeParse] twoslash blocks found:', twoslashBlocks)
       }
 
+      // Normalize `{lang}-diff` fence languages to `{lang} diff`. Authors write
+      // ` ```vue-diff ` so ESLint's markdown processor pass-throughs the fence
+      // (an unknown language isn't parsed as a runnable SFC, and a `+`/`-`
+      // prefixed body would otherwise be a parse error). At build time we
+      // rewrite it to the canonical ` ```vue diff ` form so MDC/Shiki/indexing
+      // see a real `vue` language and the bare `diff` meta token.
+      file.body = file.body.replace(
+        /^(`{3,})([\w.-]+)-diff((?:[ \t][^\n]*)?)$/gm,
+        (match, fence, lang, rest) => `${fence}${lang} diff${rest}`,
+      )
+
       // console.log(`[content:file.body:beforeParse]: ${file.body}`)
 
       // Infer language from file extension when none is specified

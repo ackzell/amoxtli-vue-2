@@ -11,6 +11,44 @@ export function useEcDecorations(
   const appConfig = useAppConfig()
   const expandedCollapseRanges = ref(new Set<string>())
 
+  // First DOM text node inside an element, in document order. Shiki emits each
+  // line as `<span class="line">` containing token `<span>`s and/or raw text;
+  // the diff marker lives at the very start of the first such node regardless
+  // of wrapping (e.g. a `.ec-highlight` mark or twoslash hover span).
+  function firstTextNodeIn(root: ChildNode): Text | null {
+    if (root.nodeType === Node.TEXT_NODE)
+      return root as Text
+    for (const child of root.childNodes) {
+      const found = firstTextNodeIn(child)
+      if (found)
+        return found
+    }
+    return null
+  }
+
+  // Next text node after `start`, still inside `root`, in document order.
+  // Shiki usually tokenizes the diff `+`/`-` marker as its own span, so the
+  // alignment space that follows it lives in the following token's text node.
+  function nextTextLeafIn(root: ChildNode, start: Text): Text | null {
+    let foundStart = false
+    const walk = (node: ChildNode): Text | null => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (foundStart)
+          return node as Text
+        if (node === start)
+          foundStart = true
+        return null
+      }
+      for (const child of node.childNodes) {
+        const hit = walk(child)
+        if (hit)
+          return hit
+      }
+      return null
+    }
+    return walk(root)
+  }
+
   const annotationPosition = computed(() => appConfig.codeSnippets?.annotation?.position === 'inline' ? 'inline' : 'row')
   const annotationPlacement = computed(() => {
     const v = appConfig.codeSnippets?.annotation?.rowPlacement
@@ -70,10 +108,17 @@ export function useEcDecorations(
     })
 
     codeEl.querySelectorAll<HTMLElement>('.line').forEach((line) => {
-      line.classList.remove('ec-collapsed', 'ec-annotated', 'ec-annotation-inline')
+      line.classList.remove('ec-collapsed', 'ec-annotated', 'ec-annotation-inline', 'ec-ins', 'ec-del')
       line.removeAttribute('data-ec-note')
       line.removeAttribute('data-ec-ann')
       line.removeAttribute('title')
+
+      // Restore the `+`/`-` diff marker that was stripped on apply
+      const diffChar = line.getAttribute('data-diff-char')
+      if (diffChar) {
+        line.insertBefore(document.createTextNode(diffChar), line.firstChild)
+        line.removeAttribute('data-diff-char')
+      }
 
       // Remove existing marks and restore text
       line.querySelectorAll('mark.ec-highlight').forEach((mark) => {
@@ -192,7 +237,40 @@ export function useEcDecorations(
 
     const placeholders: HTMLElement[] = []
 
-    // 1. Collapse logic
+    // 1. Diff logic — inline `+` / `-` markers (EC-style diff-like syntax).
+    //    Strip the marker (plus one optional alignment space) from the first
+    //    text node of each changed line, then mark the line for styling. The
+    //    original marker is stashed in data-diff-char so cleanup can restore
+    //    the block's raw text. Runs before collapse so collapsed lines are
+    //    already dressed when their range container is built.
+    if (parsedEc.value.diff) {
+      lines.forEach((line) => {
+        const firstText = firstTextNodeIn(line)
+        if (!firstText || firstText.textContent === null)
+          return
+        const marker = firstText.textContent[0]
+        if (marker !== '+' && marker !== '-')
+          return
+        const remainder = firstText.textContent.slice(1)
+        // Strip the marker + ONE optional alignment space. When the marker is
+        // its own token the space lives in the next text leaf — consume it from
+        // there so real indentation is preserved exactly.
+        if (remainder.startsWith(' ')) {
+          firstText.textContent = remainder.slice(1)
+        }
+        else {
+          firstText.textContent = remainder
+          const second = nextTextLeafIn(line, firstText)
+          if (second?.textContent?.startsWith(' ')) {
+            second.textContent = second.textContent.slice(1)
+          }
+        }
+        line.classList.add(marker === '+' ? 'ec-ins' : 'ec-del')
+        line.setAttribute('data-diff-char', marker)
+      })
+    }
+
+    // 1b. Collapse logic
     parsedEc.value.collapseRanges.forEach((range) => {
       const key = `${range.start}-${range.end}`
       const isExpanded = expandedCollapseRanges.value.has(key)

@@ -23,6 +23,8 @@ const isPlainText = computed(() => {
   return !lang || lang === 'text' || lang === 'txt'
 })
 
+const isDiff = computed(() => parsedEc.value.diff)
+
 const showLineNumbers = computed(() => {
   if (isPlainText.value) return false
   return parsedEc.value.showLineNumbers
@@ -183,6 +185,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
           preClass,
           !showLineNumbers ? 'ec-hide-line-numbers' : '',
           isPlainText ? 'ec-plain-text' : '',
+          isDiff ? 'ec-diff' : '',
           inferredFilename ? 'rounded-t-none! mt-0!' : '',
         ]"
       ><slot /></pre>
@@ -284,6 +287,14 @@ pre {
   --ec-hl-tip: var(--colors-tip-500);
   --ec-hl-info: var(--colors-info-500);
   --ec-hl-challenge: var(--colors-challenge-500);
+
+  /* Inline diff (```vue-diff) ins/del line tints + gutter accents */
+  --ec-ins-tint: var(--colors-positive-500);
+  --ec-del-tint: var(--colors-negative-500);
+  --ec-diff-ins-bg: 12%;
+  --ec-diff-del-bg: 12%;
+  --ec-diff-ins-bar: 45%;
+  --ec-diff-del-bar: 45%;
 }
 
 /* Per-annotation hover: hovering a note row OR any of its code lines
@@ -378,6 +389,37 @@ pre {
   opacity: var(--ec-ann-inline-opacity);
   background: color-mix(in oklab, currentColor 14%, transparent);
   transition: opacity 0.2s ease;
+}
+
+/* ─── Inline diff (```vue-diff) ────────────────────────────────────────
+   Lines prefixed with `+`/`-` are stripped of their marker by
+   useEcDecorations and marked .ec-ins / .ec-del. The left gutter ::before
+   (normally the line number) is repurposed to show the diff indicator on
+   changed lines; context lines keep their number. */
+:deep(code .line.ec-ins) {
+  background: color-mix(in oklab, var(--ec-ins-tint) var(--ec-diff-ins-bg), transparent);
+  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--ec-ins-tint) var(--ec-diff-ins-bar), transparent);
+  transition: background 0.2s ease;
+}
+
+:deep(code .line.ec-del) {
+  background: color-mix(in oklab, var(--ec-del-tint) var(--ec-diff-del-bg), transparent);
+  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--ec-del-tint) var(--ec-diff-del-bar), transparent);
+  transition: background 0.2s ease;
+}
+
+:deep(code .line.ec-ins::before) {
+  content: '+';
+  color: color-mix(in oklab, var(--ec-ins-tint) 75%, currentColor);
+  opacity: 1;
+  font-weight: 600;
+}
+
+:deep(code .line.ec-del::before) {
+  content: '−';
+  color: color-mix(in oklab, var(--ec-del-tint) 75%, currentColor);
+  opacity: 1;
+  font-weight: 600;
 }
 
 :deep(.ec-highlight) {

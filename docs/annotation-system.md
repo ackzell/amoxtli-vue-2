@@ -122,6 +122,52 @@ Hides line numbers for a specific block (default is `true`).
 ```
 ````
 
+### 7. Inline diffs — `diff`
+
+Marks a block as an inline diff, matching
+[Expressive Code's diff-like syntax](https://expressive-code.com/key-features/text-markers/#using-diff-like-syntax):
+prefix changed lines with `+` (inserted) or `-` (deleted) in the first column.
+
+````markdown
+```vue-diff
+<script setup>
+let name = ''
+- function updateName(event) {
++ function updateName(event: Event) {
++   const input = event.target as HTMLInputElement
+-   if (event.target.value) {
++   if (input.value) {
+  }
+}
+</script>
+```
+````
+
+- The opening fence language is `vue-diff` (or `ts-diff`, `js-diff`, … — any
+  `{lang}-diff` where `{lang}` is a normal Shiki language name). The `beforeParse`
+  hook rewrites it to the canonical `{lang} diff` form before MDC/Shiki see it,
+  so the block keeps its syntax highlighting (here: Vue) and the bare `diff`
+  meta token marks it as a diff. **Use the `-diff` suffix form, not a separate
+  `diff` word**: ESLint's markdown processor parses ` ```vue ` fences as Vue SFCs,
+  and a `+`/`-` prefixed body would be invalid code → "Parsing error: Expression
+  expected". An unknown language like `vue-diff` is pass-through'd by ESLint, so
+  the block is simply not linted (a diff view isn't a runnable program anyway).
+- `+`/`-` must be the very first character of the line. The marker plus **one
+  optional alignment space** after it are stripped from the rendered code;
+  real indentation is preserved. Use `-   if (...)` → renders `  if (...)`.
+- Unchanged lines are left as-is; they keep their line number.
+- Changed lines get a green (inserted) or red (deleted) background + left
+  accent bar, and the gutter shows a `+` / `−` indicator in place of the line
+  number.
+- The copy button copies the raw block text, so the copied output still
+  contains the `+`/`-` markers.
+
+> **Limitations.** The feature is client-side DOM work (like annotations), so
+> the markers briefly appear in SSR output until the mount pass strips them.
+> A block cannot be both `diff` and `twoslash` or `live` — a `+`/`-` prefixed
+> line would fail to parse as code in those systems. Keep the twoslash/hover
+> exploration in separate, undiffed blocks.
+
 ---
 
 ## How It Works (Pipeline)
@@ -143,6 +189,11 @@ interfere with Shiki or the MDC parser.
 | `"text"` / `/regex/` | `__ECPT_<hex>__`           |
 | `collapse={...}`     | `collapse=__ECOL_<val>__`  |
 
+The `diff` flag and `showLineNumbers=false` are bare words with no quotes,
+braces, or slashes, so they pass through MDC meta untouched and need no
+encoding. (`vue-diff` authoring is normalized to `vue diff` here first — see
+section 7.)
+
 The `hex` portion is the UTF-8 hex-encoded text. For example, `hello` → `68656c6c6f`.
 
 Tokens are decoded back to their original form later. This encoding prevents
@@ -150,6 +201,7 @@ Shiki from misinterpreting `{ }`, `[ ]`, `/`, and other special characters.
 
 The hook also:
 
+- Rewrites `{lang}-diff` fence languages to `{lang} diff`
 - Infers language from `file:` / `solution:` extension if no language is given
 - Inlines content from `.template/files/` (for `file:`) or `.template/solutions/` (for `solution:`) paths
 
@@ -169,6 +221,7 @@ interface ParsedEcInfo {
   annotations: Annotation[]
   highlights: Highlight[]
   labels: string[]
+  diff: boolean
 }
 ```
 
@@ -178,11 +231,12 @@ Decoding order:
 2. Strip `__EANN_` tokens → populate `annotations[]` (with decoded text + line ranges)
 3. Parse raw `{"text":lines}` fallback (for when encoding didn't run)
 4. Strip `file:` and `title="..."` → populate `file`, `title`
-5. Strip `collapse=...` → populate `collapseRanges[]`
-6. Strip `showLineNumbers=...`
-7. Decode `__ECPT_` tokens back to `"text"` / `/regex/` strings
-8. Extract quoted `"text" [lines]` markers → `highlights[]` (`plain: true`)
-9. Parse remaining `/regex/ [lines]` → populate `highlights[]`
+5. Strip the `diff` flag token → set `diff: true`
+6. Strip `collapse=...` → populate `collapseRanges[]`
+7. Strip `showLineNumbers=...`
+8. Decode `__ECPT_` tokens back to `"text"` / `/regex/` strings
+9. Extract quoted `"text" [lines]` markers → `highlights[]` (`plain: true`)
+10. Parse remaining `/regex/ [lines]` → populate `highlights[]`
 
 Helper functions:
 

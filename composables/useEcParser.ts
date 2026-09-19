@@ -24,6 +24,9 @@ export interface ParsedEcInfo {
   annotations: Annotation[]
   highlights: Highlight[]
   labels: string[]
+  // When true, the block is rendered as an inline diff: lines prefixed with
+  // `+` / `-` become inserted / deleted (see useEcDecorations + ProsePre.vue).
+  diff: boolean
 }
 
 export function parseRanges(input: string): number[] {
@@ -64,6 +67,7 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
     annotations: [],
     highlights: [],
     labels: [],
+    diff: false,
   }
 
   if (!input)
@@ -99,6 +103,14 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
   }
 
   workingString = workingString.replace(/(?:^|\s)(?:file|solution):(\S+)/, (_, val) => { result.file = val; return '' })
+
+  // Inline diff flag: authored as ` ```vue-diff ` (normalized to ` ```vue diff `
+  // by the beforeParse hook), or directly as ` ```vue diff `. The bare `diff`
+  // word survives MDC meta untouched (like `twoslash`), so strip it here.
+  workingString = workingString.replace(/(?:^|\s)diff(?=\s|$)/, () => {
+    result.diff = true
+    return ''
+  })
 
   // Decode title=__ETIT_<hex>__ (escaped quotes encoded by beforeParse hook)
   workingString = workingString.replace(
