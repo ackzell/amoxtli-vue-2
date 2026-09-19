@@ -129,6 +129,9 @@ catalogs:
     fuse.js:
       specifier: ^7.5.0
       version: 7.5.0
+    highlight.js:
+      specifier: ^11.12.0
+      version: 11.12.0
     jszip:
       specifier: ^3.10.1
       version: 3.10.1
@@ -309,6 +312,9 @@ importers:
       fuse.js:
         specifier: catalog:frontend
         version: 7.5.0
+      highlight.js:
+        specifier: catalog:frontend
+        version: 11.12.0
       jszip:
         specifier: catalog:frontend
         version: 3.10.1

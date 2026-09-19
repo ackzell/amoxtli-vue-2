@@ -91,7 +91,7 @@ Collapses a range of lines into a toggleable widget.
 ```ts file:/src/utils.ts
 ```solution:/components/Answer.vue
 ```vue [MyComponent.vue]
-`````````
+``````
 
 - `file:/path` — resolves to `.template/files/path` (the starter code for a lesson)
 - `solution:/path` — resolves to `.template/solutions/path` (the completed/solution code)
@@ -167,6 +167,77 @@ let name = ''
 > A block cannot be both `diff` and `twoslash` or `live` — a `+`/`-` prefixed
 > line would fail to parse as code in those systems. Keep the twoslash/hover
 > exploration in separate, undiffed blocks.
+
+### 8. Side-by-side diffs — `::diff-view`
+
+Inline diffs (§7) show additions/deletions in place, one line at a time.
+`::diff-view` complements them with a full **before → after** comparison: two
+complete fenced blocks are rendered side-by-side in a split view. Use it when
+the change is structural (new `<script setup>` block, differently shaped
+template) rather than a couple of lines.
+
+The container wraps **two fenced blocks** — first = before, second = after —
+in the MagicMove authoring style (`::magic-move`):
+
+````markdown
+::diff-view{lang="vue" before="Without the listener" after="With @change"}
+
+```vue
+<script setup>
+const name = ''
+</script>
+
+<template>
+  <input type="text" placeholder="Your name">
+</template>
+```
+
+```vue
+<script setup>
+let name = ''
+function updateName(event) {
+  name = event.target.value
+}
+</script>
+
+<template>
+  <input type="text" placeholder="Your name" @change="updateName">
+</template>
+```
+
+::
+````
+
+| Prop             | Meaning                                                               | Default                                   |
+| ---------------- | --------------------------------------------------------------------- | ----------------------------------------- |
+| `lang`           | Language of both blocks; mapped to a v-code-diff/highlight.js grammar | `plaintext`                               |
+| `before`/`after` | Labels for the left/right pane headers                                | i18n `diff-view.before`/`diff-view.after` |
+| `max-height`     | Max pane height before vertical scrolling                             | `28rem`                                   |
+| `output-format`  | Force display mode (`side-by-side` or `line-by-line`)                 | auto                                      |
+
+Behavior notes:
+
+- Both fences are **real, valid code** — no `+`/`-` markers, no annotation
+  syntax. ESLint parses them as plain Vue SFCs (so they must be lint-clean,
+  which an annotation-fence doesn't need to be), and they get normal Shiki
+  highlighting inside the hidden slot before the component reads their text.
+- The component (`components/content/DiffView.client.vue`) reads the two
+  blocks' text from the slot (same pattern as `MagicMove.client.vue`) and
+  feeds them into the `v-code-diff` `CodeDiff` component.
+- `lang="vue"` (and `svelte`) render through the TypeScript grammar, so
+  `<script setup>` bodies — function/`let`/`const`/`if`, strings, types —
+  colorize in the panes; v-code-diff highlights line-by-line, so a markup
+  grammar can't reach inside `<script>` blocks. `lang="html"` stays on the xml
+  grammar for pure-markup diffs.
+- The diff is **client-only**: v-code-diff injects its stylesheet at module
+  load, so the block shows a loading placeholder until mount. The theme tracks
+  `colorMode` (`light`/`dark`), with the panes restyled to the site's design
+  tokens (`bgr`, `positive`/`negative` tints).
+- On narrow screens (below `767px`) the view automatically falls back to the
+  line-by-line (`line-by-line`) format to avoid a cramped split; pass
+  `output-format="side-by-side"` to force it.
+- Nothing here runs through the `beforeParse` encoding pipeline — the container
+  line and its fences use syntax the hook already leaves alone.
 
 ---
 

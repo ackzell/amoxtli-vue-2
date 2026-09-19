@@ -85,6 +85,9 @@ slash: /
 magic-move:
   previous-step: Paso anterior
   next-step: Siguiente paso
+diff-view:
+  before: Antes
+  after: Después
 composition-api: Composition API
 options-api: Options API
 script-setup: Script setup

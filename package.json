@@ -51,6 +51,7 @@
     "dexie": "catalog:frontend",
     "floating-vue": "catalog:frontend",
     "fuse.js": "catalog:frontend",
+    "highlight.js": "catalog:frontend",
     "jszip": "catalog:frontend",
     "licia": "catalog:frontend",
     "luna-console": "catalog:frontend",

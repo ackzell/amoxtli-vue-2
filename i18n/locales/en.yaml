@@ -176,6 +176,9 @@ html-live:
 magic-move:
   previous-step: Previous step
   next-step: Next step
+diff-view:
+  before: Before
+  after: After
 update-the-code-in-the-playground-and-click-check-my-work: Update the code in the playground and click "Check my work"
 changelog:
   title: Changelog
