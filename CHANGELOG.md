@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.2](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.1...v0.3.2) (2026-09-19)
+
+
+### Features
+
+* **code-annotations:** add EC-style inline diff fences (vue-diff) ([147ee95](https://github.com/ackzell/amoxtli-vue-2/commit/147ee95aa5d67a619725f9120e141099debf1533))
+* **content:** add HtmlLive component for raw HTML live blocks ([aa09da3](https://github.com/ackzell/amoxtli-vue-2/commit/aa09da3112b2db3b86f5ac9e3a2d8c8568dbfac3))
+* **content:** support quoted plaintext highlight markers ([27262aa](https://github.com/ackzell/amoxtli-vue-2/commit/27262aa81e87c929c2b0af8634e11b6648f543be))
+* **helper-components:** add ::diff-view side-by-side diff container ([1e4f46f](https://github.com/ackzell/amoxtli-vue-2/commit/1e4f46fc9c49d167202bf917fc612f0415aec52b))
+* **helper-components:** add language icon title bar to live code blocks ([5b705ff](https://github.com/ackzell/amoxtli-vue-2/commit/5b705ff6a09b012e5eb5b3e0c4677e142963a0a2))
+* **helper-components:** keyboard navigation for MagicMove steps ([bde06e7](https://github.com/ackzell/amoxtli-vue-2/commit/bde06e7cfc6c4ed0de3b52964d3519470ff21661))
+* **theme:** add system option to the color mode switcher ([18e800b](https://github.com/ackzell/amoxtli-vue-2/commit/18e800b3739f9660dca5fe8cf715086fea98ef3f))
+
+
+### Bug Fixes
+
+* **helper-components:** polish twoslash completion popup (persisted, no arrow, caret) ([b1ac505](https://github.com/ackzell/amoxtli-vue-2/commit/b1ac5054d64bb0154f37775a6fea668c09c378a2))
+* **helper-components:** render twoslash hovers broken by mdc newline transformer ([74ecc7d](https://github.com/ackzell/amoxtli-vue-2/commit/74ecc7d7e3f390fb577b21e58676c2c278e96ba8))
+* **ui:** raise manually-triggered tooltips above persisted tooltips ([4c57227](https://github.com/ackzell/amoxtli-vue-2/commit/4c57227c805d2e1b1f3ad4e8e9e05ce6d479e926))
+
 ## [0.3.1](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.0...v0.3.1) (2026-09-14)
 
 

@@ -1,7 +1,7 @@
 {
   "name": "amoxtli-vue-2",
   "type": "module",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "packageManager": "pnpm@11.17.0",
   "scripts": {
@@ -49,9 +49,9 @@
     "birpc": "catalog:frontend",
     "clsx": "catalog:frontend",
     "dexie": "catalog:frontend",
+    "diff": "catalog:frontend",
     "floating-vue": "catalog:frontend",
     "fuse.js": "catalog:frontend",
-    "highlight.js": "catalog:frontend",
     "jszip": "catalog:frontend",
     "licia": "catalog:frontend",
     "luna-console": "catalog:frontend",
@@ -108,7 +108,6 @@
     "rehype-external-links": "catalog:dev",
     "typescript": "catalog:dev",
     "unocss-preset-animations": "catalog:dev",
-    "v-code-diff": "catalog:frontend",
     "vue": "catalog:frontend",
     "vue-tsc": "catalog:dev",
     "wrangler": "catalog:dev"
