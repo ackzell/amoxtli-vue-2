@@ -16,6 +16,7 @@ interface TooltipTriggerProps {
   noEasing?: boolean
   persistent?: boolean
   placement?: Placement
+  popperClass?: string
 }
 
 const props = withDefaults(defineProps<TooltipTriggerProps>(), {
@@ -268,7 +269,7 @@ onUnmounted(() => {
       ref="tooltipEl"
       class="guide-tooltip-popper"
       z-tooltip-popper
-      :class="{ 'is-bottom': floatingPlacement.startsWith('top'), 'is-persistent': persistent }"
+      :class="[popperClass, { 'is-bottom': floatingPlacement.startsWith('top'), 'is-persistent': persistent }]"
       :style="[tooltipStyle, { display: isShown ? '' : 'none' }]"
       @mouseenter="showTooltip()"
       @mouseleave="scheduleHide"

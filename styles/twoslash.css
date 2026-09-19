@@ -55,6 +55,10 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
   color: inherit;
+  max-height: min(45vh, 420px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
 }
 
 /* ─── Type code block inside popup ───────────────────────────────────────────── */
@@ -141,37 +145,72 @@
   border-top-color: #f87171;
 }
 
-/* ─── Completions list (^|) ──────────────────────────────────────────────────── */
+/* ─── Completion caret (^| trigger) ──────────────────────────────────────────── */
+/* The shiki completion cursor is an empty span, so the mounted tooltip wraps
+   an invisible zero-width token. style the caret the wiring injects instead. */
 
-.twoslash-popup-content .twoslash-completions {
-  font-family: var(--font-sans, sans-serif);
+.twoslash-token-content .twoslash-completion-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1.2em;
+  padding: 0 4px;
+  margin: 0 -2px;
+  box-sizing: content-box;
+  vertical-align: -0.15em;
+  border-radius: 1.5px;
+  background-clip: content-box;
+  background-color: var(--amv-highlight);
+  color: var(--amv-highlight);
 }
 
-.twoslash-popup-content .twoslash-completions ul {
+/* Completion popups (^|) sit right under the caret: no arrow, tighter drop. */
+.guide-tooltip-popper.twoslash-completion-popper,
+.guide-tooltip-popper.twoslash-completion-popper.is-bottom {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-shape: none;
+  clip-path: none;
+}
+
+/* ─── Completion list (^|) ──────────────────────────────────────────────────── */
+
+.twoslash-popup-content .twoslash-completion-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 1px;
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.78rem;
+  white-space: normal;
 }
 
-.twoslash-popup-content .twoslash-completions li {
+.twoslash-popup-content .twoslash-completion-list li {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 2px 4px;
   border-radius: 3px;
-  font-size: 0.78rem;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
-.twoslash-popup-content .twoslash-completions li:hover {
+.twoslash-popup-content .twoslash-completion-list li:hover {
   background: color-mix(in oklab, var(--amv-highlight) 10%, transparent);
 }
 
-.twoslash-popup-content .twoslash-completions li.deprecated {
+.twoslash-popup-content .twoslash-completion-list li.deprecated {
   text-decoration: line-through;
   opacity: 0.5;
+}
+
+.twoslash-popup-content .twoslash-completions-matched {
+  color: var(--amv-highlight);
+}
+
+.twoslash-popup-content .twoslash-completions-unmatched {
+  opacity: 0.75;
 }
 
 /* ─── Error lines rendered below the code block ───────────────────────────────── */
@@ -226,19 +265,23 @@
   color: #fbbf24;
 }
 
-/* ─── Completion list (^|) ────────────────────────────────────────────────────── */
+/* ─── Completion kind icons (^|) ─────────────────────────────────────────────── */
+/* The shiki icons are inline SVGs that size themselves unless told otherwise.
+   The popup is teleported to <body>, so shiki's ".twoslash .twoslash-formatted-icon"
+   rules never apply — size them explicitly here. */
 
-.twoslash-popup .twoslash-completions {
-  font-family: var(--font-sans, sans-serif);
+.twoslash-popup-content .twoslash-completions-icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
-.twoslash-popup .twoslash-completions ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+.twoslash-popup-content .twoslash-completions-icon svg {
+  display: block;
+  width: 1em;
+  height: 1em;
 }
 
 /* Kind colour squares (mirrors VS Code icon colours) */

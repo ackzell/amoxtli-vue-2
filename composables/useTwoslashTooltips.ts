@@ -28,8 +28,11 @@ export function useTwoslashTooltips(containerEl: Ref<HTMLElement | undefined>) {
         return
 
       const id = uid()
-      const tokenHtml = el.innerHTML
+      const tokenHtml = el.classList.contains('twoslash-completion-trigger')
+        ? '<span class="twoslash-completion-caret" aria-hidden="true"></span>'
+        : el.innerHTML
       const persisted = el.classList.contains('twoslash-query-persisted')
+        || el.classList.contains('twoslash-completion-trigger')
 
       const mount = document.createElement('span')
       mount.className = 'twoslash-mounted'
@@ -41,6 +44,9 @@ export function useTwoslashTooltips(containerEl: Ref<HTMLElement | undefined>) {
         content,
         tokenHtml,
         persisted,
+        popperClass: el.classList.contains('twoslash-completion-trigger')
+          ? 'twoslash-completion-popper'
+          : undefined,
       })
       render(vnode, mount)
 

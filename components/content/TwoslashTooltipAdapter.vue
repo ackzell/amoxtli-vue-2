@@ -4,6 +4,7 @@ defineProps<{
   content: string
   tokenHtml: string
   persisted?: boolean
+  popperClass?: string
 }>()
 </script>
 
@@ -16,6 +17,7 @@ defineProps<{
     :persistent="persisted"
     :hide-timeout="100"
     :placement="persisted ? 'bottom-start' : undefined"
+    :popper-class="popperClass"
   >
     <span class="twoslash-token-content" v-html="tokenHtml" />
   </TooltipTrigger>
