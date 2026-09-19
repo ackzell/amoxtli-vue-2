@@ -268,7 +268,7 @@ onUnmounted(() => {
       ref="tooltipEl"
       class="guide-tooltip-popper"
       z-tooltip-popper
-      :class="{ 'is-bottom': floatingPlacement.startsWith('top') }"
+      :class="{ 'is-bottom': floatingPlacement.startsWith('top'), 'is-persistent': persistent }"
       :style="[tooltipStyle, { display: isShown ? '' : 'none' }]"
       @mouseenter="showTooltip()"
       @mouseleave="scheduleHide"
@@ -282,6 +282,13 @@ onUnmounted(() => {
 <style>
 .dark .guide-tooltip-popper {
   filter: drop-shadow(0 2px 4px rgba(220, 41, 137, 0.15)) drop-shadow(0 4px 8px rgba(220, 41, 137, 0.15));
+}
+
+/* Manually-triggered popups (hover/focus, completions) sit one level above
+   persisted (^?) poppers, which all share z-104, so overlap resolves in
+   favor of the tooltip the user is actually interacting with. */
+.guide-tooltip-popper:not(.is-persistent) {
+  z-index: 105;
 }
 
 .guide-tooltip-popper {
