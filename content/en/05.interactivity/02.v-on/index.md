@@ -57,7 +57,44 @@ Try it:
 </template>
 ```
 
-We can also extract the logic into a **method handler**, particularly useful when we have more complex logic. The goal is to let the user provide a name and then greet them personally in the console:
+We can also extract the logic into a **method handler**, particularly useful when we have more complex logic.
+
+Imagine a slightly more complex logic that has the goal to let the user provide a name and then greet them personally in the console:
+
+```vue live showConsole
+<script setup>
+let name = ''
+
+function updateName(event) {
+  if (event.target.value) {
+    name = event.target.value
+  }
+}
+
+function handleClick() {
+  let message = 'No name was provided'
+  if (name) {
+    message = `Hello ${name}!`
+  }
+
+  console.log(message)
+}
+</script>
+
+<template>
+  <label for="username">What is your name? </label>
+  <input
+    name="username"
+    type="text"
+    v-on:change="updateName"
+  >
+  <button v-on:click="handleClick">
+    Call my name
+  </button>
+</template>
+```
+
+Here's the breakdown:
 
 ```vue title="App.vue" "handleClick"  "updateName" {"One handler to update the name":4-8} {"Another handler for the button click":10-17} {"Note we are reading the DOM event in this handler":5}
 <script setup>
@@ -88,7 +125,41 @@ function handleClick() {
 </template>
 ```
 
-```vue live showConsole
+I attempted to create a minimal example, and yet it quickly grew a few more lines of code 😅. But I hope you can appreciate the benefit of extracting the handlers into methods and keeping the `template` as readable as possible while allowing us to implement conditionals within the handler methods.
+
+## Shorthand `@`
+
+Before we go furhter, let me share this quickly: just like the shorthand for `v-bind` is `:`, the shorthand for `v-on:` is the `@` character. So you can either:
+
+::magic-move{lang="vue"}
+
+```vue title="Spell the directive"
+  <button v-on:click="handleClick">
+    Click me
+  </button>
+```
+
+```vue title="Use the shorthand"
+<button @click="handleClick">
+  Click me
+</button>
+```
+
+::
+
+I prefer using the shorthand `@` and most of the code I've seen out there uses it, but you can use the full syntax if you want to be more explicit.
+
+::tip
+
+There is also a linting rule that allows you to enforce the use of the shorthand, so if you try to use `v-on` instead of `@`, you'll get a warning: [vue/v-on-style](https://eslint.vuejs.org/rules/v-on-style). But it could be the other way around too, if you prefer the full syntax.
+
+::
+
+## What's up with the `event`?
+
+All right, back on track: you saw the `updateName` handler method, right? We even left a note there:
+
+```vue title="The event argument"  collapse={10-21, 23-26}  {"Note we are reading the DOM event in this handler":5} "event" "updateName"
 <script setup>
 let name = ''
 
@@ -117,7 +188,27 @@ function handleClick() {
 </template>
 ```
 
-I attempted to create a minimal example, and yet it quickly grew a few more lines of code. But I hope you can appreciate the benefit of extracting the handlers into methods and keeping the `template` as readable as possible while allowing us to implement conditionals within the handler methods.
+Yep, we do have access to the DOM event in the handler. That means that if we did it **inline**, we **can** access it too, and there are a couple ways to do it.
+
+Either by using a special `$event` variable that holds it:
+
+```vue live showConsole
+<template>
+  <button @click="console.log('The event is: ', $event)">
+    Click me
+  </button>
+</template>
+```
+
+Or using an inline arrow function:
+
+```vue live showConsole
+<template>
+  <button @click="(ev) => console.log('The event is: ', ev)">
+    Click me
+  </button>
+</template>
+```
 
 ## Typing the event handler
 
@@ -136,26 +227,13 @@ function updateName(event) {
 </script>
 
 <template>
-  <input name="username" type="text" v-on:change="updateName">
+  <input name="username" type="text" @change="updateName">
 </template>
 ```
 
 Let's try helping the compiler a little bit.
 
-```vue-diff
-<script setup>
-let name = ''
-- function updateName(event) {
-+ function updateName(event: Event) {
-+   const input = event.target as HTMLInputElement
--   if (event.target.value) {
-+   if (input.value) {
-  }
-}
-</script>
-```
-
-::diff-view{lang="vue" before="JS" after="TS"}
+::diff-view{lang="vue" before="event with type 'any'" after="Typing the event"}
 
 ```
 <script setup>
@@ -170,7 +248,9 @@ function updateName(event) {
 </script>
 
 <template>
-  <input name="username" type="text" v-on:change="updateName">
+  <input name="username"
+    type="text"
+    @change="updateName">
 </template>
 ```
 
@@ -189,7 +269,9 @@ function updateName(event: Event) {
 </script>
 
 <template>
-  <input name="username" type="text" v-on:change="updateName">
+  <input name="username"
+    type="text"
+    @change="updateName">
 </template>
 ```
 
@@ -199,7 +281,7 @@ After introducing our changes, we are able to more confidently work with our eve
 
 <!-- eslint-skip -->
 
-```vue twoslash
+```vue twoslash showLineNumbers=false
 <script setup lang="ts">
 // @noErrors
 let name = ''
@@ -218,21 +300,3 @@ function updateName(event: Event) {
 ```
 
 Great! Now we can be certain that the input value will be treated as a string.
-
-## Shorthand `@`
-
-Just like the shorthand for `v-bind` is `:`, the shorthand for `v-on` is `@`. So the above code can be rewritten as:
-
-```vue title="App.vue" "@click="
-  <button @click="handleClick">
-    Click me
-  </button>
-```
-
-I prefer using it and most of the code I've seen out there uses it, but you can use the full syntax if you want to be more explicit.
-
-::tip
-
-There is also a linting rule that allows you to enforce the use of the shorthand, so if you try to use `v-on` instead of `@`, you'll get a warning: [vue/v-on-style](https://eslint.vuejs.org/rules/v-on-style). But it could be the other way around too, if you prefer the full syntax.
-
-::
