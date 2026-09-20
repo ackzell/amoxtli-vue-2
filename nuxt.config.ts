@@ -351,6 +351,16 @@ export default defineNuxtConfig({
         },
       )
 
+      // Escape collapse braces so MDC doesn't consume them as attribute syntax.
+      // Runs unconditionally: MDC's parseThematicBlock strips any {lines} token
+      // from the fence meta as a highlight range, so an unescaped collapse={...}
+      // would silently drop the collapse directive (the `collapse=` token stays
+      // in the meta but with no value the parser discards it).
+      file.body = file.body.replace(
+        /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
+        (_, before, val) => `${before}collapse=__ECOL_${val}__`,
+      )
+
       // Handle multiple annotations on the same line by running until no more matches
       // (the above replace handles one per call, but g flag handles all on same line)
 
@@ -397,12 +407,6 @@ export default defineNuxtConfig({
 
             return `${fence}${lang ?? ''} ${prefix}:/${filePath}${rest ?? ''}\n${content}\n${fence}`
           },
-        )
-
-        // Escape collapse braces so MDC doesn't consume them as attribute syntax
-        file.body = file.body.replace(
-          /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
-          (_, before, val) => `${before}collapse=__ECOL_${val}__`,
         )
 
         // Encode title="..." with escaped quotes (\" and \\ and \` etc.)
