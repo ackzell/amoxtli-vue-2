@@ -21,24 +21,58 @@ This is what it would look like [if we did it in plain JS](https://developer.moz
 <button id="my-button">Click me</button>
 ```
 
-```html title="Add an event listener to the button" showLineNumbers=false
+```html title="Get a hold of the button" showLineNumbers=false
+<button id="my-button">Click me</button>
+
 <script>
-  const btn = document.querySelector('my-button')
+  const btn = document.querySelector('#my-button')
+</script>
+```
+
+```html title="Add an event listener to the button" showLineNumbers=false
+<button id="my-button">Click me</button>
+
+<script>
+  const btn = document.querySelector('#my-button')
+
+  btn.addEventListener('click', function handleClick(event) {
+    console.log('Button clicked!')
+  })
+</script>
+```
+
+```html title="Optionally, extract method" showLineNumbers=false
+<button id="my-button">Click me</button>
+
+<script>
+  const btn = document.querySelector('#my-button')
 
   function handleClick(event) {
-    alert('Button clicked!')
+    console.log('Button clicked!')
   }
 
-  btn.addEventListener('click', greet)
+  btn.addEventListener('click', handleClick)
 </script>
-
-<button id="my-button">Click me</button>
 ```
 
 ::
 
-So, for a button that is in the page, we need to first select it using `querySelector` and then add an event listener to it using `addEventListener`. This is a bit of boilerplate that we have to write every time we want to listen to an event.
+```html live showConsole
+<button id="my-button">Click me</button>
+
+<script>
+  const btn = document.querySelector('#my-button')
+
+  function handleClick(event) {
+    console.log('Button clicked!')
+  }
+
+  btn.addEventListener('click', handleClick)
+</script>
+```
+
+So, for a button that lives in the page, we need to first _select it_ using `querySelector` and then add an event listener to it using `addEventListener`. This is a bit of boilerplate that we have to write every time we want to listen to an event.
 
 ::info
-An awesome library called [`jQuery`](https://jquery.com/) was a great way to simplify our lives because it brought in a simpler API to do the same thing, besides providing a way of dealing with cross-browser inconsistencies.
+For many many years, an awesome library called [`jQuery`](https://jquery.com/) has been a great way to simplify our lives because it brought in a simpler API to do the same thing, besides providing a way of dealing with cross-browser inconsistencies.
 ::

@@ -76,6 +76,7 @@ export default antfu(
         'content/**/06.reactivity/04.next-tick/index.md/**',
         'content/**/06.reactivity/05.computed-properties/index.md',
         'content/**/06.reactivity/05.computed-properties/index.md/**',
+        'content/**/05.interactivity/02.v-on/index.md',
       ],
     },
   )

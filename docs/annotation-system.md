@@ -210,7 +210,7 @@ function updateName(event) {
 
 | Prop             | Meaning                                                               | Default                                   |
 | ---------------- | --------------------------------------------------------------------- | ----------------------------------------- |
-| `lang`           | Language of both blocks; mapped to a v-code-diff/highlight.js grammar | `plaintext`                               |
+| `lang`           | Language of both blocks; mapped to a shiki grammar                    | `plaintext`                               |
 | `before`/`after` | Labels for the left/right pane headers                                | i18n `diff-view.before`/`diff-view.after` |
 | `max-height`     | Max pane height before vertical scrolling                             | `28rem`                                   |
 | `output-format`  | Force display mode (`side-by-side` or `line-by-line`)                 | auto                                      |
@@ -223,15 +223,17 @@ Behavior notes:
   highlighting inside the hidden slot before the component reads their text.
 - The component (`components/content/DiffView.client.vue`) reads the two
   blocks' text from the slot (same pattern as `MagicMove.client.vue`) and
-  feeds them into the `v-code-diff` `CodeDiff` component.
-- `lang="vue"` (and `svelte`) render through the TypeScript grammar, so
-  `<script setup>` bodies — function/`let`/`const`/`if`, strings, types —
-  colorize in the panes; v-code-diff highlights line-by-line, so a markup
-  grammar can't reach inside `<script>` blocks. `lang="html"` stays on the xml
-  grammar for pure-markup diffs.
-- The diff is **client-only**: v-code-diff injects its stylesheet at module
-  load, so the block shows a loading placeholder until mount. The theme tracks
-  `colorMode` (`light`/`dark`), with the panes restyled to the site's design
+  feeds them into the handrolled `DiffCode` component
+  (`components/content/DiffCode.vue`), which diffs them with jsdiff
+  (`diffLines` + `diffWords`) and tokenizes both panes with **Shiki** using the
+  site's themes (`amoxtli-light`/`vesper`).
+- One of the wins over the previous highlight.js-based implementation:
+  `lang="vue"`/`svelte`/`scss` are first-class shiki grammars, so `<script setup>`
+  bodies colorize in the panes without a language-mapping hack. Added/deleted
+  words get a `positive`/`negative` tint on top of the line-level background.
+- The diff is **client-only**: shiki themes/langs load on mount, so the block
+  shows a loading placeholder until then. The theme tracks `colorMode`
+  (`vesper`/`amoxtli-light`), with the panes restyled to the site's design
   tokens (`bgr`, `positive`/`negative` tints).
 - On narrow screens (below `767px`) the view automatically falls back to the
   line-by-line (`line-by-line`) format to avoid a cramped split; pass

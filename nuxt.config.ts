@@ -182,6 +182,7 @@ export default defineNuxtConfig({
         'birpc',
         'clsx',
         'dexie',
+        'diff', // CJS
         'fuse.js',
         'jszip', // CJS
         'licia/toEl', // CJS
@@ -204,7 +205,6 @@ export default defineNuxtConfig({
         'strip-json-comments',
         'typescript', // CJS
         'typescript/lib/tsserverlibrary', // CJS
-        'v-code-diff',
         'vscode-uri',
       ],
     },

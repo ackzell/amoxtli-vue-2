@@ -3,7 +3,6 @@ import type { Snapshot, SnapshotType } from '@/db'
 import { useTimeAgoIntl } from '@vueuse/core'
 import { Tooltip } from 'floating-vue'
 import { motion } from 'motion-v'
-import { CodeDiff } from 'v-code-diff'
 
 interface YVTimelineEntryProps {
   snapshot: Snapshot
@@ -18,8 +17,34 @@ interface TypeColorConfig {
 
 const props = defineProps<YVTimelineEntryProps>()
 
+const LANGS_BY_EXT: Record<string, string> = {
+  '.vue': 'vue',
+  '.ts': 'typescript',
+  '.tsx': 'typescript',
+  '.mts': 'typescript',
+  '.cts': 'typescript',
+  '.js': 'javascript',
+  '.jsx': 'javascript',
+  '.mjs': 'javascript',
+  '.cjs': 'javascript',
+  '.css': 'css',
+  '.scss': 'scss',
+  '.sass': 'scss',
+  '.html': 'html',
+  '.htm': 'html',
+  '.json': 'json',
+  '.yml': 'yaml',
+  '.yaml': 'yaml',
+  '.sh': 'bash',
+  '.bash': 'bash',
+}
+
+function langForFile(path: string): string | undefined {
+  const ext = path.slice(path.lastIndexOf('.'))
+  return LANGS_BY_EXT[ext]
+}
+
 const fm = useFileManagerStore()
-const colorMode = useColorMode()
 const playground = usePlaygroundStore()
 
 const typeColors = computed((): TypeColorConfig => {
@@ -63,6 +88,7 @@ const changedFiles = computed(() => {
 const fileDiffs = computed(() =>
   changedFiles.value.map(path => ({
     path,
+    lang: langForFile(path),
     oldString: props.snapshot.files[path] ?? '',
     newString: playground.files.get(path)?.read() ?? '',
   })),
@@ -139,16 +165,16 @@ const fileDiffs = computed(() =>
               <p>meeeeeehhhh</p>
             </div> -->
 
-            <CodeDiff
+            <DiffCode
               v-for="file in fileDiffs"
               :key="file.path"
+              :lang="file.lang"
               :old-string="file.oldString"
               :new-string="file.newString"
               output-format="side-by-side"
-              filename="Snapshot"
-              new-filename="Current"
+              before="Snapshot"
+              after="Current"
               max-height="20rem"
-              :theme="colorMode.value"
             />
           </UiPopoverContent>
         </UiPopover>
@@ -239,9 +265,5 @@ const fileDiffs = computed(() =>
 
 .dark .code-diff-popper {
   --uno: '';
-}
-
-.code-diff-view {
-  margin: 0 !important;
 }
 </style>
