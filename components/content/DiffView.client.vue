@@ -35,11 +35,25 @@ const newString = ref('')
 
 const isReady = computed(() => oldString.value.length > 0 || newString.value.length > 0)
 
+// Rebuild authored code from the highlighted DOM. Shiki renders one `.line`
+// span per source line, but @nuxtjs/mdc's compileToJSON drops the newline text
+// nodes, so `textContent` collapses lines together. Joining the `.line` span
+// texts — minus each line's trailing break (the blank-line placeholder) —
+// reproduces the authored fence content exactly.
+function codeTextFromPre(pre: Element): string {
+  const codeEl = pre.querySelector('code')
+  if (!codeEl)
+    return ''
+  const lineEls = codeEl.querySelectorAll('.line')
+  const raw = lineEls.length
+    ? Array.from(lineEls, line => (line.textContent ?? '').replace(/\n$/, '')).join('\n')
+    : codeEl.textContent ?? ''
+  return raw.trimEnd()
+}
+
 function parseFences() {
   const preEls = slotRef.value?.querySelectorAll('pre') ?? []
-  const texts = Array.from(preEls)
-    .map(pre => pre.querySelector('code')?.textContent ?? '')
-    .map(text => text.trimEnd())
+  const texts = Array.from(preEls).map(codeTextFromPre)
   oldString.value = texts[0] ?? ''
   newString.value = texts[1] ?? ''
 }

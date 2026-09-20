@@ -37,13 +37,30 @@ function getPreEl(): HTMLElement | null {
   return containerRef.value?.querySelector('pre') ?? null
 }
 
+// Rebuild authored code from the highlighted DOM. Shiki renders one `.line`
+// span per source line (blank lines carry an `emptyLinePlaceholder` break), but
+// @nuxtjs/mdc's compileToJSON drops the newline text nodes, so `textContent`
+// collapses lines together. Joining the `.line` span texts — minus each line's
+// trailing break (the blank-line placeholder) — reproduces the authored step
+// code exactly.
+function getStepCode(pre: Element): string {
+  const codeEl = pre.querySelector('code')
+  if (!codeEl)
+    return ''
+  const lineEls = codeEl.querySelectorAll('.line')
+  const raw = lineEls.length
+    ? Array.from(lineEls, line => (line.textContent ?? '').replace(/\n$/, '')).join('\n')
+    : codeEl.textContent ?? ''
+  return raw.trimEnd()
+}
+
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 async function initializeSteps() {
   const preEls = slotRef.value?.querySelectorAll('pre') ?? []
   const labelEls = slotRef.value?.querySelectorAll('[data-filename]') ?? []
 
   steps.value = Array.from(preEls).map((pre, i) => ({
-    code: (pre.querySelector('code')?.textContent ?? '').trimEnd(),
+    code: getStepCode(pre),
     label: labelEls[i]?.textContent?.trim() ?? '',
   }))
 
