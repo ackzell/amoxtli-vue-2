@@ -52,6 +52,61 @@ When upgrading `@nuxtjs/mdc` (transitively via `@nuxt/content`):
 - If upstream fixed it: delete the patch file and remove the
   `patchedDependencies` entry from `pnpm-workspace.yaml`.
 
+## Committing (conventional commits)
+
+All commits must follow the conventional commits format: `<type>(<scope>): <subject>`.
+
+Use the opencode `/commit` command to stage and commit the work produced in the
+current session (it applies the rules below and asks when in doubt).
+
+### Scopes
+
+The scope list below mirrors `conventionalCommits.scopes` in
+`.vscode/settings.json` (used by the VSCode "Conventional Commits" extension).
+Keep both in sync when changing it.
+
+| scope | use for | code areas |
+| --- | --- | --- |
+| `release` | version bumps only; produced by `pnpm tag` / `tag:minor` / `tag:major` (commit-and-tag-version), never hand-written | CHANGELOG.md, `package.json` version |
+| `deps` | add/upgrade/remove dependencies, workspace catalog, vendored almostnode, dependency patches | `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `vendor/`, `patches/` |
+| `helper-components` | MDC/code components rendered *inside lesson markdown* and their support machinery | `components/content/`, `shiki/`, `mdc.config.ts`, lesson CSS in `styles/` |
+| `content` | lesson authoring, translations, page structures | `content/`, `i18n/`, `structures/`, `content.config.ts` |
+| `ui` | app chrome/shell (nav, theme toggle, dialogs, palette, layout) | `components/ui/`, `TheNav`, `ColorSchemeToggle`, `CommandPalette`, `store/ui.ts` |
+| `a11y` | broad cross-cutting accessibility passes only (semantics, focus, keyboard nav, ARIA). Per-component a11y fixes use that component's own scope | any |
+| `templates` | base projects mounted into the playground container | `templates/`, `modules/template-loader.ts` |
+| `challenge` | challenge bank, validation suites, retake flow, Challenge blocks | `challenges/`, `useChallenge*`, `lib/challenge-*` |
+| `quiz` | quiz bank, block, grading | `quizzes/`, `useQuiz*`, `lib/quiz-*` |
+| `invites` | invite lifecycle | `invites.yaml`, `scripts/*invite*` |
+| `playground` | container boot, editor/preview/console/terminal, service worker | `stores/playground.ts`, `stores/preview.ts`, `monaco/`, `public/__sw__.js`, `Panel*` |
+| `changelog` | in-app changelog dialog | `ChangelogDialog.vue`, `lib/changelog/` |
+| `content-cli` | content authoring CLI | `packages/create-content/` |
+| `dev` | build/tooling/dev-experience (build config, lint, tsconfig, scripts) | `nuxt.config.ts`, `eslint.config.js`, `tsconfig.json`, `scripts/`, `.vscode/` |
+| `ci` | CI and deploy config | `.github/workflows/`, `wrangler.toml` |
+
+### Types
+
+- `feat` / `fix` -- user-visible behavior changes
+- `refactor` -- internal restructuring with no behavior change
+- `chore` -- build, tooling, housekeeping
+- `docs`, `test`, `perf`, `revert` -- self-explanatory
+
+### Rules
+
+- Commit **only the work produced in the current session**. Stage explicit
+  paths (`git add <path>`), never `git add -A`.
+- If a change genuinely spans multiple scopes (e.g. a helper component plus the
+  lesson content using it), split it into one commit per scope -- but confirm
+  the split with the user first.
+- When the right type or scope is not obvious, ask for clarification instead
+  of guessing.
+- Subject: imperative mood, lowercase, `<= ~72` chars, no trailing period. Add
+  a body (`-m`) explaining the "why" when non-obvious.
+- `deps` changes carry lockfile, catalog, and patch updates together with the
+  dependency change.
+- Never commit secrets. `.env*`, `invites-batch.json`, and
+  `invites-in-remote.json` are gitignored.
+- Do not push unless asked.
+
 ## Commands
 
 - `pnpm dev` -- start dev server

@@ -59,12 +59,15 @@
     "helper-components",
     "content",
     "ui",
+    "a11y",
     "templates",
     "challenge",
     "quiz",
     "invites",
     "playground",
     "changelog",
-    "content-cli"
+    "content-cli",
+    "dev",
+    "ci"
   ]
 }
