@@ -163,6 +163,11 @@
   color: var(--amv-highlight);
 }
 
+.dark .twoslash-token-content .twoslash-completion-caret {
+  background-color: var(--amv-highlight);
+   background-clip: content-box;
+}
+
 /* Completion popups (^|) sit right under the caret: no arrow, tighter drop. */
 .guide-tooltip-popper.twoslash-completion-popper,
 .guide-tooltip-popper.twoslash-completion-popper.is-bottom {

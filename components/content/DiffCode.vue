@@ -489,7 +489,7 @@ function wordClass(row: DiffRow): string {
 }
 
 .diff-code-cell {
-  padding: 0 0.75rem;
+  padding: 0 0.2rem;
   white-space: pre-wrap;
   background-color: var(--colors-bgr-50);
 }
