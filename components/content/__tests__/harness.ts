@@ -72,6 +72,14 @@ const translations: Record<string, string> = {
   'challenge.fail': 'Not quite — see the details below',
   'challenge.completed': 'You\'ve completed this challenge',
   'update-the-code-in-the-playground-and-click-check-my-work': 'Update the code in the playground and click "Check my work"',
+  'vue-live.title': 'Vue',
+  'vue-live.reset-contents': 'Reset contents',
+  'vue-live.clear-console': 'Clear console',
+  'vue-live.reload-preview': 'Reload preview',
+  'html-live.title': 'HTML',
+  'html-live.reset-contents': 'Reset contents',
+  'html-live.clear-console': 'Clear console',
+  'html-live.reload-preview': 'Reload preview',
 }
 
 export function translate(key: string, params?: Record<string, unknown>): string {
@@ -135,6 +143,24 @@ export interface GuideStoreMock {
   buttonResetMessage: string
 }
 
+/** Console-output surface consumed by `VueLive`/`HtmlLive` (see `useConsoleOutput`). */
+export interface ConsoleOutputMock {
+  initConsole: ReturnType<typeof vi.fn>
+  addLog: ReturnType<typeof vi.fn>
+  clearLogs: ReturnType<typeof vi.fn>
+  destroy: ReturnType<typeof vi.fn>
+}
+
+/** Build a controllable `useConsoleOutput` return value (all methods are spies). */
+export function consoleOutputMock(): ConsoleOutputMock {
+  return {
+    initConsole: vi.fn(async () => {}),
+    addLog: vi.fn(),
+    clearLogs: vi.fn(),
+    destroy: vi.fn(),
+  }
+}
+
 /** Build a controllable `useGuideStore` return value (reactive, refs unwrapped). */
 export function guideStoreMock(overrides: Partial<GuideStoreMock> = {}): GuideStoreMock {
   const state = reactive({
@@ -172,6 +198,8 @@ export interface HarnessOverrides {
 export function installHarness(overrides: HarnessOverrides = {}) {
   const copy = vi.fn(overrides.copy ?? (async () => {}))
   const guide = guideStoreMock(overrides.guide)
+  const colorMode = ref(overrides.colorMode ?? 'light')
+  const consoleOutput = consoleOutputMock()
 
   // Vue
   vi.stubGlobal('ref', ref)
@@ -197,7 +225,8 @@ export function installHarness(overrides: HarnessOverrides = {}) {
   vi.stubGlobal('useCodeCopy', useCodeCopy)
   vi.stubGlobal('useAppConfig', () => appConfig)
   vi.stubGlobal('useClipboard', () => ({ copy }))
-  vi.stubGlobal('useColorMode', () => ref(overrides.colorMode ?? 'light'))
+  vi.stubGlobal('useColorMode', () => colorMode)
+  vi.stubGlobal('useConsoleOutput', () => consoleOutput)
   vi.stubGlobal('useMediaQuery', () => ref(overrides.isNarrow ?? false))
   vi.stubGlobal('useRoute', () => ({ path: overrides.routePath ?? '/en/basics/quiz' }))
   vi.stubGlobal('useI18n', () => ({ t: translate }))
@@ -206,7 +235,7 @@ export function installHarness(overrides: HarnessOverrides = {}) {
   vi.stubGlobal('useGuideStore', () => guide)
   vi.stubGlobal('useId', () => 'mm-test-id')
 
-  return { copy, guide }
+  return { copy, guide, colorMode, consoleOutput }
 }
 
 /** Build one shiki-ish `.line` span with a `line` attribute. */
