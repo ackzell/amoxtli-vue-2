@@ -10,7 +10,7 @@ These `*.vue` files are one of the characteristics that make Vue.js stand out. T
 
 You have 3 main sections in a Vue SFC:
 
-```file:/src/App.vue title="App.vue" showLineNumbers=false {"the logic":1-15} {"the structure":17-25} {"the styles":27-48}
+```file:/src/App.vue title="App.vue" showLineNumbers=false {"the logic":1-15} {"the structure":17-25} {"the styles":27-42}
 -
 ```
 
