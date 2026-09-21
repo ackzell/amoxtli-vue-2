@@ -1,3 +1,11 @@
+import {
+  decodeAnnotationTokens,
+  decodeCollapseToken,
+  decodeLabelTokens,
+  decodeMarkerTokens,
+  decodeTitleToken,
+} from '../lib/ec-tokens'
+
 export interface Annotation {
   text: string
   lines: number[]
@@ -80,17 +88,16 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
 
   // Decode bare {"text"} labels (no line numbers) and strip them.
   // The text is stored in result.labels for potential future use.
-  workingString = workingString.replace(/__ELBL_([0-9a-f]+)__/g, (_, hex) => {
-    const text = (hex.match(/.{2}/g) ?? []).map((b: string) => String.fromCharCode(Number.parseInt(b, 16))).join('')
-    result.labels.push(text)
-    return ''
-  })
+  {
+    const { value, labels } = decodeLabelTokens(workingString)
+    workingString = value
+    result.labels.push(...labels)
+  }
 
-  workingString = workingString.replace(/__EANN_([0-9a-f]+)_L_([\d_]+)__/g, (_, hex, lines) => {
-    const text = (hex.match(/.{2}/g) ?? []).map((b: string) => String.fromCharCode(Number.parseInt(b, 16))).join('')
-    result.annotations.push({ text, lines: parseRanges(lines.replace(/_/g, ',')) })
-    return ''
-  })
+  const { value: annotatedValue, annotations: decodedAnnotations } = decodeAnnotationTokens(workingString)
+  workingString = annotatedValue
+  for (const { text, lines } of decodedAnnotations)
+    result.annotations.push({ text, lines: parseRanges(lines) })
 
   // Fallback: parse raw {"text":lines} annotations (when beforeParse encoding didn't run)
   const rawAnnotationRe = /\{"([^"]+)":([0-9,\- ]+)\}/g
@@ -113,13 +120,12 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
   })
 
   // Decode title=__ETIT_<hex>__ (escaped quotes encoded by beforeParse hook)
-  workingString = workingString.replace(
-    /(?:^|\s)title=__ETIT_([A-Fa-f0-9]+)__/,
-    (_, hex) => {
-      result.title = decodeURIComponent(hex.replace(/([A-Fa-f0-9]{2})/g, '%$1'))
-      return ''
-    },
-  )
+  {
+    const { value, title } = decodeTitleToken(workingString)
+    workingString = value
+    if (title !== undefined)
+      result.title = title
+  }
 
   // Plain title="..." (no escaped quotes, no encoding needed)
   workingString = workingString.replace(/(?:^|\s)title="([^"]+)"/, (_, val) => { result.title = val; return '' })
@@ -129,13 +135,12 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
 
   // Was: collapse=\{([^}]+)\}
   // Now handles both encoded and raw forms
-  workingString = workingString.replace(
-    /(?:^|\s)collapse=(?:\{([^}]+)\}|__ECOL_([^_]+)__)/,
-    (_, v1, v2) => {
-      result.collapseRanges = parseCollapseRanges(v1 ?? v2)
-      return ''
-    },
-  )
+  {
+    const { value, ranges } = decodeCollapseToken(workingString)
+    workingString = value
+    if (ranges !== undefined)
+      result.collapseRanges = parseCollapseRanges(ranges)
+  }
 
   workingString = workingString.replace(
     /(?:^|\s)showLineNumbers=(true|false)/,
@@ -143,12 +148,7 @@ export function parseEcInfo(input: string = ''): ParsedEcInfo {
   )
 
   // Decode whole /pattern/ and "plain text" markers from hex encoding
-  workingString = workingString.replace(/__ECPT_([0-9a-f]+)__/g, (_, hex) => {
-    const raw = (hex.match(/.{2}/g) ?? []).map(
-      (b: string) => String.fromCharCode(Number.parseInt(b, 16)),
-    ).join('')
-    return raw
-  })
+  workingString = decodeMarkerTokens(workingString)
 
   // Extract quoted plaintext markers ("text" / 'text'). These are literal
   // substring matches (Expressive Code semantics), not regular expressions.

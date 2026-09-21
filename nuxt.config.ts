@@ -1,11 +1,19 @@
 import type { Logger, Plugin } from 'vite'
-import { Buffer } from 'node:buffer'
-import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
 import process from 'node:process'
 import { execaSync } from 'execa'
 
+import {
+  autoInjectChallengeCheck,
+  encodeAnnotations,
+  encodeCollapse,
+  encodeMarkers,
+  inferLangFromFilePath,
+  inlineTemplateFiles,
+  normalizeVueDiffFences,
+  wrapLiveBlocks,
+} from './lib/content-transforms'
 import amoxtliLight from './themes/amoxtli-light'
 
 // Some CJS deps in the MDC/twoslash chain (@vue/language-core, typescript) ship
@@ -244,246 +252,17 @@ export default defineNuxtConfig({
         console.log('[beforeParse] twoslash blocks found:', twoslashBlocks)
       }
 
-      // Normalize `{lang}-diff` fence languages to `{lang} diff`. Authors write
-      // ` ```vue-diff ` so ESLint's markdown processor pass-throughs the fence
-      // (an unknown language isn't parsed as a runnable SFC, and a `+`/`-`
-      // prefixed body would otherwise be a parse error). At build time we
-      // rewrite it to the canonical ` ```vue diff ` form so MDC/Shiki/indexing
-      // see a real `vue` language and the bare `diff` meta token.
-      file.body = file.body.replace(
-        /^(`{3,})([\w.-]+)-diff((?:[ \t][^\n]*)?)$/gm,
-        (match, fence, lang, rest) => `${fence}${lang} diff${rest}`,
-      )
-
-      // console.log(`[content:file.body:beforeParse]: ${file.body}`)
-
-      // Infer language from file extension when none is specified
-      file.body = file.body.replace(
-        /^(`{3,})([ \t]*(?:file|solution):\/(\S+))([ \t][^\n]*)?\n/gm,
-        (match, fence, filePrefix, filePath, rest) => {
-          const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
-          const extMap: Record<string, string> = {
-            vue: 'vue',
-            ts: 'typescript',
-            tsx: 'typescript',
-            js: 'javascript',
-            jsx: 'javascript',
-            html: 'html',
-            css: 'css',
-            scss: 'scss',
-            json: 'json',
-            md: 'markdown',
-            py: 'python',
-            sh: 'bash',
-            yaml: 'yaml',
-            yml: 'yaml',
-          }
-          const lang = extMap[ext]
-          if (!lang)
-            return match
-          return `${fence}${lang} ${filePrefix}${rest ?? ''}\n`
-        },
-      )
-
-      // Run repeatedly until no more annotation tokens remain on fence lines
-      // This handles multiple {"text":lines} on the same opening fence
-      const annotationRe = /^(`{3}[^\n]*)\{"([^"]+)":([0-9,\- ]+)\}/gm
-      while (annotationRe.test(file.body)) {
-        file.body = file.body.replace(
-          annotationRe,
-          (_, before, text, lines) => {
-            const hex = Buffer.from(text).toString('hex')
-            const lineStr = lines.trim().replace(/\D+/g, '_')
-            return `${before}__EANN_${hex}_L_${lineStr}__`
-          },
-        )
-        annotationRe.lastIndex = 0
-      }
-
-      // Encode bare {"text"} annotations (without line numbers) so Shiki doesn't
-      // try to parse them as decoration specs and fail
-      const beforeBare = file.body
-      file.body = file.body.replace(
-        /^(`{3}[^\n]*)\{"([^"]+)"\}(?=\s|$)/gm,
-        (_, before, text) => {
-          const hex = Buffer.from(text).toString('hex')
-          console.log(`[beforeParse] ENCODING bare label "${text}" as __ELBL_${hex}__`)
-          return `${before}__ELBL_${hex}__`
-        },
-      )
-      if (file.body !== beforeBare) {
-        console.log(`[beforeParse] Label encoding modified: ${file.id}`)
-      }
-
-      // Encode text markers as opaque hex tokens so MDC never sees quotes,
-      // { }, [ ], /, or other special characters inside them:
-      //   - quoted markers `"plain text"` / `'plain text'` (plaintext match)
-      //   - slash markers `/regex/` (regular expression)
-      // `title="..."` is shielded first so quotes inside a title (e.g.
-      // title="called 'useGreeter'") can't be mistaken for markers.
-      // Quoted markers are encoded first so a slash inside a quoted string
-      // can't be mistaken for a regex marker. Require leading whitespace so we
-      // don't match quotes/slashes in `file:` paths.
-      file.body = file.body.replace(
-        /^(`{3}[^\n]*)$/gm,
-        (fullLine) => {
-          const titles: string[] = []
-          const shielded = fullLine.replace(/title="((?:[^"\\]|\\.)*)"/g, (match) => {
-            titles.push(match)
-            return `__ECTITLE_${titles.length - 1}__`
-          })
-
-          const encoded = shielded
-            .replace(
-              /(?<=\s)"((?:[^"\\]|\\.)*)"(?=[\s\d,\-]|$)/g,
-              match => `__ECPT_${Buffer.from(match).toString('hex')}__`,
-            )
-            .replace(
-              /(?<=\s)'((?:[^'\\]|\\.)*)'(?=[\s\d,\-]|$)/g,
-              match => `__ECPT_${Buffer.from(match).toString('hex')}__`,
-            )
-            .replace(
-              /(?<=\s)\/([^/]+)\/(?=[\s\d,\-]|$)/g,
-              match => `__ECPT_${Buffer.from(match).toString('hex')}__`,
-            )
-
-          return encoded.replace(/__ECTITLE_(\d+)__/g, (_, i) => titles[Number(i)] ?? '')
-        },
-      )
-
-      // Escape collapse braces so MDC doesn't consume them as attribute syntax.
-      // Runs unconditionally: MDC's parseThematicBlock strips any {lines} token
-      // from the fence meta as a highlight range, so an unescaped collapse={...}
-      // would silently drop the collapse directive (the `collapse=` token stays
-      // in the meta but with no value the parser discards it).
-      file.body = file.body.replace(
-        /^(`{3}[^\n]*)collapse=\{([^}]+)\}/gm,
-        (_, before, val) => `${before}collapse=__ECOL_${val}__`,
-      )
-
-      // Handle multiple annotations on the same line by running until no more matches
-      // (the above replace handles one per call, but g flag handles all on same line)
-
-      const templateDir = join(file.dirname, '.template', 'files')
-      const solutionsDir = join(file.dirname, '.template', 'solutions')
-
-      if (existsSync(templateDir) || existsSync(solutionsDir)) {
-        file.body = file.body.replace(
-          /^(`{3,})(\w+)?[ \t]*(file|solution):\/(\S+)([ \t][^\n]*)?\n([\s\S]*?\n)?\1/gm,
-          (match, fence, lang, prefix, filePath, rest) => {
-            const baseDir = prefix === 'solution' ? solutionsDir : templateDir
-            const fullPath = join(baseDir, filePath)
-            if (!existsSync(fullPath)) {
-              return match
-            }
-            let content = readFileSync(fullPath, 'utf-8').trimEnd()
-
-            const extractMatch = (rest || '').match(/extract=\{([^}]+)\}/)
-            if (extractMatch) {
-              const parts = extractMatch[1].replace(/\s+/g, '').split(',')
-              const lines = content.split('\n')
-              const extracted: string[] = []
-              for (const part of parts) {
-                const breakMatch = part.match(/^\[(\d+)\]$/)
-                if (breakMatch) {
-                  const count = Number.parseInt(breakMatch[1], 10)
-                  for (let i = 0; i < count; i++) {
-                    extracted.push('')
-                  }
-                }
-                else {
-                  const [s, e] = part.split('-').map(Number)
-                  const end = e ?? s
-                  if (!Number.isNaN(s) && !Number.isNaN(end) && s > 0 && end >= s) {
-                    for (let i = s - 1; i < end && i < lines.length; i++) {
-                      if (lines[i] !== undefined)
-                        extracted.push(lines[i]!)
-                    }
-                  }
-                }
-              }
-              content = extracted.join('\n')
-            }
-
-            return `${fence}${lang ?? ''} ${prefix}:/${filePath}${rest ?? ''}\n${content}\n${fence}`
-          },
-        )
-
-        // Encode title="..." with escaped quotes (\" and \\ and \` etc.)
-        file.body = file.body.replace(
-          /^(`{3}\S*)\s+title="((?:[^"\\]|\\.)*)"/gm,
-          (match, prefix, titleValue) => {
-            const decoded = titleValue.replace(/\\(["\\`])/g, '$1')
-            const hex = Buffer.from(decoded).toString('hex')
-            return `${prefix} title=__ETIT_${hex}__`
-          },
-        )
-      }
-
-      // Detect live code blocks and wrap in VueLive component.
-      // Must run after file/solution inlining above so file:/path live works.
-      file.body = file.body.replace(
-        /^(`{3,})([^\n`]*?\blive\b)([^\n]*)\n([\s\S]*?)\n\1/gm,
-        (_, fence, before, after, code) => {
-          const langMatch = before.match(/(\S+)/)
-          const lang = langMatch ? langMatch[1] : 'vue'
-          const b64 = Buffer.from(`${code}\n`).toString('base64')
-          let hide = ''
-          const hideMatch = (`${before} ${after}`).match(/hide=\{([^}]+)\}/)
-          if (hideMatch && hideMatch[1])
-            hide = hideMatch[1].replace(/\s+/g, '')
-          const hideAttr = hide ? ` hide="${hide}"` : ''
-
-          let showLineNumbers = ''
-          const slnMatch = (`${before} ${after}`).match(
-            /showLineNumbers(?:=\s*(?:\{\s*)?(true|false)\s*\}?)?/,
-          )
-          if (slnMatch)
-            showLineNumbers = slnMatch[1] ?? 'true'
-          const slnAttr = showLineNumbers ? ` :showLineNumbers="${showLineNumbers}"` : ''
-
-          let showConsole = ''
-          const scMatch = (`${before} ${after}`).match(
-            /showConsole(?:=\s*(?:\{\s*)?(true|false)\s*\}?)?/,
-          )
-          if (scMatch)
-            showConsole = scMatch[1] ?? 'true'
-          const scAttr = showConsole ? ` :showConsole="${showConsole}"` : ''
-
-          let showPreview = ''
-          const spMatch = (`${before} ${after}`).match(
-            /showPreview(?:=\s*(?:\{\s*)?(true|false)\s*\}?)?/,
-          )
-          if (spMatch)
-            showPreview = spMatch[1] ?? 'true'
-          const spAttr = showPreview ? ` :showPreview="${showPreview}"` : ''
-
-          const component = lang === 'html' ? 'html-live' : 'vue-live'
-
-          return `:${component}{code="${b64}" lang="${lang}"${hideAttr}${slnAttr}${scAttr}${spAttr}}`
-        },
-      )
-
-      // ── Auto-place the "Check my work" challenge widget ──
-      // If the lesson defines a validation suite in its `.template/index.ts`,
-      // inject a `::challenge-check` block at the end of the lesson so the
-      // check UI appears independently of the `::challenge` callout.
-      //  - If the author already placed `::challenge-check` in the body,
-      //    that manual placement wins and we skip injection.
-      //  - The `ChallengeCheck` component itself self-guards on the current
-      //    guide's `validation`, so a loose detection here (a challenge with
-      //    no suite yet) simply renders nothing.
-      const hasManualCheck = /^::challenge-check/m.test(file.body)
-      if (!hasManualCheck && existsSync(templateDir)) {
-        const indexTsPath = join(file.dirname, '.template', 'index.ts')
-        if (existsSync(indexTsPath)) {
-          const src = readFileSync(indexTsPath, 'utf-8')
-          const hasValidationSuite = /\bvalidation\s*:\s*\{/.test(src)
-          if (hasValidationSuite) {
-            file.body = `${file.body.trimEnd()}\n\n::challenge-check\n`
-          }
-        }
-      }
+      // The actual fence transforms live in lib/content-transforms.ts so they
+      // can be pinned by tests. The order below must match the previous inline
+      // hook; see lib/content-transforms.ts for per-function reference.
+      file.body = normalizeVueDiffFences(file.body)
+      file.body = inferLangFromFilePath(file.body)
+      file.body = encodeAnnotations(file.body)
+      file.body = encodeMarkers(file.body)
+      file.body = encodeCollapse(file.body)
+      file.body = inlineTemplateFiles(file.body, file.dirname)
+      file.body = wrapLiveBlocks(file.body)
+      file.body = autoInjectChallengeCheck(file.body, file.dirname)
     },
 
     'content:file:afterParse': function (ctx) {
