@@ -1,5 +1,5 @@
 diff --git a/dist/floating-vue.mjs b/dist/floating-vue.mjs
-index d54beb90f1fd341fb0aa41e1503afdbbece12cbb..1401a59086a827a11252dd79acaf3d7ea1df393c 100644
+index d54beb90f1fd341fb0aa41e1503afdbbece12cbb..3089eec3a7d28095b0f3e72641bc258428ad34bc 100644
 --- a/dist/floating-vue.mjs
 +++ b/dist/floating-vue.mjs
 @@ -4,6 +4,12 @@ function ye(e, t) {
@@ -28,7 +28,7 @@ index d54beb90f1fd341fb0aa41e1503afdbbece12cbb..1401a59086a827a11252dd79acaf3d7e
      this.autoMinSize && console.warn('[floating-vue] `autoMinSize` option is deprecated. Use `autoSize="min"` instead.'), this.autoMaxSize && console.warn("[floating-vue] `autoMaxSize` option is deprecated. Use `autoBoundaryMaxSize` instead.");
    },
    mounted() {
-+    console.log('[floating-vue] patched version mounted, id of the popper is now deterministic');
++    // console.log('[floating-vue] patched version mounted, id of the popper is now deterministic');
      this.init(), this.$_detachPopperNode();
    },
    activated() {

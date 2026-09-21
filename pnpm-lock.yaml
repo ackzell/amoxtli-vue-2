@@ -255,7 +255,7 @@ overrides:
 
 patchedDependencies:
   '@nuxtjs/mdc@0.22.2': 4f6f93a9c3872944e082528bd12f3ef166082b4a530d522718a948c003be6300
-  floating-vue: 52a6ad51802958aa8eb2f281b2f90e3ccc912abc42681474589c253e5b7c6f8a
+  floating-vue: e138ec85af2736be952f54a1799c3ebaaaa11fb7d47d25c5a03dbb7b0708f0f3
 
 importers:
 
@@ -308,7 +308,7 @@ importers:
         version: 5.2.2
       floating-vue:
         specifier: catalog:frontend
-        version: 5.2.2(patch_hash=52a6ad51802958aa8eb2f281b2f90e3ccc912abc42681474589c253e5b7c6f8a)(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0))(webpack@5.109.2(@swc/core@1.16.1(@swc/helpers@0.5.23))(cssnano@8.0.6(postcss@8.5.26))(csso@5.0.5)(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)(uglify-js@3.19.3))))(vue@3.5.41(typescript@5.9.3))
+        version: 5.2.2(patch_hash=e138ec85af2736be952f54a1799c3ebaaaa11fb7d47d25c5a03dbb7b0708f0f3)(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0))(webpack@5.109.2(@swc/core@1.16.1(@swc/helpers@0.5.23))(cssnano@8.0.6(postcss@8.5.26))(csso@5.0.5)(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)(uglify-js@3.19.3))))(vue@3.5.41(typescript@5.9.3))
       fuse.js:
         specifier: catalog:frontend
         version: 7.5.0
@@ -17148,7 +17148,7 @@ snapshots:
 
   flatted@3.4.4: {}
 
-  floating-vue@5.2.2(patch_hash=52a6ad51802958aa8eb2f281b2f90e3ccc912abc42681474589c253e5b7c6f8a)(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0))(webpack@5.109.2(@swc/core@1.16.1(@swc/helpers@0.5.23))(cssnano@8.0.6(postcss@8.5.26))(csso@5.0.5)(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)(uglify-js@3.19.3))))(vue@3.5.41(typescript@5.9.3)):
+  floating-vue@5.2.2(patch_hash=e138ec85af2736be952f54a1799c3ebaaaa11fb7d47d25c5a03dbb7b0708f0f3)(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0))(webpack@5.109.2(@swc/core@1.16.1(@swc/helpers@0.5.23))(cssnano@8.0.6(postcss@8.5.26))(csso@5.0.5)(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)(uglify-js@3.19.3))))(vue@3.5.41(typescript@5.9.3)):
     dependencies:
       '@floating-ui/dom': 1.1.1
       vue: 3.5.41(typescript@5.9.3)
