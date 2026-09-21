@@ -59,16 +59,16 @@ describe('encodeAnnotations', () => {
   it('encodes a ranged annotation into an EANN token', () => {
     const body = `${FENCE}vue {"One handler to update the name":4-8}\n`
     expect(encodeAnnotations(body)).toBe(
-      `${FENCE}vue __EANN_${encodeHex('One handler to update the name')}_L_4_8__\n`,
+      `${FENCE}vue __EANN_${encodeHex('One handler to update the name')}_L_${encodeHex('4-8')}__\n`,
     )
   })
 
   it('encodes multiple annotations sharing one opening fence', () => {
     const body = `${FENCE}vue {"A":4-8} {"B":10-17} {"C":5}\n`
     const result = encodeAnnotations(body)
-    expect(result).toContain(`__EANN_${encodeHex('A')}_L_4_8__`)
-    expect(result).toContain(`__EANN_${encodeHex('B')}_L_10_17__`)
-    expect(result).toContain(`__EANN_${encodeHex('C')}_L_5__`)
+    expect(result).toContain(`__EANN_${encodeHex('A')}_L_${encodeHex('4-8')}__`)
+    expect(result).toContain(`__EANN_${encodeHex('B')}_L_${encodeHex('10-17')}__`)
+    expect(result).toContain(`__EANN_${encodeHex('C')}_L_${encodeHex('5')}__`)
   })
 
   it('encodes a bare {"text"} label into an ELBL token', () => {
@@ -78,7 +78,7 @@ describe('encodeAnnotations', () => {
 
   it('trims trailing space before a single-line annotation', () => {
     const body = `${FENCE}vue {"Render it": 23}\n`
-    expect(encodeAnnotations(body)).toContain(`__EANN_${encodeHex('Render it')}_L_23__`)
+    expect(encodeAnnotations(body)).toContain(`__EANN_${encodeHex('Render it')}_L_${encodeHex('23')}__`)
   })
 
   it('leaves plain fences untouched', () => {

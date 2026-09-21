@@ -316,16 +316,16 @@ export function useEcDecorations(
     // 2. Annotation logic
     parsedEc.value.annotations.forEach((anno, annIndex) => {
       const annKey = String(annIndex)
-      const start = Math.min(...anno.lines); const end = Math.max(...anno.lines)
+      const start = Math.min(...anno.lines)
       let firstLineEl: HTMLElement | undefined
 
-      for (let i = start; i <= end; i++) {
-        const l = lineMap.get(i)
+      for (const lineNo of anno.lines) {
+        const l = lineMap.get(lineNo)
         if (l) {
           l.classList.add('ec-annotated')
           l.setAttribute('data-ec-ann', annKey)
           ensureAnnotatedContent(l)
-          if (!firstLineEl && i === start)
+          if (!firstLineEl && lineNo === start)
             firstLineEl = l
         }
       }

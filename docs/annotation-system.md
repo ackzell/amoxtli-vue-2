@@ -257,7 +257,7 @@ interfere with Shiki or the MDC parser.
 
 | Source syntax        | Encoded token              |
 | -------------------- | -------------------------- |
-| `{"text":lines}`     | `__EANN_<hex>_L_<lines>__` |
+| `{"text":lines}`     | `__EANN_<hex>_L_<hex>__` |
 | `{"text"}`           | `__ELBL_<hex>__`           |
 | `"text"` / `/regex/` | `__ECPT_<hex>__`           |
 | `collapse={...}`     | `collapse=__ECOL_<val>__`  |

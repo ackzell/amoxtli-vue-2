@@ -124,7 +124,7 @@ describe('useEcDecorations — annotations', () => {
     expect((l3.nextElementSibling as HTMLElement).classList.contains('ec-annotation-row')).toBe(true)
   })
 
-  it('expands contiguous annotation line spans from min..max (compensating lossy ranges)', () => {
+  it('highlights exactly the annotation line set (not the min..max span)', () => {
     const [pre, preRef] = makePre([
       makeLine('a', 1),
       makeLine('b', 2),
@@ -136,7 +136,29 @@ describe('useEcDecorations — annotations', () => {
 
     const code = pre.querySelector('code')!
     const marked = linesOf(code).filter(l => l.classList.contains('ec-annotated')).map(l => l.getAttribute('line'))
-    expect(marked).toEqual(['2', '3', '4'])
+    expect(marked).toEqual(['2', '4'])
+  })
+
+  it('supports non-contiguous annotation sets with the label anchored at the first line', () => {
+    const [pre, preRef] = makePre([
+      makeLine('a', 1),
+      makeLine('b', 2),
+      makeLine('c', 3),
+      makeLine('d', 4),
+      makeLine('e', 5),
+      makeLine('f', 6),
+      makeLine('g', 7),
+      makeLine('h', 8),
+    ])
+    useEcDecorations(preRef, parsedRef({
+      annotations: [{ text: 'annotate these lines', lines: [3, 5, 7] }],
+    })).applyEcDecorations()
+
+    const code = pre.querySelector('code')!
+    const marked = linesOf(code).filter(l => l.classList.contains('ec-annotated')).map(l => l.getAttribute('line'))
+    expect(marked).toEqual(['3', '5', '7'])
+    expect(linesOf(code)[2]!.previousElementSibling?.classList.contains('ec-annotation-row')).toBe(true)
+    expect(linesOf(code)[2]!.previousElementSibling?.textContent).toBe('annotate these lines')
   })
 })
 

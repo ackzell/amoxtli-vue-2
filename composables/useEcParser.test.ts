@@ -105,10 +105,10 @@ describe('parseEcInfo — labels', () => {
 })
 
 describe('parseEcInfo — annotations', () => {
-  it('pins the current lossy EANN range encoding (hyphen ranges arrive as endpoints)', () => {
+  it('round-trips EANN ranged annotations into full line sets', () => {
     const token = encodeAnnotationToken('note', '4-8')
     const parsed = parseEcInfo(`vue ${token}`)
-    expect(parsed.annotations).toEqual([{ text: 'note', lines: [4, 8] }])
+    expect(parsed.annotations).toEqual([{ text: 'note', lines: [4, 5, 6, 7, 8] }])
   })
 
   it('decodes single-line EANN tokens exactly', () => {
@@ -116,11 +116,19 @@ describe('parseEcInfo — annotations', () => {
     expect(parseEcInfo(`vue ${token}`).annotations).toEqual([{ text: 'note', lines: [5] }])
   })
 
-  it('decodes multiple EANN tokens on one fence (hyphen ranges stay lossy)', () => {
+  it('round-trips non-contiguous EANN line lists and ranges', () => {
+    const token = encodeAnnotationToken('annotate these lines', '3-7, 16, 24-28')
+    expect(parseEcInfo(`vue ${token}`).annotations).toEqual([{
+      text: 'annotate these lines',
+      lines: [3, 4, 5, 6, 7, 16, 24, 25, 26, 27, 28],
+    }])
+  })
+
+  it('decodes multiple EANN tokens on one fence', () => {
     const input = `vue ${encodeAnnotationToken('A', '4-8')} ${encodeAnnotationToken('B', '10-17')}`
     expect(parseEcInfo(input).annotations).toEqual([
-      { text: 'A', lines: [4, 8] },
-      { text: 'B', lines: [10, 17] },
+      { text: 'A', lines: [4, 5, 6, 7, 8] },
+      { text: 'B', lines: [10, 11, 12, 13, 14, 15, 16, 17] },
     ])
   })
 
@@ -277,12 +285,12 @@ describe('parseEcInfo — combined realistic fence', () => {
     ])
   })
 
-  it('round-trips a fully encoded meta through a single parse (ranged annotation stays lossy)', () => {
+  it('round-trips a fully encoded meta through a single parse (ranges preserved)', () => {
     const token = encodeAnnotationToken('a note', '4-8')
     const input = ['vue', encodeTitleToken('t'), token].join(' ')
     expect(parseEcInfo(input)).toMatchObject({
       title: 't',
-      annotations: [{ text: 'a note', lines: [4, 8] }],
+      annotations: [{ text: 'a note', lines: [4, 5, 6, 7, 8] }],
     })
   })
 })

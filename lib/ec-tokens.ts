@@ -55,7 +55,7 @@ export function encodeLabelToken(text: string): string {
 }
 
 export function encodeAnnotationToken(text: string, lines: string): string {
-  return `__EANN_${encodeHex(text)}_L_${lines.trim().replace(/\D+/g, '_')}__`
+  return `__EANN_${encodeHex(text)}_L_${encodeHex(lines.trim())}__`
 }
 
 export function encodeMarkerToken(text: string): string {
@@ -92,9 +92,9 @@ export function decodeAnnotationTokens(
 ): { value: string, annotations: DecodedAnnotation[] } {
   const annotations: DecodedAnnotation[] = []
   const value = input.replace(
-    /__EANN_([0-9a-f]+)_L_([\d_]+)__/g,
-    (_whole, hex: string, lines: string) => {
-      annotations.push({ text: decodeHex(hex), lines: lines.replace(/_/g, ',') })
+    /__EANN_([0-9a-f]+)_L_([0-9a-f]+)__/g,
+    (_whole, hex: string, linesHex: string) => {
+      annotations.push({ text: decodeHex(hex), lines: decodeHex(linesHex) })
       return ''
     },
   )

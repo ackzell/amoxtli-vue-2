@@ -38,19 +38,19 @@ describe('ec-tokens — token round trips', () => {
     expect(decodeLabelTokens(input)).toEqual({ value: ' ', labels: ['hello', 'mundo'] })
   })
 
-  it('annotation tokens produce comma-separated range strings', () => {
+  it('annotation tokens round-trip authored range strings verbatim', () => {
     const input = `${encodeAnnotationToken('note A', '1-3,5')} ${encodeAnnotationToken('note B', '4')}`
     const { value, annotations } = decodeAnnotationTokens(input)
     expect(value).toBe(' ')
     expect(annotations).toEqual([
-      { text: 'note A', lines: '1,3,5' },
+      { text: 'note A', lines: '1-3,5' },
       { text: 'note B', lines: '4' },
     ])
   })
 
-  it('annotation token range normalization collapses non-digits to a single underscore', () => {
-    expect(encodeAnnotationToken('x', '4-8')).toBe(`__EANN_${encodeHex('x')}_L_4_8__`)
-    expect(encodeAnnotationToken('x', ' 23 ')).toBe(`__EANN_${encodeHex('x')}_L_23__`)
+  it('annotation token line ranges are hex-encoded, preserving hyphens and commas', () => {
+    expect(encodeAnnotationToken('x', '4-8')).toBe(`__EANN_${encodeHex('x')}_L_${encodeHex('4-8')}__`)
+    expect(encodeAnnotationToken('x', ' 23 ')).toBe(`__EANN_${encodeHex('x')}_L_${encodeHex('23')}__`)
   })
 
   it('marker tokens decode back to their raw marker text', () => {
@@ -72,7 +72,7 @@ describe('ec-tokens — token round trips', () => {
 describe('ec-tokens — pinned token formats', () => {
   it('locks the exact encoding used at build time', () => {
     expect(encodeLabelToken('hi')).toBe('__ELBL_6869__')
-    expect(encodeAnnotationToken('ok', '1-2')).toBe('__EANN_6f6b_L_1_2__')
+    expect(encodeAnnotationToken('ok', '1-2')).toBe(`__EANN_6f6b_L_${encodeHex('1-2')}__`)
     expect(encodeMarkerToken('"x"')).toBe('__ECPT_227822__')
     expect(encodeTitleToken('t')).toBe('title=__ETIT_74__')
     expect(encodeCollapseToken('1-2')).toBe('collapse=__ECOL_1-2__')
