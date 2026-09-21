@@ -51,12 +51,36 @@ const translations: Record<string, string> = {
   'magic-move.previous-step': 'Previous step',
   'magic-move.next-step': 'Next step',
   'slash': '/',
+  'quiz.check-title': 'Check your understanding',
+  'quiz.question': 'Question {n}:',
+  'quiz.submit': 'Check answers',
+  'quiz.retake': 'Retake quiz',
+  'quiz.passed': 'Passed!',
+  'quiz.failed': 'Not quite — review the answers above',
+  'quiz.explanation': 'Explanation',
+  'quiz.completed': 'You\'ve passed this quiz',
+  'quiz.answer-all-hint': 'Try answering all the questions first',
+  'quiz.correct': 'Correct',
+  'quiz.incorrect': 'Incorrect',
+  'quiz.missed-answer': 'Correct answer — not selected',
+  'challenge.check-title': 'Check your work',
+  'challenge.check': 'Check my work',
+  'challenge.checking': 'Checking…',
+  'challenge.retake': 'Retake challenge',
+  'challenge.hide-solution': 'Hide solution',
+  'challenge.pass': 'Passed!',
+  'challenge.fail': 'Not quite — see the details below',
+  'challenge.completed': 'You\'ve completed this challenge',
+  'update-the-code-in-the-playground-and-click-check-my-work': 'Update the code in the playground and click "Check my work"',
 }
 
 export function translate(key: string, params?: Record<string, unknown>): string {
   if (key === 'quiz.score')
     return `${params?.score}/${params?.total}`
-  return translations[key] ?? key
+  const template = translations[key] ?? key
+  if (!params)
+    return template
+  return template.replace(/\{(\w+)\}/g, (_, name: string) => String(params[name] ?? ''))
 }
 
 /** `$t` mock for template interpolation. */
@@ -95,11 +119,18 @@ export const tooltipContentStub = {
   template: '<span class="tooltip-content-stub"><slot /></span>',
 }
 
-/** Guide store surface consumed by `ButtonShowSolution` (refs unwrapped, as Pinia does). */
+/** Guide store surface consumed by `ButtonShowSolution` and `ChallengeCheck` (refs unwrapped, as Pinia does). */
 export interface GuideStoreMock {
-  currentGuide: { solutions?: Record<string, string> } | undefined
+  currentGuide: {
+    solutions?: Record<string, string>
+    sessionName?: string
+    template?: string
+    validation?: unknown
+    [key: string]: unknown
+  } | undefined
   showingSolution: boolean
   toggleSolutions: ReturnType<typeof vi.fn>
+  mount: ReturnType<typeof vi.fn>
   buttonSolutionMessage: string
   buttonResetMessage: string
 }
@@ -115,7 +146,8 @@ export function guideStoreMock(overrides: Partial<GuideStoreMock> = {}): GuideSt
   const toggleSolutions = vi.fn(async () => {
     state.showingSolution = !state.showingSolution
   })
-  return Object.assign(state, { toggleSolutions })
+  const mount = overrides.mount ?? vi.fn(async () => {})
+  return Object.assign(state, { toggleSolutions, mount })
 }
 
 export interface HarnessOverrides {
@@ -125,6 +157,8 @@ export interface HarnessOverrides {
   colorMode?: 'light' | 'dark'
   /** Initial `useMediaQuery()` value. */
   isNarrow?: boolean
+  /** Initial `useRoute().path` value. */
+  routePath?: string
   /** Replace the no-op `useTwoslashTooltips` (e.g. with the real one). */
   useTwoslashTooltips?: (el: Ref<HTMLElement | undefined>) => void
   /** Overrides for the `useGuideStore` mock. */
@@ -165,6 +199,7 @@ export function installHarness(overrides: HarnessOverrides = {}) {
   vi.stubGlobal('useClipboard', () => ({ copy }))
   vi.stubGlobal('useColorMode', () => ref(overrides.colorMode ?? 'light'))
   vi.stubGlobal('useMediaQuery', () => ref(overrides.isNarrow ?? false))
+  vi.stubGlobal('useRoute', () => ({ path: overrides.routePath ?? '/en/basics/quiz' }))
   vi.stubGlobal('useI18n', () => ({ t: translate }))
   vi.stubGlobal('useMutationObserver', () => {})
   vi.stubGlobal('useTwoslashTooltips', overrides.useTwoslashTooltips ?? (() => {}))
