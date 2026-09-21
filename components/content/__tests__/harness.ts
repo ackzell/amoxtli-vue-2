@@ -46,6 +46,8 @@ const translations: Record<string, string> = {
   'diff-view.before': 'Before',
   'diff-view.after': 'After',
   'loading': 'Loading…',
+  'yt-player.watch': 'Watch on YouTube',
+  'yt-player.description-goes-here': 'Video placeholder',
 }
 
 export function translate(key: string, params?: Record<string, unknown>): string {
@@ -90,6 +92,29 @@ export const tooltipContentStub = {
   template: '<span class="tooltip-content-stub"><slot /></span>',
 }
 
+/** Guide store surface consumed by `ButtonShowSolution` (refs unwrapped, as Pinia does). */
+export interface GuideStoreMock {
+  currentGuide: { solutions?: Record<string, string> } | undefined
+  showingSolution: boolean
+  toggleSolutions: ReturnType<typeof vi.fn>
+  buttonSolutionMessage: string
+  buttonResetMessage: string
+}
+
+/** Build a controllable `useGuideStore` return value (reactive, refs unwrapped). */
+export function guideStoreMock(overrides: Partial<GuideStoreMock> = {}): GuideStoreMock {
+  const state = reactive({
+    currentGuide: overrides.currentGuide ?? undefined,
+    showingSolution: overrides.showingSolution ?? false,
+    buttonSolutionMessage: overrides.buttonSolutionMessage ?? 'Show solution',
+    buttonResetMessage: overrides.buttonResetMessage ?? 'Reset challenge',
+  })
+  const toggleSolutions = vi.fn(async () => {
+    state.showingSolution = !state.showingSolution
+  })
+  return Object.assign(state, { toggleSolutions })
+}
+
 export interface HarnessOverrides {
   /** Clipboard write implementation; a spy is used by default. */
   copy?: (content: string) => Promise<void> | void
@@ -99,6 +124,8 @@ export interface HarnessOverrides {
   isNarrow?: boolean
   /** Replace the no-op `useTwoslashTooltips` (e.g. with the real one). */
   useTwoslashTooltips?: (el: Ref<HTMLElement | undefined>) => void
+  /** Overrides for the `useGuideStore` mock. */
+  guide?: Partial<GuideStoreMock>
 }
 
 /**
@@ -107,6 +134,7 @@ export interface HarnessOverrides {
  */
 export function installHarness(overrides: HarnessOverrides = {}) {
   const copy = vi.fn(overrides.copy ?? (async () => {}))
+  const guide = guideStoreMock(overrides.guide)
 
   // Vue
   vi.stubGlobal('ref', ref)
@@ -137,8 +165,9 @@ export function installHarness(overrides: HarnessOverrides = {}) {
   vi.stubGlobal('useI18n', () => ({ t: translate }))
   vi.stubGlobal('useMutationObserver', () => {})
   vi.stubGlobal('useTwoslashTooltips', overrides.useTwoslashTooltips ?? (() => {}))
+  vi.stubGlobal('useGuideStore', () => guide)
 
-  return { copy }
+  return { copy, guide }
 }
 
 /** Build one shiki-ish `.line` span with a `line` attribute. */
