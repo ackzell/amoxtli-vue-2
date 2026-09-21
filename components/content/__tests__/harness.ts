@@ -48,6 +48,9 @@ const translations: Record<string, string> = {
   'loading': 'Loading…',
   'yt-player.watch': 'Watch on YouTube',
   'yt-player.description-goes-here': 'Video placeholder',
+  'magic-move.previous-step': 'Previous step',
+  'magic-move.next-step': 'Next step',
+  'slash': '/',
 }
 
 export function translate(key: string, params?: Record<string, unknown>): string {
@@ -166,6 +169,7 @@ export function installHarness(overrides: HarnessOverrides = {}) {
   vi.stubGlobal('useMutationObserver', () => {})
   vi.stubGlobal('useTwoslashTooltips', overrides.useTwoslashTooltips ?? (() => {}))
   vi.stubGlobal('useGuideStore', () => guide)
+  vi.stubGlobal('useId', () => 'mm-test-id')
 
   return { copy, guide }
 }
