@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ShikiMagicMove } from '@shikijs/magic-move/vue'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { containerStepFromKey, getStepCode, tablistStepFromKey } from '~/lib/magic-move'
 import '@shikijs/magic-move/style.css'
 
 const props = defineProps<{
@@ -35,23 +36,6 @@ const activeTheme = computed(() =>
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function getPreEl(): HTMLElement | null {
   return containerRef.value?.querySelector('pre') ?? null
-}
-
-// Rebuild authored code from the highlighted DOM. Shiki renders one `.line`
-// span per source line (blank lines carry an `emptyLinePlaceholder` break), but
-// @nuxtjs/mdc's compileToJSON drops the newline text nodes, so `textContent`
-// collapses lines together. Joining the `.line` span texts — minus each line's
-// trailing break (the blank-line placeholder) — reproduces the authored step
-// code exactly.
-function getStepCode(pre: Element): string {
-  const codeEl = pre.querySelector('code')
-  if (!codeEl)
-    return ''
-  const lineEls = codeEl.querySelectorAll('.line')
-  const raw = lineEls.length
-    ? Array.from(lineEls, line => (line.textContent ?? '').replace(/\n$/, '')).join('\n')
-    : codeEl.textContent ?? ''
-  return raw.trimEnd()
 }
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
@@ -121,15 +105,8 @@ function onContainerKeydown(e: KeyboardEvent) {
     return
   }
 
-  let targetStep: number | undefined
   const last = steps.value.length - 1
-
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown')
-    targetStep = Math.min(currentStep.value + 1, last)
-  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp')
-    targetStep = Math.max(currentStep.value - 1, 0)
-  else if (/^[1-9]$/.test(e.key))
-    targetStep = Math.min(Number(e.key) - 1, last)
+  const targetStep = containerStepFromKey(e.key, currentStep.value, last)
 
   if (targetStep === undefined || targetStep === currentStep.value)
     return
@@ -139,26 +116,12 @@ function onContainerKeydown(e: KeyboardEvent) {
 
 function onTablistKeydown(e: KeyboardEvent) {
   const count = steps.value.length
-  if (count === 0)
-    return
-  let target: number | undefined
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-    target = (currentStep.value + 1) % count
-  }
-  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-    target = (currentStep.value - 1 + count) % count
-  }
-  else if (e.key === 'Home') {
-    target = 0
-  }
-  else if (e.key === 'End') {
-    target = count - 1
-  }
+  const target = tablistStepFromKey(e.key, currentStep.value, count)
   if (target === undefined)
     return
   e.preventDefault()
   currentStep.value = target
-  nextTick(() => focusTab(target!))
+  nextTick(() => focusTab(target))
 }
 
 function handleIncreaseFontSize() {
