@@ -238,21 +238,6 @@ function wordClass(row: DiffRow): string {
 
 <template>
   <div class="diff-root text-[13px] leading-6 font-code">
-    <header
-      class="diff-file-header"
-      :class="activeFormat === 'side-by-side' ? 'diff-file-header-side-by-side' : 'diff-file-header-stack'"
-      aria-label="diff"
-    >
-      <span class="diff-file-label">{{ before }}</span>
-      <template v-if="activeFormat === 'side-by-side'">
-        <span class="diff-file-label">{{ after }}</span>
-      </template>
-      <template v-else>
-        <span class="diff-file-arrow" aria-hidden="true" i-mynaui-arrow-right />
-        <span class="diff-file-label">{{ after }}</span>
-      </template>
-    </header>
-
     <div
       class="diff-scroll overflow-auto"
       :style="{
@@ -264,9 +249,24 @@ function wordClass(row: DiffRow): string {
         <table
           v-if="activeFormat === 'side-by-side'"
           key="side-by-side"
-          class="diff-table w-full border-collapse"
-          role="grid"
+          class="diff-table diff-table-side-by-side w-full border-collapse"
         >
+          <colgroup>
+            <col class="diff-col-gutter">
+            <col>
+            <col class="diff-col-gutter">
+            <col>
+          </colgroup>
+          <thead>
+            <tr class="diff-header-row">
+              <th class="diff-file-label" scope="col" colspan="2">
+                {{ before }}
+              </th>
+              <th class="diff-file-label diff-file-label-after" scope="col" colspan="2">
+                {{ after }}
+              </th>
+            </tr>
+          </thead>
           <tbody>
             <tr
               v-for="row in model.sbs"
@@ -331,8 +331,18 @@ function wordClass(row: DiffRow): string {
           v-else
           key="line-by-line"
           class="diff-table w-full border-collapse"
-          role="grid"
         >
+          <thead>
+            <tr class="diff-header-row">
+              <th class="diff-file-label" scope="col" colspan="3">
+                <span class="diff-file-label-stack">
+                  <span>{{ before }}</span>
+                  <span class="diff-file-arrow" aria-hidden="true" i-mynaui-arrow-right />
+                  <span>{{ after }}</span>
+                </span>
+              </th>
+            </tr>
+          </thead>
           <tbody>
             <tr
               v-for="row in model.stack"
@@ -382,6 +392,9 @@ function wordClass(row: DiffRow): string {
 
 <style scoped>
 .diff-root {
+  --diff-gutter: 2.5rem;
+  --diff-marker: 1.25rem;
+
   border: 1px solid var(--colors-bgr-200);
   border-radius: 0.5rem;
   overflow: hidden;
@@ -393,41 +406,39 @@ function wordClass(row: DiffRow): string {
   background-color: var(--colors-bgr-dark);
 }
 
-.diff-file-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* Header lives in the table itself so its cells share the body's columns. */
+.diff-header-row th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
+  text-align: left;
   font-family: var(--font-sans);
-  border-bottom: none;
-  background-color: color-mix(in oklab, var(--colors-bgr-100) 60%, transparent);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--colors-bgr-500);
+  background-color: var(--colors-bgr-100);
+  border: none;
 }
 
-.dark .diff-file-header {
-  border-bottom-color: var(--colors-bgr-700);
-  background-color: color-mix(in oklab, var(--colors-bgr-dark) 60%, transparent);
+/* Opaque background so scrolled rows don't show through the stuck header. */
+.dark .diff-header-row th {
+  color: var(--colors-bgr-300);
+  background-color: var(--colors-bgr-dark);
 }
 
-/* Side-by-side: one label per pane, aligned over that pane's code area. */
-.diff-file-header-side-by-side {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  padding: 0;
-}
-
-.diff-file-header-side-by-side .diff-file-label {
-  padding: 0.5rem 0.75rem;
-  padding-left: 2rem;
-}
-
-.diff-file-header-side-by-side .diff-file-label-after {
+.diff-header-row th.diff-file-label-after {
   border-left: 1px solid var(--colors-bgr-100);
 }
 
-.dark .diff-file-header-side-by-side .diff-file-label-after {
+.dark .diff-header-row th.diff-file-label-after {
   border-left-color: var(--colors-bgr-800);
+}
+
+.diff-file-label-stack {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .diff-file-arrow {
@@ -436,14 +447,6 @@ function wordClass(row: DiffRow): string {
 
 .dark .diff-file-arrow {
   color: var(--colors-bgr-400);
-}
-
-.diff-file-label {
-  color: var(--colors-bgr-500);
-}
-
-.dark .diff-file-label {
-  color: var(--colors-bgr-300);
 }
 
 .diff-scroll {
@@ -521,7 +524,7 @@ function wordClass(row: DiffRow): string {
 
 .diff-marker {
   display: inline-block;
-  min-width: 1.25rem;
+  min-width: var(--diff-marker);
   user-select: none;
 }
 

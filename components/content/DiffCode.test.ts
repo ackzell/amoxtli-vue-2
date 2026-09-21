@@ -58,17 +58,18 @@ describe('diff-code', () => {
       after: 'new.ts',
     })
     await flushPromises()
-    expect(wrapper.find('.diff-file-header-side-by-side').exists()).toBe(true)
-    expect(wrapper.findAll('.diff-file-label').map(l => l.text())).toEqual(['old.ts', 'new.ts'])
-    expect(wrapper.find('table[role="grid"]').exists()).toBe(true)
+    expect(wrapper.find('table thead tr.diff-header-row').exists()).toBe(true)
+    expect(wrapper.findAll('th[scope="col"]').map(l => l.text())).toEqual(['old.ts', 'new.ts'])
+    expect(wrapper.find('.diff-file-label-after').exists()).toBe(true)
+    expect(wrapper.find('table[role="grid"]').exists()).toBe(false)
   })
 
   it('renders line-by-line when forced, with the arrow header', async () => {
     const wrapper = mountDiff({ oldString: 'a', newString: 'b', outputFormat: 'line-by-line' })
     await flushPromises()
-    expect(wrapper.find('.diff-file-header-stack').exists()).toBe(true)
+    expect(wrapper.find('.diff-file-label-stack').exists()).toBe(true)
     expect(wrapper.find('.diff-file-arrow').exists()).toBe(true)
-    expect(wrapper.find('.diff-file-header-side-by-side').exists()).toBe(false)
+    expect(wrapper.find('.diff-file-label-after').exists()).toBe(false)
   })
 
   it('marks removed and added lines with gutter classes and markers', async () => {
