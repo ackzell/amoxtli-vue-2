@@ -164,7 +164,7 @@ function handleCopy() {
     <!-- top bar -->
     <div
       class="px-4 py-2.5 border-bgr-700/10 flex items-center justify-between dark:border-bgr-50/10"
-      bg="~ bgr-100/40 dark:bgr-900"
+      bg="~ bgr-50 dark:bgr-dark"
     >
       <div>
         <IconButton
@@ -187,6 +187,18 @@ function handleCopy() {
           <div aria-hidden="true" i-mynaui-chevron-right h4 w4 />
         </IconButton>
       </div>
+
+      <Transition name="fade" mode="out-in" class="hidden sm:block">
+        <div
+          v-if="currentLabel"
+          :key="currentLabel"
+          text="~ xs primary-700 dark:primary-dark-200"
+          font-mono p0 text-center select-none text-wrap
+          class="dark:bg-bgr-dark"
+        >
+          {{ currentLabel }}
+        </div>
+      </Transition>
 
       <!-- Step pills -->
       <div ref="tablistRef" flex gap-2 role="tablist" aria-label="Code steps" @keydown="onTablistKeydown">
@@ -217,13 +229,13 @@ function handleCopy() {
       :aria-labelledby="`mm-${instanceId}-tab-${currentStep}`"
       tabindex="0"
     >
-      <Transition name="fade" mode="out-in">
+      <Transition name="fade" mode="out-in" class="sm:hidden">
         <div
           v-if="currentLabel"
           :key="currentLabel"
           text="~ xs primary-700 dark:primary-dark-200"
-          font-mono p1.5 text-center select-none text-wrap
-          class="dark:bg-bgr-800/60"
+          font-mono py-2 text-center select-none text-wrap
+          class="dark:bg-bgr-dark"
         >
           {{ currentLabel }}
         </div>
@@ -249,6 +261,7 @@ function handleCopy() {
 
         <ShikiMagicMove
           :key="activeTheme"
+          class="py-0"
           :lang="props.lang ?? 'ts'"
           :theme="activeTheme"
           :highlighter="highlighter"
@@ -261,7 +274,7 @@ function handleCopy() {
     <!-- bottom bar -->
     <div
       class="px-4 py-3 flex gap-1.5 items-center justify-between"
-      bg="~ bgr-100/40 dark:bgr-900"
+      bg="~ bgr-50 dark:bgr-dark"
     >
       <div>
         <IconButton
@@ -299,6 +312,7 @@ function handleCopy() {
 
 <style scoped>
 .shiki-magic-move-container {
+  padding-block: 0.25rem;
   --uno: 'dark:bg-bgr-dark!';
   pre {
     --uno: 'm0 font-code line-height-[1.6] text-wrap';
