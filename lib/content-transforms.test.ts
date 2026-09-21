@@ -203,7 +203,46 @@ describe('inlineTemplateFiles', () => {
     const meta = out.split('\n')[0]!.replace(/^`{3}\S*\s?/, '')
     expect(parseEcInfo(meta).title).toBe(title)
   })
+
+  it('round-trips a file:/ fence with annotations and meta through the full chain', () => {
+    const root = makeLesson()
+    const content = '<script>\nconst msg = ref(1)\n</script>\n\n<template>\n<h1>{{ msg }}</h1>\n</template>\n'
+    mkdirSync(join(root, '.template', 'files', 'src'), { recursive: true })
+    writeFileSync(join(root, '.template', 'files', 'src', 'App.vue'), content)
+
+    const body = `${FENCE}file:/src/App.vue title="App.vue" showLineNumbers=false`
+      + ' {"the logic":1-15} {"the structure":17-25} {"the styles":27-48}\n-\n'
+      + `${FENCE}\n`
+
+    let out = normalizeVueDiffFences(body)
+    out = inferLangFromFilePath(out)
+    out = encodeAnnotations(out)
+    out = encodeMarkers(out)
+    out = encodeCollapse(out)
+    out = inlineTemplateFiles(out, root)
+
+    const opening = out.split('\n')[0]!
+    expect(opening.startsWith(`${FENCE}vue file:/src/App.vue`)).toBe(true)
+    expect(out).toContain(content.trimEnd())
+
+    const meta = opening.replace(/^`{3}\S*\s?/, '')
+    const parsed = parseEcInfo(meta)
+    expect(parsed.file).toBe('/src/App.vue')
+    expect(parsed.title).toBe('App.vue')
+    expect(parsed.showLineNumbers).toBe(false)
+    expect(parsed.annotations).toEqual([
+      { text: 'the logic', lines: range(1, 15) },
+      { text: 'the structure', lines: range(17, 25) },
+      { text: 'the styles', lines: range(27, 48) },
+    ])
+  })
 })
+
+function range(from: number, to: number): number[] {
+  const out: number[] = []
+  for (let i = from; i <= to; i++) out.push(i)
+  return out
+}
 
 describe('autoInjectChallengeCheck', () => {
   const roots: string[] = []
