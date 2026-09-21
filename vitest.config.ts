@@ -19,6 +19,7 @@ export default defineConfig({
       'components/**/*.test.ts',
       'composables/**/*.test.ts',
       'lib/**/*.test.ts',
+      'shiki/**/*.test.ts',
     ],
     environment: 'node',
   },

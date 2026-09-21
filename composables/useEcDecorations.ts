@@ -147,7 +147,7 @@ export function useEcDecorations(
           child instanceof Element
           && child.classList.contains('twoslash-hover')
         ) {
-          twoslashNodes.push(child)
+          twoslashNodes.push(line.removeChild(child))
         }
         else {
           content.appendChild(child)
