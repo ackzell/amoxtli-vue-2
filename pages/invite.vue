@@ -45,34 +45,36 @@ onBeforeMount(async () => {
 <template>
   <div class="flex flex-col min-h-screen">
     <header class="p-4 flex justify-end">
-      <VDropdown theme="layout-dropdown">
-        <IconButton
-          tooltip="Languages"
-          tooltip-placement="bottom"
-        >
-          <div i-ph-translate-duotone text-xl aria-hidden="true" />
-        </IconButton>
-        <template #popper>
-          <div class="layout-menu-panel">
-            <div flex="~ col gap-y-1" p2 class="layout-menu-list">
-              <button
-                v-for="locale of i18n.locales.value"
-                :key="locale.code"
-                class="layout-menu-item"
-                px2 py1 rounded
-                hover="bg-active"
-                :class="locale.code === i18n.locale.value ? 'text-primary dark:text-primary-dark' : ''"
-                @click="i18n.setLocale(locale.code)"
-              >
-                <div transition-transform duration-200>
-                  {{ locale.name }}
-                </div>
-              </button>
+      <ClientOnly>
+        <VDropdown theme="layout-dropdown">
+          <IconButton
+            tooltip="Languages"
+            tooltip-placement="bottom"
+          >
+            <div i-ph-translate-duotone text-xl aria-hidden="true" />
+          </IconButton>
+          <template #popper>
+            <div class="layout-menu-panel">
+              <div flex="~ col gap-y-1" p2 class="layout-menu-list">
+                <button
+                  v-for="locale of i18n.locales.value"
+                  :key="locale.code"
+                  class="layout-menu-item"
+                  px2 py1 rounded
+                  hover="bg-active"
+                  :class="locale.code === i18n.locale.value ? 'text-primary dark:text-primary-dark' : ''"
+                  @click="i18n.setLocale(locale.code)"
+                >
+                  <div transition-transform duration-200>
+                    {{ locale.name }}
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
-        </template>
-      </VDropdown>
-      <ColorSchemeToggle />
+          </template>
+        </VDropdown>
+        <ColorSchemeToggle />
+      </ClientOnly>
     </header>
 
     <main id="main-content" tabindex="-1" class="flex flex-1 flex-col">

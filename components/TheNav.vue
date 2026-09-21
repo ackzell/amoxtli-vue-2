@@ -355,7 +355,9 @@ const isChangelogOpen = ref(false)
           </VDropdown>
         </template>
       </ClientOnly>
-      <ColorSchemeToggle />
+      <ClientOnly>
+        <ColorSchemeToggle />
+      </ClientOnly>
       <ClientOnly>
         <FeedbackWidget v-model:open="isFeedbackOpen">
           <IconButton
