@@ -32,7 +32,6 @@ Great question! The [recommended way](https://vuejs.org/guide/essentials/reactiv
 ::magic-move{lang="vue"}
 
 ```vue title="We start with a \`message\` variable"
-
 <script setup>
 import { version } from 'vue'
 
