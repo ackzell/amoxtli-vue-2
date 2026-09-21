@@ -238,8 +238,8 @@ function wordClass(row: DiffRow): string {
 
 <template>
   <div class="diff-root text-[13px] leading-6 font-code">
-    <div
-      class="diff-scroll overflow-auto"
+    <UiScrollArea
+      class="diff-scroll"
       :style="{
         'maxHeight': maxHeight || undefined,
         '--code-fg': model?.fg ?? '',
@@ -386,7 +386,7 @@ function wordClass(row: DiffRow): string {
       <div v-else class="diff-loading text-sm font-sans py-8 text-center">
         {{ t('loading') }}
       </div>
-    </div>
+    </UiScrollArea>
   </div>
 </template>
 
@@ -449,8 +449,12 @@ function wordClass(row: DiffRow): string {
   color: var(--colors-bgr-400);
 }
 
+/* Flex column so the reka viewport (height: 100%) respects the max-height
+   cap and scrolls — same pattern as ChangelogDialog/FeedbackWidget. The
+   native scrollbar is hidden by the reka viewport; the thumb is UiScrollBar. */
 .diff-scroll {
-  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
 }
 
 .diff-table {

@@ -22,10 +22,16 @@ function oneTokenPerLine(code: string, theme: string) {
   }
 }
 
+/** Pass-through stub: vitest has no Nuxt component auto-imports. */
+const uiScrollAreaStub = {
+  name: 'UiScrollArea',
+  template: '<div class="ui-scroll-area-stub"><slot /></div>',
+}
+
 function mountDiff(props: Record<string, unknown>) {
   return mount(DiffCode, {
     props,
-    global: { mocks: contentMocks },
+    global: { mocks: contentMocks, stubs: { UiScrollArea: uiScrollAreaStub } },
   })
 }
 
