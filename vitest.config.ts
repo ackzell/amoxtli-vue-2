@@ -14,7 +14,12 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['tests/**/*.test.ts'],
+    include: [
+      'tests/**/*.test.ts',
+      'components/**/*.test.ts',
+      'composables/**/*.test.ts',
+      'lib/**/*.test.ts',
+    ],
     environment: 'node',
   },
 })

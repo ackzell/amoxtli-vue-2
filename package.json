@@ -11,6 +11,8 @@
     "preview": "npx wrangler pages dev dist",
     "typecheck": "nuxt typecheck",
     "prepare": "nuxt prepare",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "format": "eslint . --fix",
     "cz": "exec < /dev/tty && npx cz --hook || true",
