@@ -156,7 +156,7 @@ function handleCopy() {
     v-if="isReady"
     ref="containerRef"
     :data-magic-move-id="instanceId"
-    class="magic-move-slot-container my-8 outline-none rounded-md overflow-hidden hover:shadow-md"
+    class="magic-move-slot-container my-8 outline-none rounded-md @container overflow-hidden hover:shadow-md"
     bg="bgr-50 dark:bgr-900"
     border="~ bgr-700/10 dark:bgr-50/10"
     @keydown="onContainerKeydown"
@@ -188,7 +188,7 @@ function handleCopy() {
         </IconButton>
       </div>
 
-      <Transition name="fade" mode="out-in" class="hidden sm:block">
+      <Transition name="fade" mode="out-in" class="hidden @xl:block">
         <div
           v-if="currentLabel"
           :key="currentLabel"
@@ -229,7 +229,7 @@ function handleCopy() {
       :aria-labelledby="`mm-${instanceId}-tab-${currentStep}`"
       tabindex="0"
     >
-      <Transition name="fade" mode="out-in" class="sm:hidden">
+      <Transition name="fade" mode="out-in" class="@xl:hidden">
         <div
           v-if="currentLabel"
           :key="currentLabel"
