@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.3](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.2...v0.3.3) (2026-09-22)
+
+
+### Features
+
+* **content:** expand v-on lesson with $event and @ shorthand ([3bd0560](https://github.com/ackzell/amoxtli-vue-2/commit/3bd0560100e290e2f06992665aa94671d1cac5dd))
+* **helper-components:** render diff scroll region with UiScrollArea ([b7b41b5](https://github.com/ackzell/amoxtli-vue-2/commit/b7b41b546c7dfe5bff08421614301bf153e60cfb))
+* **helper-components:** replace v-code-diff with shiki-based diff component ([3bcedcb](https://github.com/ackzell/amoxtli-vue-2/commit/3bcedcb51caaafea8cd29e8a430cbc4fbf42a7f4))
+* **helper-components:** show step label in top bar when there is room ([06c1dba](https://github.com/ackzell/amoxtli-vue-2/commit/06c1dba11b638fe3f211b28d1e9112952feea5d0))
+
+
+### Bug Fixes
+
+* **content:** clamp the styles annotation to App.vue line count ([c17f96d](https://github.com/ackzell/amoxtli-vue-2/commit/c17f96d478f66d13399afacd35dd98c8e5c8a361))
+* **content:** cleaning up the tooltip content markup ([82d9576](https://github.com/ackzell/amoxtli-vue-2/commit/82d9576214c496870a01d68fa18856800b92ef19))
+* **content:** drop stray blank line in the ref lesson magic-move step ([d41d560](https://github.com/ackzell/amoxtli-vue-2/commit/d41d560d3944f25a4826988d67a6b86f33b3f92e))
+* **helper-components:** base label breakpoint on container width ([8417af9](https://github.com/ackzell/amoxtli-vue-2/commit/8417af9bf1d11e9891e385171b8c79d0b315b7d6))
+* **helper-components:** bind clear-console aria-label in live editors ([77095fa](https://github.com/ackzell/amoxtli-vue-2/commit/77095fae5794fcf89c045183a366cd46151b6375))
+* **helper-components:** escape collapse meta on all lessons ([dfee0d0](https://github.com/ackzell/amoxtli-vue-2/commit/dfee0d04c0d92a7d5c5853f466945ea2fb9a3b5c))
+* **helper-components:** move diff file labels into a sticky table header ([17ada90](https://github.com/ackzell/amoxtli-vue-2/commit/17ada9064f66944677714e5ed0d5aa83e11abcfe))
+* **helper-components:** restore line breaks in ::magic-move and ::diff-view step code ([fa95c23](https://github.com/ackzell/amoxtli-vue-2/commit/fa95c239f51941dcf27e6d8e61d506c8287d6831))
+* **helper-components:** round-trip annotation line ranges without loss ([a8e052c](https://github.com/ackzell/amoxtli-vue-2/commit/a8e052c73ffa80eb717eb1a76ec1a336704ca9f6))
+* **helper-components:** tighten diff cell padding and dark completion caret ([337077b](https://github.com/ackzell/amoxtli-vue-2/commit/337077bd5b8651b2bdb615099527e959cfc40ebb))
+* **ui:** render poppers client-only to fix hydration mismatch ([1dfe56a](https://github.com/ackzell/amoxtli-vue-2/commit/1dfe56a8c5d9bbbeef8bb11ab0f576b8727b743c))
+
 ## [0.3.2](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.1...v0.3.2) (2026-09-19)
 
 
