@@ -57,6 +57,12 @@ const checkBtnRef = ref<HTMLButtonElement>()
 async function retake() {
   if (computing.value)
     return
+  // Retaking rewinds the playground to the pristine starter, discarding any
+  // unsaved edits — confirm first (with an option to save a recovery snapshot).
+  const proceed = await useUnsavedChangesStore()
+    .confirmOrDiscard('Saved before retaking the challenge')
+  if (!proceed)
+    return
   retaking.value = true
   reset()
   const meta = await loadGuideMeta(route.path)

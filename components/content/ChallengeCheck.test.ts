@@ -53,7 +53,7 @@ function mountCheck(guideOverrides: Record<string, unknown> = {}) {
     },
   })
   const wrapper = mount(ChallengeCheck, { global: { mocks: contentMocks } })
-  return { wrapper, guide: harness.guide }
+  return { wrapper, guide: harness.guide, unsavedChanges: harness.unsavedChanges }
 }
 
 describe('challenge check', () => {
@@ -141,5 +141,16 @@ describe('challenge check', () => {
     expect(vc.recordAttempt).toHaveBeenCalledWith('basics-challenge')
     await nextTick()
     expect(wrapper.find('button').text()).toContain('Check my work')
+  })
+
+  it('aborts the retake when the user cancels the unsaved-changes confirmation', async () => {
+    vc.completed = true
+    const { wrapper, guide, unsavedChanges } = mountCheck()
+    unsavedChanges.confirmOrDiscard.mockResolvedValueOnce(false)
+    await wrapper.find('button').trigger('click')
+    expect(unsavedChanges.confirmOrDiscard).toHaveBeenCalledTimes(1)
+    expect(vc.reset).not.toHaveBeenCalled()
+    expect(guide.mount).not.toHaveBeenCalled()
+    expect(vc.recordAttempt).not.toHaveBeenCalled()
   })
 })

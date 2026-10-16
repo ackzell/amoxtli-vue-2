@@ -151,6 +151,15 @@ export interface ConsoleOutputMock {
   destroy: ReturnType<typeof vi.fn>
 }
 
+/** Surface of `useUnsavedChangesStore` consumed by destructive content actions. */
+export interface UnsavedChangesMock {
+  isOpen: Ref<boolean>
+  shouldGuard: () => boolean
+  confirmOrDiscard: ReturnType<typeof vi.fn>
+  prompt: ReturnType<typeof vi.fn>
+  choose: ReturnType<typeof vi.fn>
+}
+
 /** Build a controllable `useConsoleOutput` return value (all methods are spies). */
 export function consoleOutputMock(): ConsoleOutputMock {
   return {
@@ -235,7 +244,18 @@ export function installHarness(overrides: HarnessOverrides = {}) {
   vi.stubGlobal('useGuideStore', () => guide)
   vi.stubGlobal('useId', () => 'mm-test-id')
 
-  return { copy, guide, colorMode, consoleOutput }
+  // Destructive content actions (retake / show solution) confirm through this
+  // store; default to "proceed" so unchanged tests keep their behavior.
+  const unsavedChanges: UnsavedChangesMock = {
+    isOpen: ref(false),
+    shouldGuard: () => false,
+    confirmOrDiscard: vi.fn(async () => true),
+    prompt: vi.fn(async () => 'leave'),
+    choose: vi.fn(),
+  }
+  vi.stubGlobal('useUnsavedChangesStore', () => unsavedChanges)
+
+  return { copy, guide, colorMode, consoleOutput, unsavedChanges }
 }
 
 /** Build one shiki-ish `.line` span with a `line` attribute. */

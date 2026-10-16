@@ -13,11 +13,13 @@ function mountButton(props: Record<string, unknown> = {}) {
 
 describe('button-show-solution', () => {
   let guide: GuideStoreMock
+  let harness: ReturnType<typeof installHarness>
 
   beforeEach(() => {
-    guide = installHarness({
+    harness = installHarness({
       guide: { currentGuide: { solutions: { 'app.vue': '<template/>' } } },
-    }).guide
+    })
+    guide = harness.guide
   })
 
   afterEach(() => {
@@ -72,5 +74,33 @@ describe('button-show-solution', () => {
     await wrapper.find('button').trigger('click')
     await nextTick()
     expect(guide.toggleSolutions).toHaveBeenCalledTimes(1)
+  })
+
+  it('confirms a plain-lesson swap before replacing the editor contents', async () => {
+    const wrapper = mountButton()
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(harness.unsavedChanges.confirmOrDiscard).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not swap when the user cancels the confirmation', async () => {
+    harness.unsavedChanges.confirmOrDiscard.mockResolvedValueOnce(false)
+    const wrapper = mountButton()
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(harness.unsavedChanges.confirmOrDiscard).toHaveBeenCalledTimes(1)
+    expect(guide.toggleSolutions).not.toHaveBeenCalled()
+  })
+
+  it('does not confirm for a challenge solution peek', async () => {
+    vi.unstubAllGlobals()
+    const challengeHarness = installHarness({
+      guide: { currentGuide: { solutions: { 'app.vue': '<template/>' }, validation: { challenge: 'x' } } },
+    })
+    const wrapper = mountButton()
+    await wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(challengeHarness.unsavedChanges.confirmOrDiscard).not.toHaveBeenCalled()
+    expect(challengeHarness.guide.toggleSolutions).toHaveBeenCalledTimes(1)
   })
 })
