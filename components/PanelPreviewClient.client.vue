@@ -44,7 +44,7 @@ function nextRequestId(): string {
  * id is sent and echoed back so the correct handler resolves even if suites
  * overlap or a stale reply arrives late.
  */
-async function runSuite(file: string, timeoutMs = 15_000): Promise<any> {
+async function runSuite(file: string, files?: Record<string, string>, timeoutMs = 15_000): Promise<any> {
   const fail = (message: string) => ({
     success: false,
     empty: true,
@@ -54,6 +54,7 @@ async function runSuite(file: string, timeoutMs = 15_000): Promise<any> {
   const frame = iframe.value?.contentWindow
   challengeDebug('runSuite called', {
     file,
+    fileCount: files ? Object.keys(files).length : 0,
     frameExists: !!frame,
     challengeReady,
     challengeGeneration,
@@ -127,7 +128,7 @@ async function runSuite(file: string, timeoutMs = 15_000): Promise<any> {
     entry.timer = timer
     frame.postMessage({
       source: 'nuxt-playground-parent-challenge',
-      payload: { method: 'run-suite', file, id },
+      payload: { method: 'run-suite', file, id, files },
     }, '*')
   })
 }
