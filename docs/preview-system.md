@@ -377,8 +377,10 @@ same postMessage protocol:
 | `html`             | **static `server.js` — no Vite, no npm deps** | ✅        | ❌ (`undefined`)       | `.js`          |
 
 - `vue` / `vue-sass`: run under Vite, import the `.ts` suite (Vite transpiles), and can
-  mount components with Vue Test Utils via `ctx.mount`. They can also assert against the
-  learner's source with Vite's `*.vue?raw` imports (see `docs/challenge-banking.md`).
+  mount components with Vue Test Utils via `ctx.mount`. Source-inspection checks read
+  the learner's code through `ctx.source(path)` / `ctx.files` (the host's live editor
+  snapshot), not a `?raw` import — Vite caches `?raw` and never re-transforms it on edit
+  (see `docs/challenge-banking.md`).
 - `html` (static): a dependency-free static server (`node server.js`, no
   `vite`/`@vitest/expect`/`chai` installs). Bank suites are authored as TypeScript and
   transpiled to **plain `.js`** at bake time, because the browser can't natively import

@@ -60,8 +60,8 @@ Bank suites are written in TypeScript with full intellisense:
 - `challenges/__shared__/harness.d.ts` — the typed authoring surface
   (`check`, `checks`, `expect`, `ChecksOptions`, `CheckContext`,
   `DomWrapperLike`, `describe`/`it`/`test`, `startChallengeRuntime`, …).
-- `challenges/__shared__/shims.d.ts` — ambient module types for
-  `*.vue` and `*.vue?raw` imports from inside a bank suite.
+- `challenges/__shared__/shims.d.ts` — ambient module type for `*.vue` imports
+  from inside a bank suite (source checks use `ctx.source`, not `?raw`).
 - `challenges/tsconfig.json` — maps the bare `harness` import to the shared
   declarations (`paths: { "harness": ["./__shared__/harness.d.ts"] }`).
 - The root `tsconfig.json` **excludes** `challenges/` so the Nuxt aliases
@@ -108,6 +108,10 @@ Every check's `run` receives a context:
   templates. Returns a VTU wrapper typed as `DomWrapperLike`
   (`exists`, `find`, `findAll`, `text`, `html`, `classes`) so authoring stays
   type-narrowed without pulling the VTU dependency into the bank.
+- `{ source, files }` — the learner's current source. `source(path)` returns one
+  file's contents (or `''`); `files` is the whole `Record<string, string>`
+  snapshot. Available in every template; see
+  [Source-inspection checks](#source-inspection-checks).
 - `ChecksOptions.setup(ctx)` may return partial overrides injected into the
   context for every check.
 
@@ -137,23 +141,33 @@ check('renders-current-branch', {
 
 ### Source-inspection checks
 
-For `vue` / `vue-sass`, checks can also assert against the learner's **source**
-via Vite's `?raw` import. This is the idiomatic way to verify a directive is
-used (e.g. a challenge about `v-if` / `v-else-if` / `v-else`):
+To assert against the learner's **source** (e.g. that a directive is used), read
+it through `ctx.source(path)`:
 
 ```ts
-import AppSource from '../src/App.vue?raw'
-
 check('uses-v-if', {
-  run() {
-    expect(AppSource).toMatch(/v-if[\s=]/)
+  run({ source }) {
+    expect(source('src/App.vue')).toMatch(/v-if[\s=]/)
   },
 })
 ```
 
-Because the suite lives in `__challenge__/` next to the learner's files, both
-`'../src/App.vue'` and `'../src/App.vue?raw'` resolve at runtime inside the
-container's dev server.
+- `source(path)` returns the current contents of a mounted project file, keyed by
+  its path relative to the project root (`'src/App.vue'`, `'index.html'`, …). It
+  returns `''` when the file is not mounted.
+- `ctx.files` exposes the whole snapshot (`Record<string, string>`) when a check
+  needs more than one file.
+- The host snapshots the live editor on every run, so this always reflects what
+  the learner currently sees.
+
+> **Do not import `'../src/App.vue?raw'` for source checks.** Vite caches the
+> `?raw` module and its `plugin-vue` `handleHotUpdate` filters it out of the HMR
+> update, so it is never re-transformed after an edit — a `?raw` check would read
+> the code as of the first page load forever. `ctx.source()` avoids the module
+> graph entirely.
+
+Because the suite lives in `__challenge__/` next to the learner's files,
+`'../src/App.vue'` resolves at runtime inside the container's dev server.
 
 ## Localizing checks
 
@@ -277,3 +291,58 @@ Prompts for a **bank id** (defaults to the lesson slug) and then:
 
 Both flows write the bank idempotently — creating the mirror lesson in a
 second locale reuses the existing bank.
+
+### Driving the wizards without a TTY (agents / CI)
+
+Both wizards are built on `@clack/prompts` and require an interactive TTY, so
+they can't be piped or scripted from a non-interactive shell. The wizards are a
+thin prompt layer over the generator functions in
+`packages/create-content/src/utils.ts`; call those directly instead, with
+`npx tsx` from the repo root (`getRoot()` is `process.cwd()`):
+
+```ts
+// .scaffold.tmp.ts — run: npx tsx .scaffold.tmp.ts
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import {
+  copyDir,
+  generateChallengeIndexTs,
+  getChallengeIndexMd,
+  getStubContent,
+  getStubFileName,
+  writeChallengeBank,
+} from './packages/create-content/src/utils'
+
+const bankId = 'my-challenge'
+const template = 'vue' as const
+
+// 1. Bank (idempotent). `checks` populate en.yaml; the suite bodies are stubbed
+//    to always fail so a fresh bank can never pass.
+writeChallengeBank(bankId, template, [
+  { id: 'renders-swatches', name: 'Renders the swatches', hint: 'Expected one button per color.' },
+])
+
+// 2. Lesson skeleton — the non-interactive core of `createLesson`.
+const lessonDir = join('content', 'en', '07.styling', '03.challenge')
+mkdirSync(join(lessonDir, '.template', 'files', 'src'), { recursive: true })
+writeFileSync(join(lessonDir, 'index.md'), getChallengeIndexMd('Challenge'))
+writeFileSync(join(lessonDir, '.template', 'index.ts'), generateChallengeIndexTs(template, bankId, bankId))
+writeFileSync(join(lessonDir, '.template', 'files', getStubFileName(template)), getStubContent(template))
+copyDir(join(lessonDir, '.template', 'files'), join(lessonDir, '.template', 'solutions'))
+```
+
+Then replace the stubbed `suite.ts` bodies with real checks and fill in the
+starters/solutions. Notes:
+
+- `createLesson()` itself still prompts (lesson number and "create solution
+  files"), so the generators above are the fully non-interactive path. The
+  wizard's `options` (`locale`, `chapterDir`, `title`, `template`, `bankId`)
+  still skip their own prompts when passed.
+- `writeChallengeBank` writes only `en.yaml` (the `content challenge`
+  behaviour); `writeChallengeSuite(bankId)` is the `content lesson` variant
+  that also writes an `es_mx.yaml` stub.
+- Both bank writers are idempotent — an existing `challenges/<id>/suite.ts` is
+  left untouched (and `writeChallengeBank` warns).
+- Delete the throwaway script when done, then verify the bank with
+  `npx tsc --noEmit -p challenges/tsconfig.json` and
+  `npx vitest run tests/challenge-baking.test.ts tests/challenge-validation.test.ts`.
