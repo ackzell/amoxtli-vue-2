@@ -245,7 +245,7 @@ watch(theme, () => {
     border="~ base rounded-lg"
     my-5 overflow-hidden
   >
-    <div class="hl-title" border="b base" bg="base dark:bgr-dark" flex="~ gap-1.5" px-4 pb-2 pt-3 items-center>
+    <div class="hl-title" bg="base dark:bgr-dark" flex="~ gap-1.5" px-4 pb-2 pt-3 items-center>
       <div aria-hidden="true" class="i-logos-html-5 shrink-0 size-4" />
       <span class="text-sm/6 op80">{{ $t('html-live.title') }}</span>
     </div>
