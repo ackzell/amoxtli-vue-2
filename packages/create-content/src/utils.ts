@@ -364,13 +364,12 @@ export default checks([
 //     },
 //   })
 //
-// Vue templates can mount the learner's component (ctx.mount) and inspect the
-// learner's source via ?raw:
+// Vue templates can mount the learner's component (ctx.mount); every template
+// can inspect the learner's source via ctx.source(path):
 //   import App from '../src/App.vue'
-//   import AppSource from '../src/App.vue?raw'
 //   check('uses-v-if', {
-//     run() {
-//       expect(AppSource).toMatch(/v-if\\s=/)
+//     run({ source }) {
+//       expect(source('src/App.vue')).toMatch(/v-if\\s=/)
 //     },
 //   })
 //
@@ -420,9 +419,8 @@ import App from '../src/App.vue'
       // TODO: replace the placeholder with a real assertion, for example:
       //   const wrapper = mount(App)
       //   expect(wrapper.find('h1').text()).toBe('...')
-      // Or assert against the learner's source via a ?raw import:
-      //   import AppSource from '../src/App.vue?raw'
-      //   expect(AppSource).toMatch(/.../)
+      // Or assert against the learner's source via ctx.source:
+      //   expect(source('src/App.vue')).toMatch(/.../)
       expect(true).toBe(false)
     },`
     : `    run({ doc }) {
