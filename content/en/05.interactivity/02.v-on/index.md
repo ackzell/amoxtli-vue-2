@@ -45,7 +45,7 @@ The equivalent to the previous logic in Vue would be:
 
 ::
 
-The _value_ we pass to `v-on` can be **inline handler** that is executed when the event (in this case `click`) set in the _argument_ fires. Great for simple cases like the one above.
+The _value_ we pass to `v-on` can be an **inline handler** that is executed when the event (in this case `click`) set in the _argument_ fires. Great for simple cases like the one above.
 
 Try it:
 
