@@ -33,7 +33,7 @@ function clearLunaConsole() {
 </script>
 
 <template>
-  <div class="console-wrapper" h-full grid="~ rows-[min-content_1fr]">
+  <div class="console-wrapper" grid="~ rows-[min-content_1fr]" h-full>
     <div
       data-dock-drag-handle="true"
       draggable="true"
@@ -55,9 +55,10 @@ function clearLunaConsole() {
         <div :class="hideViteLogs ? 'i-carbon-filter' : 'i-carbon-filter-remove'" />
       </IconButton>
       <IconButton
-        :tooltip="$t('console-output.clear')"
         tooltip-placement="bottom"
         padding="sm"
+        z-100
+        :tooltip="$t('console-output.clear')"
         @click="clearLunaConsole"
       >
         <div i-carbon-clean />
