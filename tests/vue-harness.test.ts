@@ -45,6 +45,22 @@ describe('vue harness — checks with ctx.mount', () => {
     expect(typeof hMount).toBe('function')
   })
 
+  it('exposes the live files snapshot to checks via ctx.source / ctx.files', async () => {
+    const mod = checks([
+      check('reads source', {
+        run({ source, files }) {
+          hExpect(source('src/App.vue')).toMatch(/v-for=/)
+          hExpect(files['src/App.vue']).toContain('colors')
+          hExpect(source('missing.vue')).toBe('')
+        },
+      }),
+    ])
+    const result = await runSuiteModule(mod, {
+      files: { 'src/App.vue': '<button v-for="c in colors" />' },
+    })
+    expect(result.passed).toBe(true)
+  })
+
   it('explicitly fails an empty checks() suite', async () => {
     const result = await runSuiteModule(checks([]))
     expect(result.passed).toBe(false)

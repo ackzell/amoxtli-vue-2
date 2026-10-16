@@ -68,6 +68,15 @@ export interface CheckContext {
   doc: Document
   /** Vue Test Utils mount for mounting components from source (Vue templates). */
   mount: typeof mount
+  /**
+   * Current contents of every mounted project file, keyed by path relative to
+   * the project root (e.g. `'src/App.vue'`). The host snapshots the live editor
+   * on every run, so source checks read exactly what the learner sees — unlike
+   * a `?raw` import, which Vite caches and never re-transforms on edit.
+   */
+  files: Record<string, string>
+  /** Current source of a mounted file, or `''` when it is not part of the project. */
+  source: (path: string) => string
 }
 
 export interface CheckSpec {
@@ -103,7 +112,7 @@ export function checks(
   return {
     __amxChecks: true,
     run: async (ctx: CheckContext): Promise<ChallengeCheckResult[]> => {
-      const base: CheckContext = { doc: ctx.doc, mount: ctx.mount }
+      const base: CheckContext = { doc: ctx.doc, mount: ctx.mount, files: ctx.files, source: ctx.source }
       if (options.setup)
         Object.assign(base, await options.setup(base))
       const results: ChallengeCheckResult[] = []
@@ -179,8 +188,12 @@ function buildSuiteResult(tests: ChallengeCheckResult[]) {
  * passes. An empty suite is an explicit failure — it must never pass because
  * `[].every(...) === true`.
  */
-export async function runSuiteModule(mod: any): Promise<{ passed: boolean, tests: ChallengeCheckResult[], empty?: boolean }> {
-  const ctx: CheckContext = { doc: document, mount }
+export async function runSuiteModule(
+  mod: any,
+  options: { files?: Record<string, string> } = {},
+): Promise<{ passed: boolean, tests: ChallengeCheckResult[], empty?: boolean }> {
+  const files = options.files ?? {}
+  const ctx: CheckContext = { doc: document, mount, files, source: path => files[path] ?? '' }
 
   // Shape A: module authored via checks()/check()
   const checksObj = mod?.__amxChecks ? mod : mod?.default
@@ -259,13 +272,18 @@ export function startChallengeRuntime(suitePath = '/__challenge__/suite.ts') {
     if (!payload || payload.method !== 'run-suite')
       return
     const id = typeof payload.id === 'string' ? payload.id : ''
+    const files = payload.files && typeof payload.files === 'object' ? payload.files : {}
     try {
       const file = payload.file || suitePath
       const specPath = file.startsWith('/') || file.startsWith('.') || file.startsWith('@')
         ? file
         : `/${file}`
-      const mod = await import(/* @vite-ignore */ specPath)
-      const result = await runSuiteModule(mod)
+      // Cache-bust the suite import so every run gets a fresh module instance.
+      // Without this the browser reuses the first import, freezing the suite's
+      // `App` / source bindings to the code as of the initial load.
+      const bust = `${specPath}${specPath.includes('?') ? '&' : '?'}t=${Date.now()}`
+      const mod = await import(/* @vite-ignore */ bust)
+      const result = await runSuiteModule(mod, { files })
       post({ id, method: 'suite-result', success: true, ...result })
     }
     catch (err) {

@@ -6,22 +6,40 @@ import App from './App.vue'
 const app = createApp(App)
 
 // The challenge runtime imports @vitest/expect + chai, which are heavy and
-// (in the container dev server) fragile to serve. Load it lazily: only when
-// the host actually pings/runs a challenge, mirroring the html template.
+// (in the container dev server) fragile to serve. Load it lazily on the first
+// parent-challenge message, mirroring the html template.
+//
+// The host may fire `run-suite` before that lazy import finishes (or right
+// after a preview reload, before this listener exists again). Those requests
+// would otherwise be dropped and the host would time out, so queue them and
+// replay once the harness listener is registered.
 let challengeStarted = false
+let harnessReady = false
+const pendingRunSuites: any[] = []
+
 window.addEventListener('message', (event) => {
+  const data = event.data
+  if (typeof data !== 'object' || data === null)
+    return
+  if (data.source !== 'nuxt-playground-parent-challenge')
+    return
+  // Once the harness is up it owns every challenge message itself.
+  if (harnessReady)
+    return
+  if (data.payload?.method === 'run-suite')
+    pendingRunSuites.push(data)
   if (challengeStarted)
-    return
-  if (typeof event.data !== 'object' || event.data === null)
-    return
-  if (event.data.source !== 'nuxt-playground-parent-challenge')
     return
   challengeStarted = true
   import('../__challenge__/harness').then(({ startChallengeRuntime }) => {
     startChallengeRuntime('/__challenge__/suite.ts')
+    harnessReady = true
+    for (const queued of pendingRunSuites.splice(0))
+      window.postMessage(queued, '*')
   }).catch(() => {
     // Guard has already been armed; if the import fails the host will get a
     // suite-result failure on its next run-suite instead of a crashing preview.
+    pendingRunSuites.length = 0
   })
 })
 

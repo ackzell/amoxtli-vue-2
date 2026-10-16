@@ -287,8 +287,15 @@ function buildSuiteResult(tests) {
  * Returns `{ passed, tests }` where `tests` is the authored list (or a single
  * synthesized failing entry for an empty/missing suite).
  */
-export async function runSuiteModule(mod) {
-  const ctx = { doc: typeof document !== 'undefined' ? document : null }
+export async function runSuiteModule(mod, options = {}) {
+  const files = options.files && typeof options.files === 'object' ? options.files : {}
+  const ctx = {
+    doc: typeof document !== 'undefined' ? document : null,
+    // Current editor contents, snapshotted by the host on every run. Lets
+    // static-html challenges inspect source (there is no `?raw` here).
+    files,
+    source: path => files[path] ?? '',
+  }
 
   const runChecksShape = async (checksMod) => {
     const tests = await checksMod.run(ctx)
@@ -374,13 +381,17 @@ export function startChallengeRuntime(suitePath = '/__challenge__/suite.js') {
     if (!payload || payload.method !== 'run-suite')
       return
     const id = typeof payload.id === 'string' ? payload.id : ''
+    const files = payload.files && typeof payload.files === 'object' ? payload.files : {}
     try {
       const file = payload.file || suitePath
       const specPath = file.startsWith('/') || file.startsWith('.')
         ? file
         : `/${file}`
-      const mod = await import(/* webpackIgnore: true */ specPath)
-      const result = await runSuiteModule(mod)
+      // Cache-bust the suite import so every run gets a fresh module instance
+      // (the browser otherwise reuses the first import, freezing its bindings).
+      const bust = `${specPath}${specPath.includes('?') ? '&' : '?'}t=${Date.now()}`
+      const mod = await import(/* webpackIgnore: true */ bust)
+      const result = await runSuiteModule(mod, { files })
       post({ id, method: 'suite-result', success: true, ...result })
     }
     catch (err) {

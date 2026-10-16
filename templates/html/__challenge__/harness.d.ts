@@ -18,6 +18,14 @@ export interface CheckContext {
   /** The live document inside the iframe (same origin). `mount` is unavailable here. */
   doc: Document | null
   mount?: undefined
+  /**
+   * Current contents of every mounted project file, keyed by path relative to
+   * the project root (e.g. `'index.html'`). The host snapshots the live editor
+   * on every run, so it reads exactly what the learner sees.
+   */
+  files: Record<string, string>
+  /** Current source of a mounted file, or `''` when it is not part of the project. */
+  source: (path: string) => string
 }
 
 export interface CheckSpec {
@@ -66,7 +74,7 @@ export type CheckEntry = [string, CheckSpec]
 
 export function check(name: string, spec: CheckSpec): CheckEntry
 export function checks(createChecks: CheckEntry[], options?: ChecksOptions): { __amxChecks: true, run: (ctx: CheckContext) => Promise<ChallengeCheckResult[]> }
-export function runSuiteModule(mod: unknown): Promise<SuiteModuleResult>
+export function runSuiteModule(mod: unknown, options?: { files?: Record<string, string> }): Promise<SuiteModuleResult>
 
 export function describe(name: string, fn: () => void): void
 export function it(name: string, fn: () => void | Promise<void>): void

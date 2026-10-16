@@ -68,6 +68,20 @@ describe('hTML harness — runSuiteModule', () => {
     expect(result.tests[0]!.message).toContain('Empty suite')
   })
 
+  it('exposes the live files snapshot to checks via ctx.source / ctx.files', async () => {
+    const mod = checks([
+      check('reads source', {
+        run({ source, files }) {
+          hExpect(source('index.html')).toContain('<canvas')
+          hExpect(files['index.html']).toBeTruthy()
+          hExpect(source('missing.html')).toBe('')
+        },
+      }),
+    ])
+    const result = await runSuiteModule(mod, { files: { 'index.html': '<canvas id="c"></canvas>' } })
+    expect(result.passed).toBe(true)
+  })
+
   it('explicitly fails an empty describe/it suite', async () => {
     const result = await runSuiteModule(() => { /* no tests registered */ })
     expect(result.passed).toBe(false)
@@ -141,8 +155,13 @@ describe('hTML harness — request ids in the message bridge', () => {
       },
     }
     ;(listeners[0] as any)(event)
-    await new Promise(r => setTimeout(r, 10))
-    const reply = (posted as any[]).find(p => p?.payload?.method === 'suite-result')
+    // The handler dynamically imports the (missing) suite; the rejection and the
+    // reply it posts are asynchronous, so poll instead of racing a fixed delay.
+    let reply: any
+    for (let i = 0; i < 40 && !reply; i++) {
+      await new Promise(r => setTimeout(r, 10))
+      reply = (posted as any[]).find(p => p?.payload?.method === 'suite-result')
+    }
     expect(reply).toBeTruthy()
     expect(reply.payload.id).toBe('req-123')
     expect(reply.payload.success).toBe(false)
