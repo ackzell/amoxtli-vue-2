@@ -143,6 +143,34 @@ onKeyStroke('Escape', () => {
 
   ui.isContentDropdownShown = false
 })
+
+const router = useRouter()
+const commands = useCommandsStore()
+
+// Alt/Option + ←/→ jumps to the previous/next lesson. DocsNavigation is mounted
+// twice (desktop bar + mobile row), so only the visible instance responds.
+useEventListener('keydown', (event) => {
+  if (event.defaultPrevented || !event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+    return
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')
+    return
+  if (commands.isShown || !isNavInstanceVisible())
+    return
+
+  const target = event.target as HTMLElement | null
+  if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)))
+    return
+  // Monaco also binds Alt/Option + arrows (cursor position history).
+  if (target?.closest('.monaco-editor'))
+    return
+
+  const destination = event.key === 'ArrowLeft' ? prev.value?.path : next.value?.path
+  if (!destination)
+    return
+
+  event.preventDefault()
+  router.push(destination)
+})
 </script>
 
 <template>
@@ -150,13 +178,17 @@ onKeyStroke('Escape', () => {
     <NuxtLink
       v-if="prev"
       :to="prev.path"
-      :title="`Previous: ${prev.title}`"
-      class="text-sm rounded-md op70 flex h10 w10 scale-100 items-center justify-center z-docs-nav"
+      :title="`${$t('previous-lesson')}: ${prev.title}`"
+      :aria-label="`${$t('previous-lesson')}: ${prev.title}`"
+      class="text-sm rounded-md op70 flex flex-none h10 w10 scale-100 items-center justify-center z-docs-nav"
       hover="bg-bgr-50 dark:bg-bgr-dark border border-primary dark:hover:border-primary-dark scale-102 shadow-md text-primary-600 dark:text-primary-dark op100"
       transition-all
     >
       <div aria-hidden="true" i-carbon-arrow-left />
     </NuxtLink>
+    <!-- Same-size placeholder keeps the bar width (and the next arrow) from
+         shifting when there is no previous lesson. -->
+    <span v-else class="flex-none h10 w10" aria-hidden="true" />
     <!-- flex-grow spacer so the absolute child can anchor to the bar position -->
     <div ref="navRoot" class="nav-bar-anchor group flex-grow min-w-0 relative z-docs-nav">
       <!-- Single bordered box: contains both trigger bar and dropdown panel -->
@@ -225,13 +257,17 @@ onKeyStroke('Escape', () => {
     <NuxtLink
       v-if="next"
       :to="next.path"
-      :title="`Next: ${next.title}`"
-      class="text-sm rounded-md op70 flex h10 w10 scale-100 items-center justify-center z-docs-nav"
+      :title="`${$t('next-lesson')}: ${next.title}`"
+      :aria-label="`${$t('next-lesson')}: ${next.title}`"
+      class="text-sm rounded-md op70 flex flex-none h10 w10 scale-100 items-center justify-center z-docs-nav"
       hover="bg-bgr-50 dark:bg-bgr-dark border border-primary dark:hover:border-primary-dark scale-102 shadow-md text-primary-600 dark:text-primary-dark op100"
       transition-all
     >
       <div aria-hidden="true" i-mynaui-arrow-right />
     </NuxtLink>
+    <!-- Same-size placeholder keeps the bar width (and the previous arrow) from
+         shifting when there is no next lesson. -->
+    <span v-else class="flex-none h10 w10" aria-hidden="true" />
   </div>
 </template>
 

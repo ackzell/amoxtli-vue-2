@@ -272,6 +272,17 @@ const isChangelogOpen = ref(false)
           >
             <div aria-hidden="true" i-mynaui-book-open text-xl />
           </IconButton>
+          <!-- Invisible spacers the same size as the IconButton layout controls
+               shown on normal lessons. They keep the right cluster a constant
+               width across lesson types so the breadcrumb bar and the prev/next
+               arrows never shift horizontally. Only needed at md+ where the
+               breadcrumb lives in this bar. -->
+          <span class="p2 flex-none hidden md:block" aria-hidden="true">
+            <div class="h-5 w-5" />
+          </span>
+          <span class="p2 flex-none hidden md:block" aria-hidden="true">
+            <div class="h-5 w-5" />
+          </span>
         </template>
 
         <template v-else>
