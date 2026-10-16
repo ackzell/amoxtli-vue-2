@@ -264,7 +264,7 @@ watch(blobUrl, (url) => {
     border="~ base rounded-lg"
     my-5 overflow-hidden
   >
-    <div class="vl-title" border="b base" bg="base dark:bgr-dark" flex="~ gap-1.5" px-4 pb-2 pt-3 items-center>
+    <div class="vl-title" border="base" bg="base dark:bgr-dark" flex="~ gap-1.5" px-4 pb-2 pt-3 items-center>
       <div aria-hidden="true" class="i-logos-vue shrink-0 size-4" />
       <span class="text-sm/6 op80">{{ $t('vue-live.title') }}</span>
     </div>
@@ -325,10 +325,11 @@ watch(blobUrl, (url) => {
           </IconButton>
 
           <IconButton
-            :tooltip="$t('vue-live.clear-console')"
             tooltip-placement="top"
             unstyled border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none items-center right-2 top-2 justify-center absolute z-1
             class="transition-opacity duration-200 group-focus-within/vueLiveConsole:op75 group-hover/vueLiveConsole:op75 hover:op100 group-focus-within/vueLiveConsole:pointer-events-auto group-hover/vueLiveConsole:pointer-events-auto"
+            z-100
+            :tooltip="$t('vue-live.clear-console')"
             :aria-label="$t('vue-live.clear-console')"
             @click="consoleOutput.clearLogs()"
           >
@@ -357,6 +358,7 @@ watch(blobUrl, (url) => {
   min-height: 150px;
   max-height: 200px;
   overflow: auto;
+  padding-bottom: 2rem;
 }
 
 @media (min-width: 768px) {

@@ -306,10 +306,11 @@ watch(theme, () => {
           </IconButton>
 
           <IconButton
-            :tooltip="$t('html-live.clear-console')"
             tooltip-placement="top"
             unstyled border border-base rounded-md bg-base op0 inline-flex size-7 pointer-events-none items-center right-2 top-2 justify-center absolute z-1
             class="transition-opacity duration-200 group-focus-within/htmlLiveConsole:op75 group-hover/htmlLiveConsole:op75 hover:op100 group-focus-within/htmlLiveConsole:pointer-events-auto group-hover/htmlLiveConsole:pointer-events-auto"
+            z-100
+            :tooltip="$t('html-live.clear-console')"
             :aria-label="$t('html-live.clear-console')"
             @click="consoleOutput.clearLogs()"
           >

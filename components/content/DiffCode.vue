@@ -469,6 +469,7 @@ function wordClass(row: DiffRow): string {
 .diff-row {
   vertical-align: top;
   color: var(--code-fg);
+  line-height: 1.2rem;
 }
 
 .diff-gutter {
