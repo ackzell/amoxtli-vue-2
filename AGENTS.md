@@ -28,7 +28,9 @@ Checkable challenges are authored once in a shared bank at `challenges/<id>/`
 `validation: { challenge: '<id>' }`; the mounted suite is generated at build
 time. See `docs/challenge-banking.md` for the full authoring model, and
 `docs/preview-system.md` -> "Challenge Validation Suites" for how suites
-execute in the preview.
+execute in the preview. To scaffold a bank/lesson from an agent or CI without an
+interactive TTY, see `docs/challenge-banking.md` ->
+"Driving the wizards without a TTY (agents / CI)".
 
 ## @nuxtjs/mdc twoslash newline patch
 
