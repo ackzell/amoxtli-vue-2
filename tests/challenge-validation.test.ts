@@ -7,7 +7,7 @@ import { useChallengeValidation } from '~/composables/useChallengeValidation'
 // `vi.hoisted` (mock factories are hoisted above the declarations otherwise).
 const mocks = vi.hoisted(() => ({
   guideStoreRef: { currentGuide: {} as any },
-  calls: { pass: 0, attempt: 0 },
+  calls: { pass: 0, attempt: 0, saved: 0 },
   playgroundFiles: new Map<string, { read: () => string }>(),
 }))
 
@@ -21,7 +21,10 @@ vi.mock('~/stores/guide', () => ({
 // solution (recordPass(sessionName, files)). Return an empty file map so the
 // host-side decision logic stays testable without a WebContainer.
 vi.mock('~/stores/playground', () => ({
-  usePlaygroundStore: () => ({ files: mocks.playgroundFiles }),
+  usePlaygroundStore: () => ({
+    files: mocks.playgroundFiles,
+    markSaved: vi.fn(() => { mocks.calls.saved += 1 }),
+  }),
 }))
 
 vi.mock('~/db/challenges', () => ({
@@ -42,6 +45,7 @@ beforeEach(() => {
   setActivePinia(createPinia())
   mocks.calls.pass = 0
   mocks.calls.attempt = 0
+  mocks.calls.saved = 0
   mocks.playgroundFiles.clear()
   mocks.guideStoreRef.currentGuide = {
     sessionName: 'basics-challenge',
@@ -69,6 +73,7 @@ describe('useChallengeValidation — host UI path', () => {
     expect(v.passed.value).toBe(false)
     expect(mocks.calls.pass).toBe(0)
     expect(mocks.calls.attempt).toBe(1)
+    expect(mocks.calls.saved).toBe(0)
     expect(v.results.value[0]!.passed).toBe(false)
   })
 
@@ -85,6 +90,8 @@ describe('useChallengeValidation — host UI path', () => {
     expect(v.passed.value).toBe(true)
     expect(mocks.calls.pass).toBe(1)
     expect(mocks.calls.attempt).toBe(0)
+    // A pass persists the files, so it must clear the dirty baseline.
+    expect(mocks.calls.saved).toBe(1)
   })
 
   it('treats an empty suite as a hard failure (never passes / never records)', async () => {

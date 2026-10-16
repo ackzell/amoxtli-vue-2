@@ -132,6 +132,9 @@ export function useChallengeValidation() {
         }
         challengeDebug('recording PASS', { sessionName, fileCount: Object.keys(userFiles).length })
         await challenges.recordPass(sessionName, Object.keys(userFiles).length > 0 ? userFiles : undefined)
+        // A passing challenge persists the current files (they are restored on a
+        // later visit), so it is a save point — leaving afterwards is safe.
+        playground.markSaved()
       }
       else if (sessionName) {
         challengeDebug('recording ATTEMPT (fail)', { sessionName })

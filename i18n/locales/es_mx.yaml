@@ -77,6 +77,12 @@ no-changes: Sin cambios
 restore: Restaurar
 delete: Eliminar
 confirm: Confirmar
+unsaved-changes:
+  title: Cambios sin guardar
+  body: Tienes cambios en el playground que no se han guardado. ¿Qué quieres hacer?
+  cancel: Seguir editando
+  leave: Salir sin guardar
+  save-and-leave: Guardar y salir
 binary-no-preview: Archivo binario — no se puede previsualizar
 one-file: 1 archivo
 file: archivo

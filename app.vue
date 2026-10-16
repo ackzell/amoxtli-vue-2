@@ -58,5 +58,9 @@ function onAgreementClose() {
 
   <AgreementDialog v-if="showAgreement" :name="alias" @close="onAgreementClose" />
 
+  <ClientOnly>
+    <UnsavedChangesDialog />
+  </ClientOnly>
+
   <div data-tooltip-content-target="globals" />
 </template>

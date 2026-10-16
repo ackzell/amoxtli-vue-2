@@ -20,6 +20,7 @@ export default defineConfig({
       'composables/**/*.test.ts',
       'lib/**/*.test.ts',
       'shiki/**/*.test.ts',
+      'stores/**/*.test.ts',
     ],
     environment: 'node',
   },

@@ -293,6 +293,54 @@ export const usePlaygroundStore = defineStore('playground', () => {
     fileContentVersion.value++
   }
 
+  /**
+   * Contents of every mounted file at the last "save point" — a lesson mount,
+   * a snapshot save/restore, or a passing challenge. `isDirty` compares the
+   * live files against this baseline so the app can warn before a navigation
+   * (or a destructive lesson action) would discard unsaved edits.
+   */
+  const savedFiles = shallowRef<Record<string, string>>({})
+
+  /**
+   * True while `mount`/`mountFiles` is rewriting the `files` map. During that
+   * window the map is only partially populated, so `isDirty` would report edits
+   * that are really just an in-progress mount. The guard stands down until it
+   * settles, which prevents the dialog from popping up on an unrelated
+   * navigation that races a lesson mount.
+   */
+  const isMounting = ref(false)
+
+  function readCurrentFiles(): Record<string, string> {
+    const out: Record<string, string> = {}
+    for (const [path, file] of files)
+      out[path] = file.read()
+    return out
+  }
+
+  /**
+   * Record the current file contents as the new baseline. Call after a mount or
+   * a successful save. Pass-through data for a completed solution peek is
+   * deliberately *not* treated as a save point (see `guide.toggleSolutions`).
+   */
+  function markSaved() {
+    savedFiles.value = readCurrentFiles()
+  }
+
+  const isDirty = computed(() => {
+    // Reading `fileContentVersion` makes this computed re-evaluate on every
+    // editor/HMR write, even when the `files` map reference is unchanged.
+    void fileContentVersion.value
+    if (isMounting.value)
+      return false
+    const saved = savedFiles.value
+    const current = readCurrentFiles()
+    const savedKeys = Object.keys(saved)
+    const currentKeys = Object.keys(current)
+    if (savedKeys.length !== currentKeys.length)
+      return true
+    return currentKeys.some(key => current[key] !== saved[key])
+  })
+
   let _promiseInit: Promise<void> | undefined
   let hasInstalled = false
   let lastInstalledPackageJson = ''
@@ -598,7 +646,11 @@ export const usePlaygroundStore = defineStore('playground', () => {
    * This will do a diff with the current files and only update the ones that changed.
    * If package.json changed, triggers a reinstall + server restart.
    */
-  async function mount(map: Record<string, string>, templateName: TemplateType = 'vue') {
+  async function mountInternal(
+    map: Record<string, string>,
+    templateName: TemplateType = 'vue',
+    options: { captureBaseline?: boolean } = {},
+  ) {
     // console.warn(`[playgroundStore.mount] Mounting files with template ${templateName}:`, map)
 
     const templates = templatesMap[templateName]
@@ -643,6 +695,9 @@ export const usePlaygroundStore = defineStore('playground', () => {
     if (depsChanged || !hasInstalled) {
       startServer()
     }
+
+    if (options.captureBaseline !== false)
+      markSaved()
   }
 
   // Computed properties that return safe values when not initialized
@@ -655,7 +710,10 @@ export const usePlaygroundStore = defineStore('playground', () => {
    * Mount files to WebContainer without template merging.
    * Used by snapshot restore to write exactly the saved files.
    */
-  async function mountFiles(fileMap: Record<string, string>) {
+  async function mountFilesInternal(
+    fileMap: Record<string, string>,
+    options: { captureBaseline?: boolean } = {},
+  ) {
     const newPackageJson = fileMap['package.json'] || ''
     const depsChanged = hasInstalled && newPackageJson !== lastInstalledPackageJson
 
@@ -682,6 +740,40 @@ export const usePlaygroundStore = defineStore('playground', () => {
     if (depsChanged || !hasInstalled) {
       startServer()
     }
+
+    if (options.captureBaseline !== false)
+      markSaved()
+  }
+
+  /**
+   * Public wrappers that bracket a mount so `isDirty` stays quiet while the
+   * `files` map is being rewritten (see `isMounting`).
+   */
+  async function mount(
+    map: Record<string, string>,
+    templateName: TemplateType = 'vue',
+    options: { captureBaseline?: boolean } = {},
+  ) {
+    isMounting.value = true
+    try {
+      await mountInternal(map, templateName, options)
+    }
+    finally {
+      isMounting.value = false
+    }
+  }
+
+  async function mountFiles(
+    fileMap: Record<string, string>,
+    options: { captureBaseline?: boolean } = {},
+  ) {
+    isMounting.value = true
+    try {
+      await mountFilesInternal(fileMap, options)
+    }
+    finally {
+      isMounting.value = false
+    }
   }
 
   return {
@@ -701,6 +793,8 @@ export const usePlaygroundStore = defineStore('playground', () => {
     notifyFileChanged,
     mount,
     mountFiles,
+    markSaved,
+    isDirty,
   }
 })
 

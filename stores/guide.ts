@@ -71,7 +71,12 @@ export const useGuideStore = defineStore('guide', () => {
       ui.showConsole = false
   })
 
-  async function mount(guide?: GuideMeta, withSolution = false, filesOverride?: Record<string, string>) {
+  async function mount(
+    guide?: GuideMeta,
+    withSolution = false,
+    filesOverride?: Record<string, string>,
+    options: { captureBaseline?: boolean } = {},
+  ) {
     const playgroundStore = getPlaygroundStore()
     if (!playgroundStore.webcontainer) {
       await playgroundStore.init()
@@ -94,7 +99,7 @@ export const useGuideStore = defineStore('guide', () => {
     await playgroundStore.mount({
       ...(filesOverride ?? guide?.files),
       ...withSolution ? guide?.solutions : {},
-    }, templateName)
+    }, templateName, options)
 
     // playgroundStore.fileSelected = undefined
     // await nextTick()
@@ -135,14 +140,16 @@ export const useGuideStore = defineStore('guide', () => {
       for (const [filepath, vf] of playgroundStore.files)
         files[filepath] = vf.read()
       peekSnapshot = { key: guide?.sessionName ?? '', files }
-      await mount(guide, true)
+      // Opening the peek is non-destructive: keep the user's real save point as
+      // the dirty baseline so closing the peek reports their unsaved edits.
+      await mount(guide, true, undefined, { captureBaseline: false })
     }
     else {
       const files = peekSnapshot?.key === (guide?.sessionName ?? '') && Object.keys(peekSnapshot.files).length > 0
         ? peekSnapshot.files
         : undefined
       peekSnapshot = undefined
-      await mount(guide, false, files)
+      await mount(guide, false, files, { captureBaseline: false })
     }
   }
 

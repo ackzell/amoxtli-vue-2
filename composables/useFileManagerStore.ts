@@ -107,6 +107,10 @@ export const useFileManagerStore = defineStore('fileManagerStore', () => {
           toast.info('Nothing new to save')
       }
     }
+
+    // A snapshot is a recoverable save point, so the live files are no longer
+    // considered dirty after it is created.
+    playground.markSaved()
   }
 
   function filesHaveChanged(a: Record<string, string>, b: Record<string, string>): boolean {

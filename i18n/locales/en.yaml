@@ -77,6 +77,12 @@ no-changes: no changes
 restore: Restore
 delete: Delete
 confirm: Confirm
+unsaved-changes:
+  title: Unsaved changes
+  body: You have changes in the playground that haven't been saved. What would you like to do?
+  cancel: Keep editing
+  leave: Leave without saving
+  save-and-leave: Save & leave
 binary-no-preview: Binary file — cannot preview
 one-file: 1 file
 file: file
