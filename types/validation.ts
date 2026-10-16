@@ -55,6 +55,13 @@ export interface ChallengeRequest {
   id: string
   /** The suite module path to import in the container, e.g. '/__challenge__/suite.ts'. */
   file: string
+  /**
+   * Snapshot of the live editor contents, keyed by path relative to the project
+   * root (e.g. `'src/App.vue'`). Forwarded to the harness so source checks can
+   * read exactly what the learner sees — a `?raw` import cannot, because Vite
+   * caches it and never re-transforms it on edit.
+   */
+  files?: Record<string, string>
 }
 
 /**

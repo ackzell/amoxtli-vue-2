@@ -34,8 +34,9 @@ const computing = ref(false)
 /**
  * Central entry point for running the challenge suite. Exposed by
  * `PanelPreviewClient`; the bridge adds request-id handling and a timeout.
+ * `files` is the live editor snapshot the harness's source checks read.
  */
-function runChallengeSuite(file: string): Promise<SuiteResultPayload> {
+function runChallengeSuite(file: string, files: Record<string, string>): Promise<SuiteResultPayload> {
   const opener = (window as any).__runChallengeSuite
   if (typeof opener !== 'function') {
     challengeDebug('__runChallengeSuite not available on window')
@@ -47,7 +48,23 @@ function runChallengeSuite(file: string): Promise<SuiteResultPayload> {
       tests: [{ name: 'suite', passed: false, message: 'Preview is not ready. Try again once the preview has loaded.' }],
     })
   }
-  return opener(file) as Promise<SuiteResultPayload>
+  return opener(file, files) as Promise<SuiteResultPayload>
+}
+
+/**
+ * Snapshot the live editor contents to send with a run request. Every mounted
+ * project file counts except the generated `__challenge__/` suite; source checks
+ * read these instead of a `?raw` import, which Vite caches and never refreshes
+ * after an edit (see `docs/challenge-banking.md`).
+ */
+function snapshotLiveFiles(playground: ReturnType<typeof usePlaygroundStore>): Record<string, string> {
+  const files: Record<string, string> = {}
+  for (const [path, vf] of playground.files) {
+    if (path.startsWith('__challenge__/'))
+      continue
+    files[path] = vf.read()
+  }
+  return files
 }
 
 /**
@@ -74,11 +91,13 @@ export function useChallengeValidation() {
     }
 
     const file = getChallengeSuiteFile(guide.currentGuide?.template)
+    const playground = usePlaygroundStore()
+    const liveFiles = snapshotLiveFiles(playground)
 
-    challengeDebug('runValidation: starting', { file, sessionName: guide.currentGuide?.sessionName })
+    challengeDebug('runValidation: starting', { file, sessionName: guide.currentGuide?.sessionName, fileCount: Object.keys(liveFiles).length })
     computing.value = true
     try {
-      const outcome = await runChallengeSuite(file)
+      const outcome = await runChallengeSuite(file, liveFiles)
       challengeDebug('runChallengeSuite resolved', {
         success: outcome?.success,
         passed: outcome?.passed,
@@ -105,7 +124,6 @@ export function useChallengeValidation() {
 
       const sessionName = guide.currentGuide?.sessionName
       if (passedNow && sessionName) {
-        const playground = usePlaygroundStore()
         const userFiles: Record<string, string> = {}
         for (const key of Object.keys(guide.currentGuide?.files ?? {})) {
           const vf = playground.files.get(key)

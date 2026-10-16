@@ -8,6 +8,7 @@ import { useChallengeValidation } from '~/composables/useChallengeValidation'
 const mocks = vi.hoisted(() => ({
   guideStoreRef: { currentGuide: {} as any },
   calls: { pass: 0, attempt: 0 },
+  playgroundFiles: new Map<string, { read: () => string }>(),
 }))
 
 // Mock the Nuxt-coupled store and the Dexie-backed persistence layer so we can
@@ -20,7 +21,7 @@ vi.mock('~/stores/guide', () => ({
 // solution (recordPass(sessionName, files)). Return an empty file map so the
 // host-side decision logic stays testable without a WebContainer.
 vi.mock('~/stores/playground', () => ({
-  usePlaygroundStore: () => ({ files: new Map() }),
+  usePlaygroundStore: () => ({ files: mocks.playgroundFiles }),
 }))
 
 vi.mock('~/db/challenges', () => ({
@@ -41,6 +42,7 @@ beforeEach(() => {
   setActivePinia(createPinia())
   mocks.calls.pass = 0
   mocks.calls.attempt = 0
+  mocks.playgroundFiles.clear()
   mocks.guideStoreRef.currentGuide = {
     sessionName: 'basics-challenge',
     validation: {},
@@ -145,7 +147,7 @@ describe('useChallengeValidation — host UI path', () => {
     setSuite({ id: 'file-1', success: true, passed: true, tests: [{ name: 'a', passed: true, message: '' }] })
     const v = useChallengeValidation()
     await v.runValidation()
-    expect((globalThis as any).window.__runChallengeSuite).toHaveBeenCalledWith('/__challenge__/suite.js')
+    expect((globalThis as any).window.__runChallengeSuite).toHaveBeenCalledWith('/__challenge__/suite.js', {})
   })
 
   it('derives the suite file from the template (vue)', async () => {
@@ -153,6 +155,17 @@ describe('useChallengeValidation — host UI path', () => {
     mocks.guideStoreRef.currentGuide = { ...mocks.guideStoreRef.currentGuide, template: 'vue' }
     const v = useChallengeValidation()
     await v.runValidation()
-    expect((globalThis as any).window.__runChallengeSuite).toHaveBeenCalledWith('/__challenge__/suite.ts')
+    expect((globalThis as any).window.__runChallengeSuite).toHaveBeenCalledWith('/__challenge__/suite.ts', {})
+  })
+
+  it('forwards the live editor snapshot (minus the generated suite) to the runner', async () => {
+    setSuite({ id: 'file-3', success: true, passed: true, tests: [{ name: 'a', passed: true, message: '' }] })
+    mocks.playgroundFiles.set('src/App.vue', { read: () => '<button v-for="c in colors" />' })
+    mocks.playgroundFiles.set('__challenge__/suite.ts', { read: () => 'generated' })
+    const v = useChallengeValidation()
+    await v.runValidation()
+    expect((globalThis as any).window.__runChallengeSuite).toHaveBeenCalledWith('/__challenge__/suite.js', {
+      'src/App.vue': '<button v-for="c in colors" />',
+    })
   })
 })

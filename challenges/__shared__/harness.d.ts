@@ -41,6 +41,15 @@ export interface CheckContext {
    * Static `html` challenges can only assert against `doc`.
    */
   mount?: <T>(component: T, options?: Record<string, unknown>) => DomWrapperLike
+  /**
+   * Current contents of every mounted project file, keyed by path relative to
+   * the project root (e.g. `'src/App.vue'`). The host snapshots the live editor
+   * on every run, so source checks read exactly what the learner sees — unlike
+   * a `?raw` import, which Vite caches and never re-transforms on edit.
+   */
+  files: Record<string, string>
+  /** Current source of a mounted file, or `''` when it is not part of the project. */
+  source: (path: string) => string
 }
 
 /**
@@ -107,7 +116,7 @@ export function checks(createChecks: CheckEntry[], options?: ChecksOptions): {
   __amxChecks: true
   run: (ctx: CheckContext) => Promise<ChallengeCheckResult[]>
 }
-export function runSuiteModule(mod: unknown): Promise<SuiteModuleResult>
+export function runSuiteModule(mod: unknown, options?: { files?: Record<string, string> }): Promise<SuiteModuleResult>
 
 export function describe(name: string, fn: () => void): void
 export function it(name: string, fn: () => void | Promise<void>): void
