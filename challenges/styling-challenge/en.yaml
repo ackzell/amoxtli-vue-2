@@ -1,0 +1,44 @@
+styling-challenge:
+  checks:
+    renders-one-swatch-per-color:
+      name: Renders one swatch per color
+      hint: Expected one swatch button per color in the `colors` array (5 total).
+    uses-v-for:
+      name: Renders swatches from the colors array
+      hint: Render the swatches with `v-for` over `colors` instead of hardcoding each button.
+    swatches-have-accessible-labels:
+      name: Swatches have accessible labels
+      hint: Give each swatch an `aria-label` with its color name so it can be found by name.
+    applies-swatch-backgrounds:
+      name: Each swatch shows its color
+      hint: Bind each swatch's background to its `hex` value.
+    shows-empty-preview-initially:
+      name: Preview starts empty
+      hint: With no color selected, the preview should have no background color.
+    click-updates-preview:
+      name: Clicking a swatch updates the preview
+      hint: Clicking a swatch should set the preview's background to that color's hex.
+    click-another-updates-preview:
+      name: Clicking another swatch updates it again
+      hint: Selecting a different swatch should change the preview to the new color.
+    shows-selected-name:
+      name: Shows the selected color name
+      hint: Render the selected color name in the element with data-testid="selected-name".
+    marks-selected-swatch:
+      name: Marks the selected swatch
+      hint: Only the selected swatch should have the `selected` class.
+    disables-selected-swatch:
+      name: Disables the selected swatch
+      hint: The selected swatch should be disabled and all the others enabled.
+    reenables-previous-swatch:
+      name: Re-enables the previous swatch
+      hint: After selecting a new swatch, the previous one should be enabled again.
+    reset-disabled-without-selection:
+      name: Reset is disabled with no selection
+      hint: The Reset button should be disabled until a color is selected.
+    reset-clears-selection:
+      name: Reset clears the selection
+      hint: Reset should clear the preview, the name text, and the selected marker.
+    reset-enables-swatches:
+      name: Reset re-enables every swatch
+      hint: After Reset, every swatch should be enabled again.
