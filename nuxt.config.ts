@@ -217,6 +217,20 @@ export default defineNuxtConfig({
         'shiki/langs/pug.mjs',
         'shiki/langs/scss.mjs',
         'shiki/langs/vue.mjs',
+        // The MDC highlighter loads the rest of `content.highlight.langs`
+        // lazily on first render. If they are not pre-bundled they are
+        // discovered mid-session, which forces a dep re-optimization + full
+        // reload and makes chunk requests race the wiped deps dir (the
+        // "file does not exist ... Try adding it to optimizeDeps.exclude"
+        // cold-cache error + the Monaco dynamic-import rejection).
+        'shiki/langs/bash.mjs',
+        'shiki/langs/css.mjs',
+        'shiki/langs/html.mjs',
+        'shiki/langs/html-derivative.mjs',
+        'shiki/langs/javascript.mjs',
+        'shiki/langs/json.mjs',
+        'shiki/langs/typescript.mjs',
+        'shiki/langs/yaml.mjs',
         'shiki/themes/snazzy-light.mjs',
         'shiki/themes/vesper.mjs',
         'strip-json-comments',
