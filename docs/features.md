@@ -1,6 +1,6 @@
 # Amoxtli Vue — Feature Overview
 
-Amoxtli Vue (*amoxtli* = "book" in Nahuatl) is a multimedia, hands-on way to
+Amoxtli Vue (_amoxtli_ = "book" in Nahuatl) is a multimedia, hands-on way to
 learn Vue. It is an independent fork of
 [learn.nuxt.com](https://learn.nuxt.com) and combines three pillars, so that
 people with different learning styles can all find a way in:
@@ -33,29 +33,29 @@ reading into doing without leaving the page.
 
 ### Live code
 
-| Component | What it does | Docs |
-| --- | --- | --- |
-| **VueLive** (` ```vue live `) | An editable Vue SFC with a Monaco editor, live preview and optional console, compiled in the browser. Reset button included. | [vue-live.md](vue-live.md) |
-| **HtmlLive** (` ```html live `) | Same experience for raw HTML/JS snippets. | [html-live.md](html-live.md) |
+| Component                       | What it does                                                                                                                 | Docs                         |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| **VueLive** (` ```vue live `)   | An editable Vue SFC with a Monaco editor, live preview and optional console, compiled in the browser. Reset button included. | [vue-live.md](vue-live.md)   |
+| **HtmlLive** (` ```html live `) | Same experience for raw HTML/JS snippets.                                                                                    | [html-live.md](html-live.md) |
 
 ### Reading code
 
-| Component | What it does | Docs |
-| --- | --- | --- |
-| **MagicMove** (`::magic-move`) | Step-by-step code walkthrough: code morphs between steps, each with a label. Keyboard accessible. | — |
-| **DiffView** (`::diff-view`) | Side-by-side (or line-by-line on narrow screens) before/after comparison. | — |
-| **DiffCode** | Word-level diff rendering used by DiffView. | — |
-| **Code annotations** | Fenced blocks can carry line annotations, highlights, collapsible ranges, titles and labels. Code blocks also have copy, font-size and collapse-all controls. | [annotation-system.md](annotation-system.md) |
-| **Twoslash tooltips** | Hover a token in a code sample to see its real TypeScript type. | — |
-| **Tooltips** (`:tooltip-trigger` / `::tooltip-content`) | Inline glossary-style explanations in prose. | — |
+| Component                                               | What it does                                                                                                                                                  | Docs                                         |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| **MagicMove** (`::magic-move`)                          | Step-by-step code walkthrough: code morphs between steps, each with a label. Keyboard accessible.                                                             | —                                            |
+| **DiffView** (`::diff-view`)                            | Side-by-side (or line-by-line on narrow screens) before/after comparison.                                                                                     | —                                            |
+| **DiffCode**                                            | Word-level diff rendering used by DiffView.                                                                                                                   | —                                            |
+| **Code annotations**                                    | Fenced blocks can carry line annotations, highlights, collapsible ranges, titles and labels. Code blocks also have copy, font-size and collapse-all controls. | [annotation-system.md](annotation-system.md) |
+| **Twoslash tooltips**                                   | Hover a token in a code sample to see its real TypeScript type.                                                                                               | —                                            |
+| **Tooltips** (`:tooltip-trigger` / `::tooltip-content`) | Inline glossary-style explanations in prose.                                                                                                                  | —                                            |
 
 ### Practice and feedback
 
-| Component | What it does | Docs |
-| --- | --- | --- |
+| Component                     | What it does                                                                                                                                                                                                    | Docs                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | **Challenge** (`::challenge`) | A task in the Playground whose result is automatically checked by a validation suite running in the preview. Shows pass/fail per check. Challenges are authored once in a shared bank and referenced by lesson. | [challenge-banking.md](challenge-banking.md), [preview-system.md](preview-system.md) |
-| **ButtonShowSolution** | Peek at the solution, then restore your own code exactly as you left it. | [button-show-solution.md](button-show-solution.md) |
-| **Quiz** | Graded questions with shuffled order and persisted progress, from a shared quiz bank. | [preview-system.md](preview-system.md) ("Quizzes") |
+| **ButtonShowSolution**        | Peek at the solution, then restore your own code exactly as you left it.                                                                                                                                        | [button-show-solution.md](button-show-solution.md)                                   |
+| **Quiz**                      | Graded questions with shuffled order and persisted progress, from a shared quiz bank.                                                                                                                           | [preview-system.md](preview-system.md) ("Quizzes")                                   |
 
 ### Callouts and navigation
 
@@ -72,9 +72,10 @@ The `YouTubePlayer` component embeds a YouTube video in a lesson
 `youtube-nocookie.com` domain and, in browsers without `credentialless` iframe
 support, degrades to a link card instead of embedding.
 
-Intended uses (from the README): interesting community talks, individual
-concepts explained, and content made specifically for this project such as
-recorded sessions or a video course.
+Intended uses: interesting community talks, individual concepts explained, and
+content made specifically for this project such as recorded sessions or a video
+course. The [launch film](https://youtu.be/kIEMJui34_4) is the first instance of
+that third kind.
 
 ---
 
@@ -126,14 +127,3 @@ modifiers, Composition vs Options API) → Reactivity (`ref`, `reactive`,
 - Deployed to Cloudflare Pages.
 
 ---
-
-## Suggested storyline for a demo video
-
-1. Hook: "A book of Vue you can run." Show a lesson page.
-2. Interactive components: edit a VueLive block, step through a MagicMove,
-   hover a Twoslash tooltip, view a DiffView.
-3. Video: a lesson with an embedded video.
-4. Playground: boot, edit a file, watch live preview, run a terminal command,
-   take a snapshot.
-5. Challenge: fail a check, fix the code, see it pass.
-6. Close: dark mode, Spanish locale, command palette.
