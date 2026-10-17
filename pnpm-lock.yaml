@@ -4638,7 +4638,7 @@ packages:
     resolution: {integrity: sha512-I8FjmltrfnDFoZedi5CG8DghVYNhzb/Ijluz7tCSJH0xpd0484Kowhbb1XDYOxfJpU1p5wnM2X54dA+IfGyD1g==}
 
   almostnode@file:vendor/almostnode-0.5.3.tgz:
-    resolution: {integrity: sha512-fkVqrZA5uuH9VgKd476p+D9XP6fVXGZCdtv7UXp0P5+Prg1kbAh5+W7G0G2RpZwQzyzEV8+Fwu6uFiQrjBD1Lg==, tarball: file:vendor/almostnode-0.5.3.tgz}
+    resolution: {integrity: sha512-d0btQwm1hy9uErd2CvgzzD/ji035rSEZkY1ocikTlR4LznrJdO0hLZbzu5gUn02oLOK9gkmnJWeGSpSwbveHdQ==, tarball: file:vendor/almostnode-0.5.3.tgz}
     version: 0.5.3
     engines: {node: '>=20.0.0'}
 
