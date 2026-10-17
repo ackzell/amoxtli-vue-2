@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.4](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.3...v0.3.4) (2026-10-17)
+
+
+### Features
+
+* **challenge:** add the styling chapter challenge bank ([3a673e2](https://github.com/ackzell/amoxtli-vue-2/commit/3a673e2ab1b382406bc06098c20ff9fdc4862d8c))
+* **challenge:** confirm before retaking or swapping the solution ([f289dc4](https://github.com/ackzell/amoxtli-vue-2/commit/f289dc4a7ec96361d315c6c0912276a57897c8f9))
+* **content:** add the modifiers lesson ([0e4e009](https://github.com/ackzell/amoxtli-vue-2/commit/0e4e009dbcf97df7be3b3ddc96edd15ef1990995))
+* **content:** add the styling chapter challenge lesson ([5e715f8](https://github.com/ackzell/amoxtli-vue-2/commit/5e715f8313dd5ef434a4bfad296f1025b334d994))
+* **content:** render three more lessons with the docs-only layout ([8242afa](https://github.com/ackzell/amoxtli-vue-2/commit/8242afadbd598c4c5dd6a99c48f555fefe397e20))
+* **playground:** confirm before discarding unsaved playground changes ([639e8e6](https://github.com/ackzell/amoxtli-vue-2/commit/639e8e69e8afdddfd79126da9b2d128f2b7c3cb3))
+
+
+### Bug Fixes
+
+* **challenge:** validate checks against the live source snapshot ([93140f9](https://github.com/ackzell/amoxtli-vue-2/commit/93140f9585f178479d662e1c6fb0ac5c180b4ec1))
+* **helper-components:** remove redundant border under HtmlLive title ([13b7e70](https://github.com/ackzell/amoxtli-vue-2/commit/13b7e70c19f06c92cd45a4b2a0ed448a0d2765ae))
+* **helper-components:** unclip the live-editor clear-console tooltip ([73a82ca](https://github.com/ackzell/amoxtli-vue-2/commit/73a82ca1dee011b046b25807fcd5d3ffa68b6b02))
+* **playground:** forward live files with the run-suite request ([8f77525](https://github.com/ackzell/amoxtli-vue-2/commit/8f77525a7c8942657a3d91332c6e5c41269642e5))
+* **playground:** keep the console clear tooltip on top ([0cc99e5](https://github.com/ackzell/amoxtli-vue-2/commit/0cc99e59c929a37948428dad7165dc591d778f7a))
+* **templates:** re-import challenge suites and read live source ([1dd6737](https://github.com/ackzell/amoxtli-vue-2/commit/1dd67376e81117e1625ec12b7398e3b5b4ac5bf8))
+* **ui:** keep lesson nav arrows stationary across lessons ([e866e8d](https://github.com/ackzell/amoxtli-vue-2/commit/e866e8da5ae6a0faf2e54a78b01b08fd6f3644f7))
+* **ui:** show disabled docs-only stand-ins in the lesson nav ([9e814a4](https://github.com/ackzell/amoxtli-vue-2/commit/9e814a42545beab5b4ba471fd4db39cb419efaaf))
+
 ## [0.3.3](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.2...v0.3.3) (2026-09-22)
 
 
