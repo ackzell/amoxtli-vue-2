@@ -1,10 +1,11 @@
 # Amoxtli Vue
 
-Forked from [learn.nuxt.com](https://learn.nuxt.com) and reimagined as a multimedia platform for learning Vue.
-
-# amoxtli-vue
-
 > **[ah-MOSH-tlee](https://nahuatl.wired-humanities.org/content/amoxtli)** in Nahuatl means book. So this is the book of Vue.
+
+Amoxtli Vue is an independent fork of [learn.nuxt.com](https://learn.nuxt.com), reimagined as a multimedia platform for learning Vue.
+
+> [!IMPORTANT]
+> Amoxtli Vue is a community project and is **not affiliated with, endorsed by, or sponsored by** the Nuxt team, NuxtLabs, or the Vue.js team. "Nuxt" and "Vue" appear here only to describe the technologies it teaches and to credit the project it forked from.
 
 This is a spiritual successor to [notes-on-vue](https://notes-on-vue.ackzell.dev). The goal is to provide a multimedia and interactive experience that will cater to different learning styles, with emphasis on the hands-on aspect which the original site attempted to accomplish via CodePen embeds, but it always lacked the sense of a "real" environment where to try Vue.
 

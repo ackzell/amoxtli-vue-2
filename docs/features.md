@@ -1,9 +1,14 @@
 # Amoxtli Vue — Feature Overview
 
 Amoxtli Vue (*amoxtli* = "book" in Nahuatl) is a multimedia, hands-on way to
-learn Vue. It is forked from [learn.nuxt.com](https://learn.nuxt.com) and
-combines three pillars, so that people with different learning styles can all
-find a way in:
+learn Vue. It is an independent fork of
+[learn.nuxt.com](https://learn.nuxt.com) and combines three pillars, so that
+people with different learning styles can all find a way in:
+
+> **Not affiliated with the Nuxt or Vue teams.** Amoxtli Vue is a community
+> project. It is not endorsed by, sponsored by, or officially connected to the
+> Nuxt team, NuxtLabs, or the Vue.js team. "Nuxt" and "Vue" are referenced only
+> to describe the technologies it teaches and to credit its upstream project.
 
 1. **Interactive lessons** — written content enriched with interactive
    components you can poke at, right inside the page.
