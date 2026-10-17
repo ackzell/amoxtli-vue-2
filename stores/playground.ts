@@ -378,15 +378,32 @@ export const usePlaygroundStore = defineStore('playground', () => {
   let hasInstalled = false
   let lastInstalledPackageJson = ''
 
-  async function init() {
+  /**
+   * Boot the WebContainer and the template map. Idempotent: concurrent callers
+   * (e.g. a lesson mount racing `router.afterEach`) share the in-flight promise
+   * instead of each booting their own container.
+   */
+  function init(): Promise<void> {
     // console.warn('🔍 [DEBUG] Playground init() called', {
     //   isClient: import.meta.client,
     //   isInitialized: _isInitialized.value,
     //   stack: new Error('Playground init stack').stack?.split('\n').slice(1, 5).join('\n'),
     // })
     if (!import.meta.client || _isInitialized.value)
-      return
+      return Promise.resolve()
+    if (_promiseInit)
+      return _promiseInit
 
+    _promiseInit = _initInternal().catch((err) => {
+      // Allow a later mount to retry after a failed boot instead of latching
+      // the rejection onto a promise nobody awaits.
+      _promiseInit = undefined
+      throw err
+    })
+    return _promiseInit
+  }
+
+  async function _initInternal() {
     const [wc, loadedTemplates] = await Promise.all([
       import('almostnode/webcontainer')
         .then(({ WebContainer }) => WebContainer.boot()),
@@ -479,7 +496,12 @@ export const usePlaygroundStore = defineStore('playground', () => {
 
     killPreviousProcess()
 
-    const wc = webcontainer.value!
+    const wc = webcontainer.value
+    if (!wc) {
+      status.value = 'error'
+      error.value = { message: '[playground] The WebContainer is not initialized yet — call init() before starting the server.' }
+      return
+    }
     abortController = new AbortController()
     const signal = abortController.signal
 
@@ -675,7 +697,14 @@ export const usePlaygroundStore = defineStore('playground', () => {
       return file
     }
     else {
-      const newFile = new VirtualFile(filepath, content, webcontainer.value!)
+      const wc = webcontainer.value
+      if (!wc) {
+        throw new Error(
+          `[playground] Cannot create ${filepath}: the WebContainer is not initialized yet. `
+          + 'Await playground.init() (or guide.mount(), which does it) before mounting files.',
+        )
+      }
+      const newFile = new VirtualFile(filepath, content, wc)
       if (filepath.endsWith('.html'))
         newFile.fsTransform = injectHtmlScripts
       files.set(filepath, newFile)
