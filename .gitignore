@@ -32,6 +32,12 @@ logs
 # CodeGraph index (machine-local, per-checkout)
 .codegraph/
 
+# Generated skill registry (machine-local, per-checkout)
+.atl/
+
+# Agent skills are materialised from skills-lock.json, not tracked
+.agents/
+
 # Generated invite codes
 invites-batch.json
 invites-in-remote.json
