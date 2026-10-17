@@ -29,6 +29,9 @@ logs
 # Cloudflare
 .wrangler
 
+# CodeGraph index (machine-local, per-checkout)
+.codegraph/
+
 # Generated invite codes
 invites-batch.json
 invites-in-remote.json
