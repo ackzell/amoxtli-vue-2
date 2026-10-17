@@ -120,6 +120,15 @@ export default defineNuxtConfig({
     },
   },
 
+  // Local tooling stores that must never invalidate the dev app. `.codegraph/`
+  // is the (gitignored) CodeGraph index: its writer rewrites db/wal/tmp files
+  // continuously, and without this Nuxt's `builder:watch` sees each write,
+  // regenerates the app + templates, and the resulting HMR churn starves the
+  // in-browser WebContainer.
+  ignore: [
+    '**/.codegraph/**',
+  ],
+
   features: {
     inlineStyles: false,
   },
