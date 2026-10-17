@@ -4,7 +4,7 @@ export const meta: GuideMeta = {
   template: 'vue',
   startingFile: 'src/App.vue',
   features: {
-    defaultLayout: 'split',
+    defaultLayout: 'docs',
     fileTree: false,
     terminal: true,
   },
