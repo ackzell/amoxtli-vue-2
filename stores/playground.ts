@@ -55,6 +55,39 @@ async function patchViteBinForAlmostnode(wc: WebContainer) {
 }
 
 /**
+ * The preview iframe is served by almostnode's service worker through
+ * `/__virtual__/{port}/`. Without a controlling worker that URL falls through to
+ * Nitro, which answers 404 + `X-Frame-Options: DENY`, and the browser refuses to
+ * render it — the user just sees Chrome's error page, with nothing explaining why.
+ *
+ * `WebContainer.boot()` swallows its own service-worker registration failure
+ * (`initServiceWorker().catch(() => {})`), so a dead worker is indistinguishable
+ * from a healthy container: mount, install and `VITE ready` all still succeed.
+ * Probe the preview URL once before committing it, and report the real reason.
+ */
+async function findPreviewProblem(url: string): Promise<string | null> {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    return 'Service workers are unavailable in this browser, so the preview cannot be served. '
+      + 'The in-browser dev server is only reachable through its service worker.'
+  }
+  if (!navigator.serviceWorker.controller) {
+    return 'The preview service worker is not controlling this page, so the preview cannot be served. '
+      + 'Registration may be blocked: private windows, some enterprise policies, and automation '
+      + 'settings such as Playwright\'s `serviceWorkers: "block"` all prevent it.'
+  }
+  try {
+    // A 404 here is Nitro's, not Vite's: the worker did not handle the request.
+    const response = await fetch(url)
+    if (response.status === 404)
+      return 'The preview service worker did not handle the preview request.'
+  }
+  catch {
+    return 'The preview could not be fetched through the service worker.'
+  }
+  return null
+}
+
+/**
  * TEMPORARY DEBUG: Print which vite was actually installed in the container
  * (version + chunk.js shape) to the browser console and the xterm panel.
  */
@@ -391,6 +424,17 @@ export const usePlaygroundStore = defineStore('playground', () => {
     wc.on('server-ready', async (port, url) => {
       // Dev server might listen on multiple ports, we need the main one
       if (port === DEV_SERVER_PORT) {
+        // Validate the preview URL before committing it, so a preview that the
+        // service worker can't serve surfaces as an error message rather than
+        // as an unexplained Chrome error page inside the iframe.
+        const problem = await findPreviewProblem(url + preview.pendingFullPath)
+        if (problem) {
+          status.value = 'error'
+          error.value = { message: problem }
+          console.error(`[playground] ${problem}`)
+          return
+        }
+
         preview.location = {
           origin: url,
           fullPath: preview.pendingFullPath,
