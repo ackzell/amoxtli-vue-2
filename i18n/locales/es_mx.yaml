@@ -164,6 +164,11 @@ feedback:
   toast-success-desc: De verdad aprecio que te hayas tomado el tiempo de compartir tu opinión.
   toast-error: Algo salió mal
   toast-error-desc: No se pudo enviar el comentario. Intenta de nuevo.
+code: Código
+docs: Docs
+this-is-a-docs-only-lesson: Esta es una lección solo de documentación
+docs-only-lesson: Lección solo de documentación
+something-went-wrong: Algo salió mal
 changelog:
   title: Registro de cambios
   description: Qué ha cambiado entre versiones.
