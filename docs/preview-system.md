@@ -112,13 +112,33 @@ The live preview is an **almostnode-based** system where user code runs in a **r
 
 ### C. Iframe Rendering
 
-1. `preview.url` is set to something like `https://<webcontainer-url>.preview.webcontainer.io/` (or `http://localhost:5173/` in development).
+1. `preview.url` is set to the **almostnode virtual-server URL**: `<app-origin>/__virtual__/5173/<path>` (see `ServerBridge.getServerUrl`). It is *same-origin* with the app — it resolves only because almostnode's service worker intercepts that path and proxies it to the in-browser dev server.
 2. `PanelPreview.vue` passes the URL to `PanelPreviewClient.client.vue`:
    ```vue
    <iframe v-if="preview.url" ref="iframe" :src="preview.url" ... />
    ```
 3. **No `sandbox` attribute** on the preview iframe — it uses `allow="geolocation; microphone; camera; payment; autoplay; serial; cross-origin-isolated"`.
 4. **URL updates**: When the user changes the URL bar or color mode changes, `PanelPreview.vue` calls `refreshIframe(true)`, which constructs a new URL with a `?dark=true/false` query param and sets `iframe.src` directly.
+
+#### The preview depends on the service worker
+
+`preview.url` is same-origin, but nothing on the Nitro server can serve it. The request is handled by almostnode's service worker, which proxies it over a `MessagePort` to the page hosting the container:
+
+```
+iframe -> /__virtual__/5173/ -> __sw__.js fetch handler -> MessagePort -> ServerBridge -> in-browser Vite
+```
+
+If the worker is **not** controlling the page, `/__virtual__/5173/` reaches Nitro, which answers 404 with `X-Frame-Options: DENY`. The browser then refuses to render it and the iframe becomes `chrome-error://chromewebdata/` — the grey broken-page icon — even though the container booted fine and Vite printed `ready`.
+
+This is easy to misread because `WebContainer.boot()` swallows its own registration failure (`initServiceWorker().catch(() => {})` in almostnode's `webcontainer-api.ts`), so `mount`, `install` and `start` all still succeed. A dead worker looks exactly like a healthy container — only the iframe is dead.
+
+Registration is blocked by private windows, some enterprise policies, and automation settings such as Playwright's `serviceWorkers: "block"` (Playwright's default is `allow`). Two guards now report the real cause instead of a broken frame:
+
+- `stores/playground.ts` (`findPreviewProblem`) probes the preview URL before committing it and puts the reason in `PanelPreviewLoading`'s error state.
+- `modules/almostnode-sw.ts` answers `/__virtual__/**` directly when no worker is present.
+
+**Automating / recording the playground.** The iframe's requests are answered by the worker from a virtual filesystem, so they never reach the network: `page.route()`, HAR capture and CDP `Network.*` events do not see them. `page.content()` and top-document `page.evaluate()` also return only the parent document. Target the frame explicitly — `page.frameLocator('iframe')` or `page.locator('iframe').contentFrame()` — and use context-level `recordVideo` for the visual capture (frames are composited, so video is fine).
+
 
 ### D. Parent-Iframe Communication (birpc)
 
@@ -196,7 +216,7 @@ The main app imports:
 - `@unocss/reset/tailwind.css` — Tailwind Preflight reset
 - `styles/base.css` — custom base styles (global `min-width: 0`, viewport sizing, etc.)
 
-These cannot reach the preview iframe because the iframe loads from a different origin (the WebContainer URL). Browsers enforce cross-origin isolation.
+These cannot reach the preview iframe because the iframe is a separate document served from the virtual server. (It is **same-origin** with the app — `/__virtual__/5173/` — so the boundary is the document itself, not cross-origin isolation.)
 
 ### Template's Own CSS (applied INSIDE the preview)
 
