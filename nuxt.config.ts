@@ -34,6 +34,14 @@ function silenceMissingSourcemap(): Plugin {
   }
 }
 
+// The invite/join entry points can carry an invite code in the URL, so they
+// must never be cached, indexed, or leak the URL through a Referer header.
+const invitePageHeaders = {
+  'Referrer-Policy': 'no-referrer',
+  'X-Robots-Tag': 'noindex, nofollow',
+  'Cache-Control': 'no-store',
+}
+
 export default defineNuxtConfig({
   modules: [
     '@vueuse/nuxt',
@@ -169,6 +177,12 @@ export default defineNuxtConfig({
           'Cross-Origin-Opener-Policy': 'same-origin',
         },
       },
+      // The invite page can carry a code in its query string. Keep it out of
+      // caches, out of search indexes, and out of Referer headers. The short
+      // link redirect gets the same treatment.
+      '/en/invite': { headers: invitePageHeaders },
+      '/es_mx/invite': { headers: invitePageHeaders },
+      '/join/**': { headers: invitePageHeaders },
     },
   },
   vite: {
@@ -344,6 +358,13 @@ export default defineNuxtConfig({
     componentOptions: {
       global: true,
     },
+  },
+
+  // Invite entry points carry codes in the URL; keep crawlers away from them.
+  // The `X-Robots-Tag` header covers the response itself, this covers
+  // robots.txt.
+  robots: {
+    disallow: ['/en/invite', '/es_mx/invite', '/join'],
   },
 
   scripts: {
