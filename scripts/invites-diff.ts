@@ -42,7 +42,7 @@ function main() {
   console.log('')
   for (const [key, entry] of batch) {
     const data = JSON.parse(entry.value)
-    const alias = data.alias || data.usedByName || ''
+    const alias = data.label || data.alias || data.usedByName || ''
     const label = remote.has(key) ? 'existing' : 'new     '
     if (remote.has(key)) {
       existingCount++

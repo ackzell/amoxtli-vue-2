@@ -104,6 +104,11 @@ your-name:
 invite-code: Invite code
 this-is-a-private-preview-you-need-an-invite-code-to-access-it: This is a private preview. You need an invite code to access it.
 invite-code-required: This is a private preview. You need an invite code to access it.
+invite-link-error:
+  invalid: That invite link isn't valid. Double-check the code with whoever sent it.
+  revoked: That invite link has been revoked.
+  expired: That invite link has expired. Ask for a fresh one.
+  exhausted: That invite link has no seats left.
 enter: Enter
 entering: Entering
 hang-on-a-sec: hang on a sec

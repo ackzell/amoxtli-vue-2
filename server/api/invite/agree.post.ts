@@ -1,4 +1,5 @@
 import { env } from 'node:process'
+import { getInviteSecret, SESSION_MAX_AGE_SECONDS, signSession, verifySession } from '../../utils/invite'
 
 export default defineEventHandler(async (event) => {
   const cookie = getCookie(event, 'amv_session')
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: SESSION_MAX_AGE_SECONDS,
     secure: env.NODE_ENV === 'production',
   })
 

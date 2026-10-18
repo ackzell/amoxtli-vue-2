@@ -110,6 +110,11 @@ your-name:
 invite-code: Código de invitación
 this-is-a-private-preview-you-need-an-invite-code-to-access-it: Esta es una vista previa privada. Necesitas un código de invitación para acceder.
 invite-code-required: Esta es una preview privada. Se requiere un código de invitación
+invite-link-error:
+  invalid: Ese enlace de invitación no es válido. Verifica el código con quien te lo envió.
+  revoked: Ese enlace de invitación fue revocado.
+  expired: Ese enlace de invitación expiró. Pide uno nuevo.
+  exhausted: Ese enlace de invitación ya no tiene lugares disponibles.
 enter: Entrar
 entering: Entrando
 hang-on-a-sec: espera un poco...

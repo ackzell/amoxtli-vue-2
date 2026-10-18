@@ -9,9 +9,47 @@ const name = ref('')
 const code = ref('')
 const error = ref('')
 const loading = ref(false)
+const nameInput = ref<HTMLInputElement | null>(null)
 
 useThemeTransition()
 const i18n = useI18n()
+
+// Reasons the /join/<code> short link can hand back when it doesn't work.
+const LINK_ERROR_KEYS = new Set(['invalid', 'revoked', 'expired', 'exhausted'])
+
+function prefillFromQuery() {
+  const { query } = route
+
+  if (typeof query.code === 'string' && query.code) {
+    code.value = query.code
+  }
+
+  if (typeof query.error === 'string' && LINK_ERROR_KEYS.has(query.error)) {
+    error.value = i18n.t(`invite-link-error.${query.error}`)
+  }
+}
+
+// The code arrives in the URL, so take it back out of the address bar: it
+// would otherwise sit in history, get captured in screenshots, or leak
+// through a Referer header.
+function stripCodeFromUrl() {
+  if (!import.meta.client) {
+    return
+  }
+
+  const url = new URL(window.location.href)
+  if (!url.searchParams.has('code') && !url.searchParams.has('error')) {
+    return
+  }
+
+  url.searchParams.delete('code')
+  url.searchParams.delete('error')
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  )
+}
 
 async function submit() {
   error.value = ''
@@ -22,7 +60,6 @@ async function submit() {
       body: { name: name.value, code: code.value },
     })
     if (res.valid) {
-      const locale = useRoute().path.split('/')[1] || 'en'
       await navigateTo(`/${locale}`)
     }
   }
@@ -34,11 +71,19 @@ async function submit() {
   }
 }
 
-onBeforeMount(async () => {
+onMounted(async () => {
+  prefillFromQuery()
+
   const res = await $fetch<{ valid: boolean }>('/api/invite/status').catch(() => ({ valid: false }))
-  if (res.valid)
+  if (res.valid) {
     await navigateTo(`/${locale}`)
+    return
+  }
+
   checking.value = false
+  stripCodeFromUrl()
+  await nextTick()
+  nameInput.value?.focus()
 })
 </script>
 
@@ -120,6 +165,7 @@ onBeforeMount(async () => {
                 </label>
                 <input
                   id="name"
+                  ref="nameInput"
                   v-model="name"
                   type="text"
                   :placeholder="$t('your-name.placeholder')"

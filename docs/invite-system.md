@@ -11,6 +11,11 @@ one-time invite code. It is enabled by setting `NUXT_PUBLIC_INVITE_ONLY=true`
 ```
 Visitor
   │
+  ├── GET /join/<CODE> ──────────► server/routes/join/[code].get.ts
+  │                                read-only: looks up the invite, resolves
+  │                                a locale, redirects to
+  │                                /{locale}/invite?code=…[&error=…]
+  │                                (never redeems, never sets a session)
   ▼
 GET / ─────────────────────────► index.global.ts
   │                               redirect / → /en
@@ -29,9 +34,9 @@ GET /en/invite ───────────────── pages/invite.
   ▼
 POST /api/invite/validate ───── validate.post.ts
   │                               look up code in KV
-  │                               if not found → 400
-  │                               if already used → 400
-  │                               mark used, store usedByName
+  │                               evaluateInvite() → invalid/revoked/
+  │                                 expired/exhausted → 400
+  │                               take a seat (append to redemptions)
   │                               create HMAC-signed session cookie
   │                               return { valid: true, alias }
   ▼
@@ -58,17 +63,20 @@ Tutorial renders
 
 | File                                 | Purpose                                                                       |
 | ------------------------------------ | ----------------------------------------------------------------------------- |
-| `server/utils/invite.ts`             | `InviteData`/`SessionData` types, HMAC-SHA256 sign/verify, KV helpers         |
-| `server/api/invite/validate.post.ts` | Validates name+code, marks invite used, sets `amv_session` cookie             |
+| `server/utils/invite.ts`             | `InviteData`/`SessionData` types, HMAC-SHA256 sign/verify, `evaluateInvite`   |
+| `server/api/invite/validate.post.ts` | Validates name+code, takes a seat, sets `amv_session` cookie                  |
 | `server/api/invite/status.get.ts`    | Reads `amv_session` cookie, returns `{ valid, alias, agreed }`                |
 | `server/api/invite/agree.post.ts`    | Sets `session.agreed = true`, re-signs cookie                                 |
+| `server/routes/join/[code].get.ts`   | Short shareable link `/join/<CODE>` — read-only redirect to the pre-filled form |
 | `middleware/invite.global.ts`        | Route guard — redirects unauthenticated → `/locale/invite`                    |
 | `middleware/index.global.ts`         | Redirects `/` → `/en` (locale prefix, runs before invite)                     |
 | `app.vue`                            | Root component — checks session on mount/route change, shows AgreementDialog |
-| `pages/invite.vue`                   | Gate page with name + code form, redirects validated users → `/locale`        |
+| `pages/invite.vue`                   | Gate page with name + code form, pre-fills `?code=`, redirects validated users |
 | `components/AgreementDialog.vue`     | Modal overlay with agreement text, Continue button calls `/api/invite/agree` |
-| `scripts/generate-invites.ts`        | CLI to generate invite codes from YAML/JSON name list                         |
-| `invites.yaml`                       | List of aliases for code generation                                           |
+| `scripts/generate-invites.ts`        | CLI to generate personal and group invite codes from a YAML/JSON list         |
+| `scripts/invites-status.ts`          | Roster view: seats used, expiry, revocations, who redeemed when               |
+| `scripts/revoke-invite.ts`           | Kills a link for new redemptions (or `--undo`)                                |
+| `invites.yaml`                       | List of aliases (personal) and group entries for code generation              |
 | `nuxt.config.ts`                     | `devStorage` (fs), `runtimeConfig` (`inviteOnly`, `inviteSecret`), KV binding |
 | `wrangler.toml`                      | Cloudflare KV binding `AMVI_KV`                                               |
 | `.env`                               | `NUXT_INVITE_SECRET`, `NUXT_PUBLIC_INVITE_ONLY`                               |
@@ -80,15 +88,35 @@ Tutorial renders
 ### InviteData (stored in KV)
 
 ```ts
+interface Redemption {
+  name: string // name the user entered at the gate
+  at: number // timestamp of the redemption
+  via: 'form' // how the seat was taken (only the form redeem path exists)
+}
+
 interface InviteData {
-  used: boolean // true after first validation
-  usedAt: number | null // timestamp of validation
-  usedByName: string | null // name the user entered at the gate
+  alias: string // personal invite: the assigned alias
+  used: boolean // legacy: true once at least one seat is taken
+  usedAt: number | null // first redemption's timestamp
+  usedByName: string | null // first redeemer's name
   createdAt: number // timestamp of code generation
+
+  // Group invites only. A personal invite omits all of these, which is what
+  // makes it a single-seat code.
+  label?: string // e.g. "bitterbrains-oct"
+  maxUses?: number // seat cap; absent means 1
+  expiresAt?: number | null // epoch ms after which the link stops working
+  revoked?: boolean // set to kill the link for new redemptions
+  redemptions?: Redemption[] // one entry per seat taken
 }
 ```
 
 Key format in KV: `invite_<CODE>` (e.g. `invite_AMV-TY2A`).
+
+Personal and group invites share this one record shape — a personal invite is
+just a group invite with one seat that never expires and is never revoked.
+Records written before group invites existed stay valid: seat count falls back
+to the `used` flag when `redemptions` is absent.
 
 ### SessionData (stored in cookie)
 
@@ -96,6 +124,7 @@ Key format in KV: `invite_<CODE>` (e.g. `invite_AMV-TY2A`).
 interface SessionData {
   alias: string // name the user entered at the gate
   validatedAt: number // timestamp of validation
+  agreed?: boolean // set once the agreement dialog is accepted
 }
 ```
 
@@ -105,19 +134,32 @@ interface SessionData {
 
 ### Workflow
 
-1. Add/edit aliases in `invites.yaml`:
+1. Add/edit entries in `invites.yaml`. Both styles can be mixed in one file:
 
    ```yaml
+   # Personal: one seat, never expires, name is embedded in the code
    - Alice
    - Bob
-   - Charlie
+
+   # Group: N seats, optional expiry, opaque code shared as a link
+   - label: bitterbrains-oct
+     seats: 3
+     expires: 14d # 14d | 48h | 30m | 2w | 2026-11-01 | omit for never
    ```
 
 2. Generate codes:
 
    ```sh
-   pnpm generate-invites          # fresh (with overwrite confirmation)
-   pnpm generate-invites:append   # add codes only for new aliases
+   pnpm invites:generate   # append codes for entries that don't have one yet
+   pnpm invites:override   # regenerate everything (with overwrite confirmation)
+   ```
+
+   Group entries print their shareable link:
+
+   ```
+   bitterbrains-oct         AMV-BZ78KA
+                            seats: 3   expires: 2026-11-01
+                            https://preview.amoxtli-vue.ackzell.dev/join/AMV-BZ78KA
    ```
 
    This produces:
@@ -138,10 +180,133 @@ interface SessionData {
 
 ### Internal tracking
 
-Aliases in `invites.yaml` are for **your reference only** — they are NOT stored
-alongside the invite data in KV. The entered name is stored separately as
-`usedByName` at validation time. This means you can give a code to any person
-regardless of the alias you originally assigned.
+Personal aliases in `invites.yaml` are for **your reference only** — they are
+NOT stored alongside the invite data in KV. The entered name is stored
+separately as `usedByName` at validation time. This means you can give a code
+to any person regardless of the alias you originally assigned.
+
+Group `label`s **are** stored in KV (as `InviteData.label`) so the roster view
+can tell you which cohort redeemed a link, how many seats went, and when.
+
+---
+
+## Short links (`/join/<CODE>`)
+
+A group entry's shareable link is:
+
+```
+https://preview.amoxtli-vue.ackzell.dev/join/AMV-BZ78KA
+```
+
+`server/routes/join/[code].get.ts` handles it. It resolves a locale from `?l=`,
+then `Accept-Language`, then `en`, looks the invite up, and redirects to the
+gate page with the code pre-filled:
+
+| Invite state     | Redirect                                              |
+| ---------------- | ----------------------------------------------------- |
+| Usable           | `/{locale}/invite?code=AMV-BZ78KA`                    |
+| Revoked          | `/{locale}/invite?code=AMV-BZ78KA&error=revoked`      |
+| Expired          | `/{locale}/invite?code=AMV-BZ78KA&error=expired`      |
+| No seats left    | `/{locale}/invite?code=AMV-BZ78KA&error=exhausted`    |
+| Malformed code   | `/{locale}/invite?code=...&error=invalid`             |
+
+`pages/invite.vue` pre-fills the code, shows a message for `error`, focuses the
+name field, and strips both params from the address bar with
+`history.replaceState` so the code doesn't linger in history or leak through a
+Referer header.
+
+> **Invariant: a GET must never redeem a seat.** The short link is read-only —
+> it never writes to KV and never sets a session. Redemption stays a deliberate
+> form submit on the invite page. This is load-bearing: Slack/Teams/Outlook
+> link previews and antivirus scanners fetch every URL they see, so a GET that
+> consumed a seat would drain a link before a human ever clicked it. Don't
+> "optimise" this into an auto-redeeming link.
+
+---
+
+## Expiry and revocation
+
+`evaluateInvite(invite, now)` in `server/utils/invite.ts` is the single source
+of truth (`ok` / `invalid` / `revoked` / `expired` / `exhausted`). Both the
+validate endpoint and the short link use it.
+
+- **Expiry** is checked against server time. `expires: 14d` is resolved to an
+  absolute timestamp at *generation* time, not redemption time.
+- **Revocation** blocks **new** redemptions only. Anyone who already redeemed
+  keeps a valid `amv_session` for its full 30-day lifetime — revoking does not
+  log anyone out, and there is currently no way to do so per-link.
+
+```sh
+pnpm invites:revoke AMV-BZ78KA          # kill the link
+pnpm invites:revoke AMV-BZ78KA --undo   # make it usable again
+```
+
+Accepts a bare code, an `invite_`-prefixed key, or a full `/join/...` URL.
+
+Two KV limits to be aware of:
+
+- **Eventual consistency** — a revoke or expiry can take up to ~60s to be
+  visible globally.
+- **Non-atomic seat counting** — the read-modify-write on `redemptions` is not
+  transactional, so two simultaneous redemptions can over-issue a seat by one.
+  Acceptable at "a handful of evaluators per link" scale.
+
+---
+
+## Tracking and Ops
+
+```sh
+pnpm invites:status            # reads the remote KV namespace
+pnpm invites:status -- --local # reads data/invites/ instead (no network)
+```
+
+Prints one block per link — seats used, expiry, status, and each redemption's
+name and time (UTC):
+
+```
+  bitterbrains-oct  —  2/3 seats
+    code       AMV-BZ78KA
+    link       https://preview.amoxtli-vue.ackzell.dev/join/AMV-BZ78KA
+    expires    2026-11-01 (in 14d)
+    redeemed   Ana                  2026-10-18 12:06
+               Luis                 2026-10-18 12:06
+```
+
+Status flags: `REVOKED`, `EXPIRED`, and `FULL` (a group invite out of seats).
+A plain personal invite simply reads `used` or `unused`.
+
+This is the view for deciding when to follow up and how to word it.
+
+---
+
+## Security notes
+
+- **The invite secret fails closed.** `getInviteSecret()` throws if
+  `NUXT_INVITE_SECRET` is empty, rather than signing with an empty key (which
+  would make every session forgeable). A secret shorter than 32 characters logs
+  a warning.
+- **Sessions expire server-side.** The cookie's `maxAge` is only enforced by the
+  client, so `verifySession` also rejects a session older than 30 days. A
+  captured cookie is not replayable forever.
+- **The signature is verified in constant time** via `crypto.subtle.verify`.
+- **Codes are validated before they reach KV** (`INVITE_CODE_PATTERN`), and the
+  entered name is length-capped (`MAX_NAME_LENGTH`).
+- **Invite URLs are `no-store`, `no-referrer`, and `noindex`** (see the
+  `routeRules` in `nuxt.config.ts` and the `robots` disallow list).
+- Group codes are **opaque**; personal codes embed the alias, so a leaked
+  personal link reveals who it was for.
+
+### Known gaps (not yet addressed)
+
+- **No rate limiting** on `/api/invite/validate` or `/join/*`. Personal codes
+  carry ~32^4 of entropy behind a guessable alias prefix, so a Cloudflare
+  rate-limit rule on `/api/invite/*` and `/join/*` is the highest-value
+  remaining control.
+- **No per-link session invalidation** — `SessionData` does not record which
+  invite it came from. Revocation cannot reach existing sessions.
+- **`secure` on the cookie** is driven by `NODE_ENV`; confirm it holds in the
+  Cloudflare Workers bundle.
+
 
 ---
 
@@ -156,16 +321,21 @@ Content-Type: application/json
 
 On success:
 
-- Marks the invite `used = true`
-- Stores `usedByName = name.trim()` in the invite record
+- Appends a `redemptions` entry (`name`, `at`, `via: 'form'`)
+- On the first seat, also sets `used = true`, `usedAt`, `usedByName`
 - Creates an HMAC-SHA256 signed session cookie (`amv_session`)
 - Returns `{ valid: true, alias: "Alice" }`
 
 On failure (4xx):
 
 - Missing name/code → `400 "Name and invite code are required"`
-- Invalid code → `400 "Invalid invite code"`
-- Already used → `400 "This code has already been used"`
+- Name over `MAX_NAME_LENGTH` → `400 "Name is too long (max 64 characters)"`
+- Code fails `INVITE_CODE_PATTERN` → `400 "Invalid invite code"`
+- Unknown code → `400 "Invalid invite code"`
+- Personal invite already redeemed → `400 "This code has already been used"`
+- Group invite out of seats → `400 "This invite link has no seats left"`
+- Past `expiresAt` → `400 "This invite link has expired"`
+- `revoked` → `400 "This invite link has been revoked"`
 
 ---
 
@@ -198,7 +368,8 @@ Subsequent visits with a valid session skip the dialog entirely.
 - **Format**: `base64url(payload).hex(signature)` — e.g.
   `eyJhbGlhcyI6IkFsaWNlIn0.a1b2c3d4...`
 - **Algorithm**: HMAC-SHA256 via Web Crypto API (`crypto.subtle.sign`)
-- **MaxAge**: 30 days
+- **MaxAge**: 30 days (also enforced server-side — a session older than 30 days
+  is rejected even if the cookie is replayed)
 - **Flags**: `httpOnly`, `sameSite=lax`, `secure` in production
 - **Key**: `NUXT_INVITE_SECRET` from `.env`
 
