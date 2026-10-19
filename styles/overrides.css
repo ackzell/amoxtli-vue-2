@@ -410,3 +410,7 @@ html .shiki span {
   min-height: 1.2em;
   vertical-align: middle;
 }
+
+[role="alertdialog"] {
+  --uno: 'border-solid border-primary dark:border-primary-dark';
+}

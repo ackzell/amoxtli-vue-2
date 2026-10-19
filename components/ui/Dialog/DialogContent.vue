@@ -27,7 +27,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
   <DialogPortal>
     <DialogOverlay
       data-slot="dialog-overlay"
-      class="z-dialog-overlay bg-bgr-dark/40 inset-0 fixed backdrop-blur-sm data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0"
+      class="bg-bgr-dark/40 inset-0 fixed z-dialog-overlay backdrop-blur-sm data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0"
     />
     <DialogContent
       data-slot="dialog-content"
@@ -49,7 +49,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
           translate-x-[-50%]
           translate-y-[-50%]
           gap-4
-          border border-bgr-700/50
+          border border-primary dark:border-primary-dark
           rounded-lg
           p-6
           shadow-lg
@@ -62,7 +62,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       "
     >
       <slot />
-      <DialogClose class="absolute top-4 right-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity">
+      <DialogClose class="rounded-sm opacity-70 transition-opacity right-4 top-4 absolute hover:opacity-100">
         <div i-mynaui-x class="size-4" />
       </DialogClose>
     </DialogContent>

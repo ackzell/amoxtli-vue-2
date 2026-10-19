@@ -26,7 +26,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
   <AlertDialogPortal>
     <AlertDialogOverlay
       data-slot="alert-dialog-overlay"
-      class="z-dialog-overlay bg-bgr-dark/40 inset-0 fixed backdrop-blur-sm data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0"
+      class="bg-bgr-dark/40 inset-0 fixed z-dialog-overlay backdrop-blur-sm data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0"
     />
     <AlertDialogContent
       data-slot="alert-dialog-content"
@@ -48,7 +48,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
             translate-x-[-50%]
             translate-y-[-50%]
             gap-4
-            border border-bgr-700/50
+            border border-primary dark:border-primary-dark
             rounded-lg
             p-6
             shadow-lg
