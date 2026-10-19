@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.3.5](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.4...v0.3.5) (2026-10-19)
+
+
+### Features
+
+* **invites:** add group invite links with seats, expiry, and revocation ([969e2d1](https://github.com/ackzell/amoxtli-vue-2/commit/969e2d186eff96fe4c133d17c535b1cdbc31e00f))
+
+
+### Bug Fixes
+
+* **invites:** remove public KV-dumping debug route ([7217a6d](https://github.com/ackzell/amoxtli-vue-2/commit/7217a6d704c4a54306039e6b54cc3ed144f71eb3))
+
 ## [0.3.4](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.3...v0.3.4) (2026-10-17)
 
 
