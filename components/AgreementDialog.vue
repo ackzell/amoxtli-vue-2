@@ -46,7 +46,7 @@ async function agree() {
                 {{ $t('espanol-mexico') }}
               </button>
             </div>
-            <ColorSchemeToggle />
+            <ColorSchemeToggle variant="inline" />
           </div>
           {{ t('invite.agreement.title', { name: props.name }) }}
         </UiAlertDialogTitle>

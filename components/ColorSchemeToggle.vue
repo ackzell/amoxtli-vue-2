@@ -1,4 +1,16 @@
 <script lang="ts" setup>
+const props = withDefaults(defineProps<{
+  /**
+   * `dropdown` renders the popper menu used in the nav.
+   * `inline` renders a flat segmented control for modal surfaces, where a
+   * floating-vue popper would be teleported outside the dialog and become
+   * unclickable (Reka disables pointer events outside the modal).
+   */
+  variant?: 'dropdown' | 'inline'
+}>(), {
+  variant: 'dropdown',
+})
+
 const colorMode = useColorMode()
 
 function toggleMode() {
@@ -43,7 +55,28 @@ addCommands(
 </script>
 
 <template>
-  <VDropdown theme="layout-dropdown">
+  <div
+    v-if="props.variant === 'inline'"
+    role="group"
+    :aria-label="$t('color-mode.title')"
+    flex="~ gap-1"
+  >
+    <button
+      v-for="option of modeOptions"
+      :key="option.mode"
+      type="button"
+      p1.5 rounded
+      hover="bg-active"
+      :class="colorMode.preference === option.mode ? 'text-primary bg-active/40 dark:text-primary-dark' : ''"
+      :aria-label="$t(option.labelKey)"
+      :aria-pressed="colorMode.preference === option.mode"
+      :title="$t(option.labelKey)"
+      @click="setMode(option.mode)"
+    >
+      <div aria-hidden="true" :class="option.icon" text-lg />
+    </button>
+  </div>
+  <VDropdown v-else theme="layout-dropdown">
     <IconButton
       :tooltip="$t('color-mode.title')"
       tooltip-placement="bottom"
