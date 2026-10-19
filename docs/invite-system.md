@@ -61,25 +61,25 @@ Tutorial renders
 
 ## Key Files
 
-| File                                 | Purpose                                                                       |
-| ------------------------------------ | ----------------------------------------------------------------------------- |
-| `server/utils/invite.ts`             | `InviteData`/`SessionData` types, HMAC-SHA256 sign/verify, `evaluateInvite`   |
-| `server/api/invite/validate.post.ts` | Validates name+code, takes a seat, sets `amv_session` cookie                  |
-| `server/api/invite/status.get.ts`    | Reads `amv_session` cookie, returns `{ valid, alias, agreed }`                |
-| `server/api/invite/agree.post.ts`    | Sets `session.agreed = true`, re-signs cookie                                 |
+| File                                 | Purpose                                                                         |
+| ------------------------------------ | ------------------------------------------------------------------------------- |
+| `server/utils/invite.ts`             | `InviteData`/`SessionData` types, HMAC-SHA256 sign/verify, `evaluateInvite`     |
+| `server/api/invite/validate.post.ts` | Validates name+code, takes a seat, sets `amv_session` cookie                    |
+| `server/api/invite/status.get.ts`    | Reads `amv_session` cookie, returns `{ valid, alias, agreed }`                  |
+| `server/api/invite/agree.post.ts`    | Sets `session.agreed = true`, re-signs cookie                                   |
 | `server/routes/join/[code].get.ts`   | Short shareable link `/join/<CODE>` — read-only redirect to the pre-filled form |
-| `middleware/invite.global.ts`        | Route guard — redirects unauthenticated → `/locale/invite`                    |
-| `middleware/index.global.ts`         | Redirects `/` → `/en` (locale prefix, runs before invite)                     |
-| `app.vue`                            | Root component — checks session on mount/route change, shows AgreementDialog |
-| `pages/invite.vue`                   | Gate page with name + code form, pre-fills `?code=`, redirects validated users |
-| `components/AgreementDialog.vue`     | Modal overlay with agreement text, Continue button calls `/api/invite/agree` |
-| `scripts/generate-invites.ts`        | CLI to generate personal and group invite codes from a YAML/JSON list         |
-| `scripts/invites-status.ts`          | Roster view: seats used, expiry, revocations, who redeemed when               |
-| `scripts/revoke-invite.ts`           | Kills a link for new redemptions (or `--undo`)                                |
-| `invites.yaml`                       | List of aliases (personal) and group entries for code generation              |
-| `nuxt.config.ts`                     | `devStorage` (fs), `runtimeConfig` (`inviteOnly`, `inviteSecret`), KV binding |
-| `wrangler.toml`                      | Cloudflare KV binding `AMVI_KV`                                               |
-| `.env`                               | `NUXT_INVITE_SECRET`, `NUXT_PUBLIC_INVITE_ONLY`                               |
+| `middleware/invite.global.ts`        | Route guard — redirects unauthenticated → `/locale/invite`                      |
+| `middleware/index.global.ts`         | Redirects `/` → `/en` (locale prefix, runs before invite)                       |
+| `app.vue`                            | Root component — checks session on mount/route change, shows AgreementDialog    |
+| `pages/invite.vue`                   | Gate page with name + code form, pre-fills `?code=`, redirects validated users  |
+| `components/AgreementDialog.vue`     | Modal overlay with agreement text, Continue button calls `/api/invite/agree`    |
+| `scripts/generate-invites.ts`        | CLI to generate personal and group invite codes from a YAML/JSON list           |
+| `scripts/invites-status.ts`          | Roster view: seats used, expiry, revocations, who redeemed when                 |
+| `scripts/revoke-invite.ts`           | Kills a link for new redemptions (or `--undo`)                                  |
+| `invites.yaml`                       | List of aliases (personal) and group entries for code generation                |
+| `nuxt.config.ts`                     | `devStorage` (fs), `runtimeConfig` (`inviteOnly`, `inviteSecret`), KV binding   |
+| `wrangler.toml`                      | Cloudflare KV binding `AMVI_KV`                                                 |
+| `.env`                               | `NUXT_INVITE_SECRET`, `NUXT_PUBLIC_INVITE_ONLY`                                 |
 
 ---
 
@@ -202,13 +202,13 @@ https://preview.amoxtli-vue.ackzell.dev/join/AMV-BZ78KA
 then `Accept-Language`, then `en`, looks the invite up, and redirects to the
 gate page with the code pre-filled:
 
-| Invite state     | Redirect                                              |
-| ---------------- | ----------------------------------------------------- |
-| Usable           | `/{locale}/invite?code=AMV-BZ78KA`                    |
-| Revoked          | `/{locale}/invite?code=AMV-BZ78KA&error=revoked`      |
-| Expired          | `/{locale}/invite?code=AMV-BZ78KA&error=expired`      |
-| No seats left    | `/{locale}/invite?code=AMV-BZ78KA&error=exhausted`    |
-| Malformed code   | `/{locale}/invite?code=...&error=invalid`             |
+| Invite state   | Redirect                                           |
+| -------------- | -------------------------------------------------- |
+| Usable         | `/{locale}/invite?code=AMV-BZ78KA`                 |
+| Revoked        | `/{locale}/invite?code=AMV-BZ78KA&error=revoked`   |
+| Expired        | `/{locale}/invite?code=AMV-BZ78KA&error=expired`   |
+| No seats left  | `/{locale}/invite?code=AMV-BZ78KA&error=exhausted` |
+| Malformed code | `/{locale}/invite?code=...&error=invalid`          |
 
 `pages/invite.vue` pre-fills the code, shows a message for `error`, focuses the
 name field, and strips both params from the address bar with
@@ -231,7 +231,7 @@ of truth (`ok` / `invalid` / `revoked` / `expired` / `exhausted`). Both the
 validate endpoint and the short link use it.
 
 - **Expiry** is checked against server time. `expires: 14d` is resolved to an
-  absolute timestamp at *generation* time, not redemption time.
+  absolute timestamp at _generation_ time, not redemption time.
 - **Revocation** blocks **new** redemptions only. Anyone who already redeemed
   keeps a valid `amv_session` for its full 30-day lifetime — revoking does not
   log anyone out, and there is currently no way to do so per-link.
@@ -260,6 +260,12 @@ pnpm invites:status            # reads the remote KV namespace
 pnpm invites:status -- --local # reads data/invites/ instead (no network)
 ```
 
+The remote path costs two wrangler calls regardless of how many invites exist:
+it lists the keys, then fetches every value in `bulk/get` batches of 100 (that
+endpoint's per-request maximum). Per-key reads were dropped because spawning
+wrangler once per invite dominated the runtime — 41 invites went from ~60s to
+~9s.
+
 Prints one block per link — seats used, expiry, status, and each redemption's
 name and time (UTC):
 
@@ -276,6 +282,25 @@ Status flags: `REVOKED`, `EXPIRED`, and `FULL` (a group invite out of seats).
 A plain personal invite simply reads `used` or `unused`.
 
 This is the view for deciding when to follow up and how to word it.
+
+### Backfilling legacy aliases
+
+Records written before the generator stored an `alias` have only
+`{ used, usedAt, usedByName, createdAt }`, so append mode cannot tell which
+YAML entry they correspond to and will mint a duplicate for an existing name.
+
+```sh
+pnpm invites:backfill           # dry run: shows what would be recovered
+pnpm invites:backfill -- --write
+```
+
+It recovers the alias from the code itself — personal codes are
+`AMV-<alias><4 random chars>` — which is safe here because every legacy record
+predates group invites, whose codes are opaque. Codes with no alias part
+(`AMV-LCKG`) are reported and skipped. Re-running is a no-op.
+
+Local only: remote KV is untouched. This makes **local** append mode work; it
+does not change what `/join` serves.
 
 ---
 
@@ -299,14 +324,16 @@ This is the view for deciding when to follow up and how to word it.
 ### Known gaps (not yet addressed)
 
 - **No rate limiting** on `/api/invite/validate` or `/join/*`. Personal codes
-  carry ~32^4 of entropy behind a guessable alias prefix, so a Cloudflare
-  rate-limit rule on `/api/invite/*` and `/join/*` is the highest-value
-  remaining control.
+  carry ~32^4 of entropy behind a guessable alias prefix, so this is the
+  highest-value remaining control. The zone is on the **Free** plan, which
+  allows exactly one rate limiting rule, matching on Path only, counting by IP,
+  with a 10s period and a 10s mitigation. Keep the expression narrow —
+  `/api/invite/validate` plus `/join/`, **not** all of `/api/*` — because
+  `/api/invite/status` is polled on navigation and would trip a broad rule.
 - **No per-link session invalidation** — `SessionData` does not record which
   invite it came from. Revocation cannot reach existing sessions.
 - **`secure` on the cookie** is driven by `NODE_ENV`; confirm it holds in the
   Cloudflare Workers bundle.
-
 
 ---
 
@@ -348,10 +375,10 @@ non-invite path. If the session is valid but `agreed` is `false`, it renders
 
 The invite form page (`pages/invite.vue`) also checks the session on mount:
 
-| Session state    | Redirect                          |
-| ---------------- | --------------------------------- |
-| Valid session    | `/locale` (dialog handles agree)  |
-| No valid session | Show the form                     |
+| Session state    | Redirect                         |
+| ---------------- | -------------------------------- |
+| Valid session    | `/locale` (dialog handles agree) |
+| No valid session | Show the form                    |
 
 The dialog calls `POST /api/invite/agree` which sets `session.agreed = true` and
 re-signs the cookie. On success the dialog closes and the user proceeds to the

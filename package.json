@@ -31,6 +31,7 @@
     "invites:diff": "pnpm run invites:list-remote && npx tsx scripts/invites-diff.ts",
     "invites:status": "npx tsx scripts/invites-status.ts",
     "invites:revoke": "npx tsx scripts/revoke-invite.ts",
+    "invites:backfill": "npx tsx scripts/backfill-invite-aliases.ts",
     "sync:almostnode": "rm -f vendor/almostnode-*.tgz && cd ../oss/almostnode && pnpm build:lib && (pnpm build:types || echo 'WARN almostnode build:types failed - see its tsc errors; dist/*.d.ts were still emitted') && pnpm pack --pack-destination ../../amoxtli-vue-2/vendor && cd - && pnpm install"
   },
   "config": {

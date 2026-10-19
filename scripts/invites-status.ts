@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 
@@ -8,6 +9,12 @@ const KEY_PREFIX = 'invite_'
 const LOCAL_DIR = join(import.meta.dirname, '..', 'data', 'invites')
 const SITE_URL = 'https://preview.amoxtli-vue.ackzell.dev'
 const RULE = '─'.repeat(72)
+
+/**
+ * `POST /kv/namespaces/:id/bulk/get` accepts at most 100 keys per request, and
+ * wrangler does not chunk this call for us (it only chunks bulk put/delete).
+ */
+const BULK_GET_MAX = 100
 
 interface Redemption {
   name: string
@@ -33,20 +40,47 @@ interface InviteRecord {
   data: InviteData
 }
 
+const WRANGLER_BIN = join(import.meta.dirname, '..', 'node_modules', '.bin', 'wrangler')
+
 function wrangler(args: string[]): string {
-  return execFileSync('npx', ['wrangler', ...args], {
-    encoding: 'utf-8',
-    stdio: ['ignore', 'pipe', 'inherit'],
-  })
+  // Calling the installed binary directly skips an npx `node` boot per call
+  // (~0.7s each), which matters when this runs two commands back to back.
+  const localBin = existsSync(WRANGLER_BIN)
+  return execFileSync(
+    localBin ? WRANGLER_BIN : 'npx',
+    localBin ? args : ['wrangler', ...args],
+    { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'inherit'] },
+  )
+}
+
+/** Tolerates wrangler decorating the output with extra log lines. */
+function parseJsonBlock(raw: string): unknown {
+  const trimmed = raw.trim()
+
+  // The common case: stdout is clean JSON (an object or an array).
+  try {
+    return JSON.parse(trimmed)
+  }
+  catch {}
+
+  // Otherwise slice out the outermost JSON value.
+  const firstBrace = trimmed.indexOf('{')
+  const firstBracket = trimmed.indexOf('[')
+  const starts = [firstBrace, firstBracket].filter(index => index !== -1)
+  if (!starts.length)
+    throw new Error(`Unexpected wrangler output: ${raw.slice(0, 120)}`)
+
+  const start = Math.min(...starts)
+  const end = Math.max(trimmed.lastIndexOf('}'), trimmed.lastIndexOf(']'))
+  if (end <= start)
+    throw new Error(`Unexpected wrangler output: ${raw.slice(0, 120)}`)
+
+  return JSON.parse(trimmed.slice(start, end + 1))
 }
 
 /** Tolerates wrangler decorating the value with extra log lines. */
 function parseValue(raw: string): InviteData {
-  const start = raw.indexOf('{')
-  const end = raw.lastIndexOf('}')
-  if (start === -1 || end === -1)
-    throw new Error(`Unexpected KV value: ${raw.slice(0, 80)}`)
-  return JSON.parse(raw.slice(start, end + 1))
+  return parseJsonBlock(raw) as InviteData
 }
 
 function loadLocal(): InviteRecord[] {
@@ -61,17 +95,59 @@ function loadLocal(): InviteRecord[] {
     })
 }
 
-function loadRemote(): InviteRecord[] {
-  const listed: { name: string }[] = JSON.parse(
-    wrangler(['kv', 'key', 'list', `--binding=${BINDING}`, '--remote']),
-  )
-  const keys = listed.map(entry => entry.name).filter(name => name.startsWith(KEY_PREFIX))
+/** Fetches up to BULK_GET_MAX values in one request. */
+function bulkGet(keys: string[]): Record<string, string> {
+  const file = join(tmpdir(), `invites-bulk-get-${process.pid}-${Date.now()}.json`)
+  writeFileSync(file, JSON.stringify(keys))
 
-  return keys.map((name, index) => {
-    process.stderr.write(`  fetching ${index + 1}/${keys.length}\r`)
-    const raw = wrangler(['kv', 'key', 'get', name, `--binding=${BINDING}`, '--remote'])
-    return { code: name.slice(KEY_PREFIX.length), data: parseValue(raw) }
-  })
+  try {
+    const parsed = parseJsonBlock(
+      wrangler(['kv', 'bulk', 'get', file, `--binding=${BINDING}`, '--remote']),
+    ) as Record<string, unknown>
+
+    // Remote returns `{ key: "<value>" }`; `--local` returns
+    // `{ key: { value } }`. Normalise to a plain string map.
+    const values: Record<string, string> = {}
+    for (const [key, value] of Object.entries(parsed)) {
+      values[key] = typeof value === 'string'
+        ? value
+        : String((value as { value?: unknown } | null)?.value ?? '')
+    }
+    return values
+  }
+  finally {
+    rmSync(file, { force: true })
+  }
+}
+
+function loadRemote(): InviteRecord[] {
+  const listed = parseJsonBlock(
+    wrangler(['kv', 'key', 'list', `--binding=${BINDING}`, '--remote']),
+  ) as (string | { name: string })[]
+
+  const keys = listed
+    .map(entry => (typeof entry === 'string' ? entry : entry.name))
+    .filter(name => name.startsWith(KEY_PREFIX))
+
+  const records: InviteRecord[] = []
+
+  for (let index = 0; index < keys.length; index += BULK_GET_MAX) {
+    const chunk = keys.slice(index, index + BULK_GET_MAX)
+    process.stderr.write(`  fetching ${Math.min(index + chunk.length, keys.length)}/${keys.length}\r`)
+
+    const values = bulkGet(chunk)
+    for (const name of chunk) {
+      const raw = values[name]
+      if (raw === undefined)
+        continue
+      records.push({ code: name.slice(KEY_PREFIX.length), data: parseValue(raw) })
+    }
+  }
+
+  if (keys.length)
+    process.stderr.write('\n')
+
+  return records
 }
 
 function maxSeats(data: InviteData): number {
