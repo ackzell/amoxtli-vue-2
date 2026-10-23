@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { computed, nextTick, ref } from 'vue'
-import { contentMocks, installHarness } from './__tests__/harness'
+import { contentMocks, installHarness, uiButtonStub } from './__tests__/harness'
 import ChallengeCheck from './ChallengeCheck.vue'
 
 const vc = vi.hoisted(() => ({
@@ -52,7 +52,7 @@ function mountCheck(guideOverrides: Record<string, unknown> = {}) {
       ...guideOverrides,
     },
   })
-  const wrapper = mount(ChallengeCheck, { global: { mocks: contentMocks } })
+  const wrapper = mount(ChallengeCheck, { global: { stubs: { UiButton: uiButtonStub }, mocks: contentMocks } })
   return { wrapper, guide: harness.guide, unsavedChanges: harness.unsavedChanges }
 }
 

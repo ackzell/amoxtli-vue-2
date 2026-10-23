@@ -22,13 +22,12 @@ function toggle() {
 <template>
   <IconButton
     v-if="hasRanges"
-    unstyled
+    variant="surface"
+    size="icon-sm"
     tooltip="Toggle all code sections"
     tooltip-placement="top"
-    border border-base rounded-md bg-base op0
-    inline-flex size-7 pointer-events-none
-    items-center justify-center z-1
-    class="transition-opacity duration-200 group-focus-within/avPre:op75 group-hover/avPre:op75 hover:op100 group-focus-within/avPre:pointer-events-auto group-hover/avPre:pointer-events-auto"
+    op0 pointer-events-none z-1
+    class="group-focus-within/avPre:op75 group-hover/avPre:op75 hover:op100 group-focus-within/avPre:pointer-events-auto group-hover/avPre:pointer-events-auto"
     aria-label="Toggle all code sections"
     @click="toggle"
   >

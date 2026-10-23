@@ -154,6 +154,7 @@ watch(() => [props.code, props.meta, props.language], resetDecorations)
       <div h-0 top-2 sticky z-1 :class="{ 'top-8': inferredFilename }">
         <div
           flex="~ justify-around gap-2" right-4 absolute z-1
+          class="code-actions"
           :class="{ '-top-6': inferredFilename }"
         >
           <ProsePreCollapseAllButton
@@ -282,7 +283,6 @@ pre {
   --ec-ann-inline-opacity: 0.3;
   --ec-ann-hl-border: 40%;
   --ec-ann-hl-bg: 10%;
-
   /* Per-pattern /pattern/ highlight palette (see configs/ecHighlight.ts) */
   --ec-hl-tip: var(--colors-tip-500);
   --ec-hl-info: var(--colors-info-500);
@@ -295,6 +295,37 @@ pre {
   --ec-diff-del-bg: 12%;
   --ec-diff-ins-bar: 45%;
   --ec-diff-del-bar: 45%;
+}
+
+/* Staggered reveal of the code-block action buttons. The buttons fade in via
+   `group-hover/avPre:op75`; a per-child delay on the opacity transition makes
+   them appear one after another. Only opacity is delayed — the press scale and
+   hover colours stay instant — and the delay is removed on unhover so they
+   fade out together immediately. */
+.code-actions :deep(button) {
+  transition-property: opacity, transform, background-color, border-color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+  transition-delay: 0ms, 0ms, 0ms, 0ms, 0ms;
+}
+
+.group\/avPre:hover .code-actions :deep(button:nth-child(2)) {
+  transition-delay: 50ms, 0ms, 0ms, 0ms, 0ms;
+}
+
+.group\/avPre:hover .code-actions :deep(button:nth-child(3)) {
+  transition-delay: 100ms, 0ms, 0ms, 0ms, 0ms;
+}
+
+.group\/avPre:hover .code-actions :deep(button:nth-child(4)) {
+  transition-delay: 150ms, 0ms, 0ms, 0ms, 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .code-actions :deep(button),
+  .group\/avPre:hover .code-actions :deep(button) {
+    transition-delay: 0ms;
+  }
 }
 
 /* Per-annotation hover: hovering a note row OR any of its code lines

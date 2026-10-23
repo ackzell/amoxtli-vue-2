@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { nextTick, ref } from 'vue'
-import { contentMocks, installHarness } from './__tests__/harness'
+import { contentMocks, installHarness, uiButtonStub } from './__tests__/harness'
 import Quiz from './Quiz.vue'
 
 const mockData = vi.hoisted(() => ({
@@ -72,7 +72,7 @@ const MDCStub = {
 function mountQuiz(props: Record<string, unknown> = {}) {
   return mount(Quiz, {
     props: { id: 'checkpoint', ...props },
-    global: { stubs: { MDC: MDCStub }, mocks: contentMocks },
+    global: { stubs: { MDC: MDCStub, UiButton: uiButtonStub }, mocks: contentMocks },
   })
 }
 

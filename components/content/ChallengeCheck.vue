@@ -136,12 +136,11 @@ const statusSummary = computed(() => {
         </span>
       </div>
       <div flex="~ gap-2 items-center flex-wrap justify-end">
-        <button
+        <UiButton
           v-if="showCheck"
           ref="checkBtnRef"
           type="button"
-          text-sm text-white font-medium px3 py1.5 rounded-lg dark:bg-primary-dark-500
-          class="bg-challenge! disabled:op60 disabled:cursor-not-allowed"
+          variant="challenge"
           :disabled="computing || guide.showingSolution"
           @click="check"
         >
@@ -150,13 +149,12 @@ const statusSummary = computed(() => {
             <div>{{ $t('challenge.checking') }}</div>
           </span>
           <span v-else>{{ $t('challenge.check') }}</span>
-        </button>
+        </UiButton>
 
-        <button
+        <UiButton
           v-if="showRetake"
           type="button"
-          text-sm text-white font-medium px3 py1.5 rounded-lg dark:bg-primary-dark-500
-          class="bg-challenge! disabled:op60 disabled:cursor-not-allowed"
+          variant="challenge"
           :disabled="computing"
           @click="retake"
         >
@@ -165,7 +163,7 @@ const statusSummary = computed(() => {
             <div>{{ $t('challenge.checking') }}</div>
           </span>
           <span v-else>{{ $t('challenge.retake') }}</span>
-        </button>
+        </UiButton>
 
         <span v-if="statusSummary" role="status" text-md op60 data-testid="challenge-status-summary">
           {{ statusSummary }}

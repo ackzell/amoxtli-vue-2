@@ -9,6 +9,8 @@ import type { Ref } from 'vue'
 import { vi } from 'vitest'
 import {
   computed,
+  defineComponent,
+  h,
   nextTick,
   onMounted,
   onUnmounted,
@@ -99,10 +101,34 @@ export const contentMocks = {
 /** IconButton stub: forwards `aria-label` and re-emits click. */
 export const iconButtonStub = {
   name: 'IconButton',
-  props: ['tooltip', 'tooltipPlacement', 'active', 'padding', 'unstyled', 'ariaLabel'],
+  props: ['tooltip', 'tooltipPlacement', 'active', 'padding', 'unstyled', 'ariaLabel', 'variant', 'size'],
   emits: ['click'],
   template: '<button type="button" :aria-label="ariaLabel || tooltip" @click="$emit(\'click\')"><slot /></button>',
 }
+
+/**
+ * UiButton stub: renders a real `<button>` so attrs (`disabled`,
+ * `data-testid`, `@click`) fall through, and exposes `focus`/`blur` for the
+ * components that move focus programmatically (quiz retake, challenge check).
+ */
+export const uiButtonStub = defineComponent({
+  name: 'UiButton',
+  inheritAttrs: false,
+  props: {
+    variant: String,
+    size: String,
+    as: { type: [String, Object], default: 'button' },
+    asChild: Boolean,
+  },
+  setup(_, { attrs, slots, expose }) {
+    const el = ref<HTMLButtonElement | null>(null)
+    expose({
+      focus: () => el.value?.focus(),
+      blur: () => el.value?.blur(),
+    })
+    return () => h('button', { ...attrs, ref: el }, slots.default?.())
+  },
+})
 
 /** Tooltip chrome stubs (only their slots matter to the tooltip adapter). */
 export const tooltipTriggerStub = {

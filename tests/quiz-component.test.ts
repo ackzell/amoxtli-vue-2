@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // @vitest-environment happy-dom
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
+import { uiButtonStub } from '../components/content/__tests__/harness'
 import Quiz from '../components/content/Quiz.vue'
 
 const { recordAttempt, recordPass, quiz } = vi.hoisted(() => ({
@@ -81,6 +82,7 @@ afterEach(() => {
 
 const stubs = {
   MDC: { props: { value: String }, template: '<span>{{ value }}</span>' },
+  UiButton: uiButtonStub,
 }
 const mocks = {
   $t: (key: string, params?: Record<string, unknown>) =>

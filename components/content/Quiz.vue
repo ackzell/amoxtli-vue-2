@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { nextTick } from 'vue'
 import type { QuizResult, ResolvedQuizQuestion } from '~/types/quiz'
+import { nextTick } from 'vue'
 import { gradeQuiz, normalizeLessonPath, useQuiz } from '~/composables/useQuiz'
 import { useQuizProgress } from '~/composables/useQuizProgress'
 import { quizzes } from '~/db/quizzes'
@@ -121,12 +121,12 @@ function optionClass(q: ResolvedQuizQuestion, oid: string): string {
 function optionMarkerClass(q: ResolvedQuizQuestion, oid: string): string {
   const s = optionState(q, oid)
   if (!revealAnswers.value)
-    return s.selected ? 'i-mynaui-circle-solid text-challenge' : 'i-mynaui-circle-outline op40'
+    return s.selected ? 'i-mynaui-circle-solid text-challenge' : 'i-mynaui-circle op40'
   if (s.incorrect)
     return 'i-mynaui-x-solid text-negative'
   if (s.isAnswer)
     return 'i-mynaui-check-solid text-positive'
-  return 'i-mynaui-circle-outline op40'
+  return 'i-mynaui-circle op40'
 }
 
 // Focus targets used by `submit` and `retake`.
@@ -260,17 +260,16 @@ function retake() {
     >
       <span v-if="unanswered" text-xs op50>{{ $t('quiz.answer-all-hint') }}</span>
       <span v-else />
-      <button
+      <UiButton
         ref="submitBtnRef"
         type="button"
+        variant="challenge"
         :disabled="unanswered"
-        text-sm text-white font-medium px3 py1.5 rounded-lg dark:bg-primary-dark-500
-        class="bg-challenge! disabled:op60 disabled:cursor-not-allowed"
         data-testid="quiz-submit"
         @click="submit"
       >
         {{ $t('quiz.submit') }}
-      </button>
+      </UiButton>
     </div>
 
     <div v-else-if="showFeedback && !completed" ref="resultSectionRef" tabindex="-1" role="status" flex="~ gap-2 items-center justify-between" border="t base" mt1 pt3>
@@ -287,16 +286,14 @@ function retake() {
           {{ $t('quiz.score', { score: result?.score, total: result?.total }) }}
         </span>
       </div>
-      <button
+      <UiButton
         type="button"
-        text-sm font-medium px3 py1.5 rounded-lg
-        border="~ base"
-        hover="bg-bgr-100 dark:bg-bgr-700"
+        variant="outline"
         data-testid="quiz-retake"
         @click="retake"
       >
         {{ $t('quiz.retake') }}
-      </button>
+      </UiButton>
     </div>
 
     <div v-else ref="resultSectionRef" tabindex="-1" role="status" flex="~ gap-2 items-center justify-between" border="t base" mt1 pt3>
@@ -313,16 +310,14 @@ function retake() {
           {{ $t('quiz.score', { score: progress.bestScore(sessionName) ?? 0, total: 100 }) }}
         </span>
       </div>
-      <button
+      <UiButton
         type="button"
-        text-sm font-medium px3 py1.5 rounded-lg
-        border="~ base"
-        hover="bg-bgr-100 dark:bg-bgr-700"
+        variant="outline"
         data-testid="quiz-retake"
         @click="retake"
       >
         {{ $t('quiz.retake') }}
-      </button>
+      </UiButton>
     </div>
   </div>
 </template>

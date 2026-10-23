@@ -4,11 +4,11 @@ import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { nextTick } from 'vue'
-import { installHarness } from './__tests__/harness'
+import { installHarness, uiButtonStub } from './__tests__/harness'
 import ButtonShowSolution from './ButtonShowSolution.vue'
 
 function mountButton(props: Record<string, unknown> = {}) {
-  return mount(ButtonShowSolution, { props })
+  return mount(ButtonShowSolution, { props, global: { stubs: { UiButton: uiButtonStub } } })
 }
 
 describe('button-show-solution', () => {
