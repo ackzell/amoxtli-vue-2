@@ -52,6 +52,7 @@
     "@xterm/xterm": "catalog:frontend",
     "almostnode": "file:vendor/almostnode-0.5.3.tgz",
     "birpc": "catalog:frontend",
+    "class-variance-authority": "catalog:frontend",
     "clsx": "catalog:frontend",
     "dexie": "catalog:frontend",
     "diff": "catalog:frontend",
