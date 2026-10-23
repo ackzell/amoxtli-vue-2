@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { Splitter } from '@ark-ui/vue'
+import { FileTree } from '@calmecac-vue/playground-layout'
 import { extname } from 'pathe'
+import FileIcon from '@/components/FileIcon.vue'
 import Toasts from '@/components/Toasts/Toasts.vue'
 import { isBinaryFile } from '@/lib/binary'
+import { virtualFsToTreeNodes } from '@/lib/virtualFsToTreeNodes'
 import { filesToVirtualFsTree } from '@/templates/utils'
 
 const ui = useUiState()
@@ -28,6 +31,14 @@ function getPlaygroundStore() {
 
 const files = ref<any[]>([])
 const directory = computed(() => filesToVirtualFsTree(files.value))
+const fileTreeNodes = computed(() => virtualFsToTreeNodes(directory.value))
+const selectedFilePath = computed(() => play.value?.fileSelected?.filepath ?? '')
+
+function onFileSelect(path: string) {
+  const file = files.value.find(candidate => candidate.filepath === path)
+  if (file && play.value)
+    play.value.fileSelected = file
+}
 
 const input = ref<string>('')
 
@@ -181,19 +192,25 @@ const sizes = computed<number[]>({
         aria-label="Files"
       >
         <div
+          data-dock-drag-handle="true"
+          draggable="true"
           flex="~ gap-2 items-center"
           border="b base dashed"
           px4 py2
           bg="dark:bgr-dark bgr-50"
+          select-none
+          class="active:cursor-grabbing"
         >
           <div i-ph-tree-structure-duotone flex-none aria-hidden="true" />
           <span text-sm>{{ $t('files') }}</span>
         </div>
         <div py2>
-          <PanelEditorFileSystemTree
-            v-model="play.fileSelected"
-            :directory="directory"
-            :depth="-1"
+          <FileTree
+            :nodes="fileTreeNodes"
+            :selected-path="selectedFilePath"
+            :icon="FileIcon"
+            default-open
+            @select="onFileSelect"
           />
         </div>
       </div>

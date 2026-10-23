@@ -24,7 +24,8 @@ The live preview is an **almostnode-based** system where user code runs in a **r
 | `components/PanelPreview.vue`              | Container: URL bar, refresh button, info dropdown. Loads `PanelPreviewLoading` and `PanelPreviewClient` as async children. |
 | `components/PanelPreviewClient.client.vue` | The actual iframe that shows the live preview. Sets up birpc RPC with the iframe content. Exposes the `iframe` ref.        |
 | `components/PanelPreviewLoading.vue`       | Loading overlay: shows init/mount/install/start/polling status steps before the preview is ready.                          |
-| `components/PlaygroundCodeDockNode.vue`    | Docking container: orchestrates which panel (editor, preview, console, terminal) renders in each dock slot.                |
+| `components/PlaygroundCodeDock.vue`        | App-level adapter: feeds the four playground panels into the shared `PlaygroundDockNode` slots (`@calmecac-vue/playground-layout`). |
+| `components/MainPlayground.vue`            | Docking state: layout tree, drag/drop, resize persistence and visibility filtering via the shared layout package.            |
 
 ### Stores
 

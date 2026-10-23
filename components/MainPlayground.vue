@@ -1,7 +1,19 @@
 <script setup lang="ts">
-import type { DropZone } from '~/types/dnd-spike'
-import type { CodePanelId, LayoutNode, LayoutSplit } from '~/types/layout'
+import type { DropZone, LayoutSplit } from '@calmecac-vue/playground-layout'
+import type { CodePanelId } from '~/stores/ui'
 import { Splitter } from '@ark-ui/vue'
+import {
+  cleanupTree,
+  collectMaxSplitNumber,
+  ensureAllPanelsExist,
+  ensureRootSplit,
+  filterVisible,
+  hasPanel,
+  insertAtTarget,
+  pruneSizesMap,
+  removePanel,
+} from '@calmecac-vue/playground-layout'
+import { CODE_PANEL_IDS } from '~/stores/ui'
 
 const ui = useUiState()
 const { width: windowWidth } = useWindowSize()
@@ -99,18 +111,11 @@ const codeSizesMap = ref<Record<string, number[]>>({})
 const PanelCodeToolbar = defineAsyncComponent(() =>
   import('~/components/PanelCodeToolbar.vue'),
 )
-const PlaygroundCodeDockNode = defineAsyncComponent(() =>
-  import('~/components/PlaygroundCodeDockNode.vue'),
+const PlaygroundCodeDock = defineAsyncComponent(() =>
+  import('~/components/PlaygroundCodeDock.vue'),
 )
 
-function collectMaxSplitNumber(node: LayoutNode): number {
-  if (node.type === 'panel')
-    return 0
-
-  const current = Number.parseInt(node.id.replace('split-', ''), 10)
-  const childMax = node.children.reduce((max, child) => Math.max(max, collectMaxSplitNumber(child)), 0)
-  return Math.max(Number.isNaN(current) ? 0 : current, childMax)
-}
+const REQUIRED_PANELS = CODE_PANEL_IDS
 
 const splitIdCounter = ref(Math.max(4, collectMaxSplitNumber(ui.layoutTree) + 1))
 
@@ -146,191 +151,6 @@ function onCodeSplitResize(splitId: string, sizes: number[]) {
   }
 }
 
-function isAxisAlignedDrop(direction: LayoutSplit['direction'], zone: DropZone) {
-  return (direction === 'horizontal' && (zone === 'left' || zone === 'right'))
-    || (direction === 'vertical' && (zone === 'top' || zone === 'bottom'))
-}
-
-function splitForZone(target: LayoutNode, dragged: { type: 'panel', id: CodePanelId }, zone: DropZone): LayoutSplit {
-  const direction = zone === 'left' || zone === 'right' ? 'horizontal' : 'vertical'
-  const before = zone === 'left' || zone === 'top'
-  return {
-    type: 'split',
-    id: nextSplitId(),
-    direction,
-    children: before ? [dragged, target] : [target, dragged],
-  }
-}
-
-function removePanel(node: LayoutNode, panelId: CodePanelId): { node: LayoutNode | null, removed: { type: 'panel', id: CodePanelId } | null } {
-  if (node.type === 'panel') {
-    if (node.id === panelId)
-      return { node: null, removed: node }
-    return { node, removed: null }
-  }
-
-  let removed: { type: 'panel', id: CodePanelId } | null = null
-  const children: LayoutNode[] = []
-
-  for (const child of node.children) {
-    const result = removePanel(child, panelId)
-    if (result.removed)
-      removed = result.removed
-    if (result.node)
-      children.push(result.node)
-  }
-
-  if (children.length === 0)
-    return { node: null, removed }
-  if (children.length === 1)
-    return { node: { ...node, children }, removed }
-
-  return {
-    node: {
-      ...node,
-      children,
-    },
-    removed,
-  }
-}
-
-function insertAtTarget(node: LayoutNode, targetId: string, dragged: { type: 'panel', id: CodePanelId }, zone: DropZone): LayoutNode {
-  if (node.type === 'panel') {
-    if (node.id !== targetId)
-      return node
-    return splitForZone(node, dragged, zone)
-  }
-
-  if (node.id === targetId) {
-    if (isAxisAlignedDrop(node.direction, zone)) {
-      const insertAtStart = zone === 'left' || zone === 'top'
-      return {
-        ...node,
-        children: insertAtStart
-          ? [dragged, ...node.children]
-          : [...node.children, dragged],
-      }
-    }
-
-    return splitForZone(node, dragged, zone)
-  }
-
-  return {
-    ...node,
-    children: node.children.map(child => insertAtTarget(child, targetId, dragged, zone)),
-  }
-}
-
-function cleanupTree(node: LayoutNode): LayoutNode {
-  if (node.type === 'panel')
-    return node
-
-  const cleanedChildren = node.children.map(cleanupTree)
-
-  if (cleanedChildren.length === 1)
-    return cleanedChildren[0]!
-
-  const flattenedChildren: LayoutNode[] = []
-  for (const child of cleanedChildren) {
-    if (child.type === 'split' && child.direction === node.direction)
-      flattenedChildren.push(...child.children)
-    else
-      flattenedChildren.push(child)
-  }
-
-  if (flattenedChildren.length === 1)
-    return flattenedChildren[0]!
-
-  return {
-    ...node,
-    children: flattenedChildren,
-  }
-}
-
-function hasPanel(node: LayoutNode, panelId: CodePanelId): boolean {
-  if (node.type === 'panel')
-    return node.id === panelId
-
-  return node.children.some(child => hasPanel(child, panelId))
-}
-
-function collectSplitIds(node: LayoutNode, ids = new Set<string>()) {
-  if (node.type === 'split') {
-    ids.add(node.id)
-    for (const child of node.children)
-      collectSplitIds(child, ids)
-  }
-  return ids
-}
-
-function pruneSizesMap(node: LayoutNode) {
-  const existingSplitIds = collectSplitIds(node)
-  const next: Record<string, number[]> = {}
-
-  for (const [key, value] of Object.entries(codeSizesMap.value)) {
-    if (existingSplitIds.has(key) && Array.isArray(value))
-      next[key] = value
-  }
-
-  codeSizesMap.value = next
-}
-
-function ensureRootSplit(node: LayoutNode): LayoutSplit {
-  if (node.type === 'split')
-    return node
-
-  return {
-    type: 'split',
-    id: nextSplitId(),
-    direction: 'vertical',
-    children: [node],
-  }
-}
-
-function filterVisible(node: LayoutNode, visibleIds: Set<CodePanelId>): LayoutNode | null {
-  if (node.type === 'panel')
-    return visibleIds.has(node.id) ? node : null
-
-  const children = node.children
-    .map(child => filterVisible(child, visibleIds))
-    .filter((child): child is LayoutNode => child !== null)
-
-  if (children.length === 0)
-    return null
-
-  return {
-    ...node,
-    children,
-  }
-}
-
-function collectPanels(node: LayoutNode, out = new Set<CodePanelId>()) {
-  if (node.type === 'panel') {
-    out.add(node.id)
-    return out
-  }
-
-  for (const child of node.children)
-    collectPanels(child, out)
-
-  return out
-}
-
-function ensureAllPanelsExist() {
-  const required: CodePanelId[] = ['editor', 'preview', 'console', 'terminal']
-  const existing = collectPanels(ui.layoutTree)
-  if (required.every(id => existing.has(id)))
-    return
-
-  const nextRoot = ensureRootSplit(ui.layoutTree)
-  for (const id of required) {
-    if (!existing.has(id))
-      nextRoot.children.push({ type: 'panel', id })
-  }
-
-  ui.layoutTree = ensureRootSplit(cleanupTree(nextRoot))
-}
-
 const visiblePanelIds = computed(() => {
   const ids = new Set<CodePanelId>(['editor'])
   if (ui.showPreview)
@@ -342,7 +162,7 @@ const visiblePanelIds = computed(() => {
   return ids
 })
 
-const visibleLayout = computed<LayoutSplit>(() => {
+const visibleLayout = computed<LayoutSplit<CodePanelId>>(() => {
   const filtered = filterVisible(ui.layoutTree, visiblePanelIds.value)
   if (!filtered) {
     return {
@@ -367,8 +187,10 @@ const visibleLayout = computed<LayoutSplit>(() => {
 
 watch(
   () => ui.layoutTree,
-  () => {
-    ensureAllPanelsExist()
+  (current) => {
+    const next = ensureAllPanelsExist(current, REQUIRED_PANELS, nextSplitId)
+    if (next !== current)
+      ui.layoutTree = next
   },
   { deep: true, immediate: true },
 )
@@ -383,21 +205,21 @@ watch(
 
 function onZoneDrop(draggedId: CodePanelId, targetId: string, zone: DropZone) {
   const previousLayout = ui.layoutTree
-  const removal = removePanel(ui.layoutTree, draggedId)
+  const removal = removePanel(previousLayout, draggedId)
 
   if (!removal.removed || !removal.node) {
     onDragEnd()
     return
   }
 
-  const inserted = insertAtTarget(removal.node, targetId, removal.removed, zone)
+  const inserted = insertAtTarget(removal.node, targetId, removal.removed, zone, nextSplitId)
   if (!hasPanel(inserted, draggedId)) {
     ui.layoutTree = previousLayout
     onDragEnd()
     return
   }
 
-  const cleaned = ensureRootSplit(cleanupTree(inserted))
+  const cleaned = ensureRootSplit(cleanupTree(inserted), nextSplitId)
   if (!hasPanel(cleaned, draggedId)) {
     ui.layoutTree = previousLayout
     onDragEnd()
@@ -405,7 +227,7 @@ function onZoneDrop(draggedId: CodePanelId, targetId: string, zone: DropZone) {
   }
 
   ui.layoutTree = cleaned
-  pruneSizesMap(cleaned)
+  codeSizesMap.value = pruneSizesMap(cleaned, codeSizesMap.value)
   onDragEnd()
 }
 
@@ -450,14 +272,11 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
       >
         <PanelCodeToolbar />
         <div min-h-0 relative of-hidden>
-          <PlaygroundCodeDockNode
+          <PlaygroundCodeDock
             :node="visibleLayout"
             :dragged-panel-id="draggedPanelId"
             :active-drop-zone="activeDropZone"
             :sizes-map="codeSizesMap"
-            :show-preview="ui.showPreview"
-            :show-console="ui.showConsole"
-            :show-terminal="ui.showTerminal"
             @drag-start="onDragStart"
             @drag-end="onDragEnd"
             @drop-zone-enter="onDropZoneEnter"
@@ -506,14 +325,11 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
             min-h-0 relative of-hidden
             :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
           >
-            <PlaygroundCodeDockNode
+            <PlaygroundCodeDock
               :node="visibleLayout"
               :dragged-panel-id="draggedPanelId"
               :active-drop-zone="activeDropZone"
               :sizes-map="codeSizesMap"
-              :show-preview="ui.showPreview"
-              :show-console="ui.showConsole"
-              :show-terminal="ui.showTerminal"
               @drag-start="onDragStart"
               @drag-end="onDragEnd"
               @drop-zone-enter="onDropZoneEnter"
@@ -545,14 +361,11 @@ function onEmbeddedResizeEnd(details: { size: number[] }) {
             min-h-0 relative of-hidden
             :class="guide.embeddedDocs ? 'z-embedded-docs-raised' : ''"
           >
-            <PlaygroundCodeDockNode
+            <PlaygroundCodeDock
               :node="visibleLayout"
               :dragged-panel-id="draggedPanelId"
               :active-drop-zone="activeDropZone"
               :sizes-map="codeSizesMap"
-              :show-preview="ui.showPreview"
-              :show-console="ui.showConsole"
-              :show-terminal="ui.showTerminal"
               @drag-start="onDragStart"
               @drag-end="onDragEnd"
               @drop-zone-enter="onDropZoneEnter"

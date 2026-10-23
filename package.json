@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@ark-ui/vue": "catalog:frontend",
+    "@calmecac-vue/playground-layout": "link:../calmecac-vue/yehyecoa-vue/packages/playground-layout",
     "@shikijs/core": "catalog:frontend",
     "@shikijs/magic-move": "catalog:frontend",
     "@shikijs/monaco": "catalog:frontend",

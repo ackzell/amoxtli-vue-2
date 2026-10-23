@@ -1,10 +1,15 @@
-import type { CodePanelId, LayoutNode, LayoutSplit } from '~/types/layout'
+import type { LayoutSplit } from '@calmecac-vue/playground-layout'
+import { normalizeLayoutTree } from '@calmecac-vue/playground-layout'
 
 export type MainViewMode = 'split' | 'code' | 'docs'
 export type MainLayoutOrientation = 'horizontal' | 'vertical'
 export type MobilePanelView = 'docs' | 'code'
 
-const DEFAULT_LAYOUT_TREE: LayoutSplit = {
+/** Panel ids declared by this app (the shared dock stays generic). */
+export type CodePanelId = 'editor' | 'preview' | 'console' | 'terminal'
+export const CODE_PANEL_IDS: readonly CodePanelId[] = ['editor', 'preview', 'console', 'terminal']
+
+const DEFAULT_LAYOUT_TREE: LayoutSplit<CodePanelId> = {
   type: 'split',
   id: 'split-1',
   direction: 'vertical',
@@ -20,75 +25,8 @@ function toPlain<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
-function getDefaultLayoutTree(): LayoutSplit {
+function getDefaultLayoutTree(): LayoutSplit<CodePanelId> {
   return toPlain(DEFAULT_LAYOUT_TREE)
-}
-
-function normalizeLayoutTree(tree: unknown): LayoutSplit {
-  const fresh = () => getDefaultLayoutTree()
-  const validIds = new Set<CodePanelId>(['editor', 'preview', 'console', 'terminal'])
-  const seen = new Set<CodePanelId>()
-  let splitCount = 0
-
-  function nextSplitId() {
-    splitCount += 1
-    return `split-${splitCount}`
-  }
-
-  function normalizeNode(node: unknown): LayoutNode | null {
-    if (!node || typeof node !== 'object')
-      return null
-
-    const n = node as Record<string, unknown>
-
-    if (n.type === 'panel') {
-      const id = n.id as CodePanelId
-      if (!validIds.has(id) || seen.has(id))
-        return null
-      seen.add(id)
-      return { type: 'panel', id }
-    }
-
-    if (n.type === 'split') {
-      const direction = n.direction
-      if (direction !== 'horizontal' && direction !== 'vertical')
-        return null
-
-      const childrenRaw = Array.isArray(n.children) ? n.children : []
-      const children = childrenRaw
-        .map(normalizeNode)
-        .filter((child): child is LayoutNode => child !== null)
-
-      if (children.length === 0)
-        return null
-      if (children.length === 1)
-        return children[0] ?? null
-
-      const id = typeof n.id === 'string' && n.id.length > 0 ? n.id : nextSplitId()
-      return {
-        type: 'split',
-        id,
-        direction,
-        children,
-      }
-    }
-
-    return null
-  }
-
-  const rootNode = normalizeNode(tree)
-  const root = rootNode?.type === 'split' ? rootNode : fresh()
-
-  for (const id of validIds) {
-    if (!seen.has(id))
-      root.children.push({ type: 'panel', id })
-  }
-
-  if (root.children.length === 1) {
-    root.children.push({ type: 'panel', id: 'editor' })
-  }
-
-  return root
 }
 
 export const useUiState = defineStore('ui', () => {
@@ -127,7 +65,7 @@ export const useUiState = defineStore('ui', () => {
   // update and sync cookie with the reactive state
   const cookieState = toPlain(stateCookie.value || {})
   Object.assign(persistState, getLayoutDefaults(), cookieState)
-  persistState.layoutTree = toPlain(normalizeLayoutTree(persistState.layoutTree))
+  persistState.layoutTree = normalizeLayoutTree(persistState.layoutTree, CODE_PANEL_IDS)
   watch(persistState, () => {
     stateCookie.value = toPlain({ ...persistState })
   })
