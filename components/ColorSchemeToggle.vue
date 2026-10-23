@@ -90,10 +90,7 @@ addCommands(
             v-for="option of modeOptions"
             :key="option.mode"
             type="button"
-            class="layout-menu-item"
-            px2 py1 rounded
-            hover="bg-active"
-            flex="~ items-center gap-2 w-full"
+            class="layout-menu-item sc-menu-item flex gap-2 items-center"
             :class="colorMode.preference === option.mode ? 'text-primary dark:text-primary-dark' : ''"
             @click="setMode(option.mode)"
           >

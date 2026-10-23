@@ -104,9 +104,7 @@ onMounted(async () => {
                 <button
                   v-for="locale of i18n.locales.value"
                   :key="locale.code"
-                  class="layout-menu-item"
-                  px2 py1 rounded
-                  hover="bg-active"
+                  class="layout-menu-item sc-menu-item"
                   :class="locale.code === i18n.locale.value ? 'text-primary dark:text-primary-dark' : ''"
                   @click="i18n.setLocale(locale.code)"
                 >
@@ -196,15 +194,13 @@ onMounted(async () => {
                 >
               </div>
 
-              <button
+              <UiButton
                 type="submit"
-                class="text-white font-medium px-4 py-2.5 rounded-md w-full transition bg-primary! disabled:opacity-50 disabled:cursor-not-allowed active:brightness-90 hover:brightness-110 dark:bg-primary-dark!"
-                un-disabled="bg-bgr-200! dark:bg-bgr-700!"
-
+                class="w-full"
                 :disabled="loading || !name.trim() || !code.trim()"
               >
                 {{ loading ? `${$t('entering')}\u2026` : $t('enter') }}
-              </button>
+              </UiButton>
             </form>
           </div>
 

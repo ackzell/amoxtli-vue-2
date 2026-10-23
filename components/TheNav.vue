@@ -124,7 +124,7 @@ addCommands(
     handler: () => {
       ui.toggleTerminal()
     },
-    icon: 'i-carbon-terminal',
+    icon: 'i-mynaui:terminal',
   },
   {
     id: 'toggle-console',
@@ -132,7 +132,7 @@ addCommands(
     handler: () => {
       ui.toggleConsole()
     },
-    icon: 'i-carbon-cics-program',
+    icon: 'i-mynaui:code-square',
   },
   {
     id: 'toggle-preview',
@@ -140,7 +140,7 @@ addCommands(
     handler: () => {
       ui.togglePreview()
     },
-    icon: 'i-carbon-wikis',
+    icon: 'i-mynaui:circle',
   },
   {
     id: 'language-en',
@@ -175,20 +175,23 @@ const isChangelogOpen = ref(false)
     text-lg px4 py2 relative border="b base" flex="~ gap-1 items-center justify-between"
     z-nav backdrop-blur-2xl
   >
-    <div px4>
-      <div text-xl text-primary font-bold font-mono dark:text-primary-dark>
-        {{ $t('amoxtli-vue') }}
-      </div>
-      <div class="text-xs text-foreground/50 dark:text-foreground-dark/50">
-        {{ $t('a-book-about-vue') }}
-        <button
-          type="button"
-          class="text-xs text-foreground/55 font-code underline-offset-2 inline-block cursor-pointer transition-opacity dark:text-primary-dark hover:text-primary dark:op80 hover:op100 hover:underline dark:hover:text-primary-dark"
-          :title="$t('changelog.title')"
-          @click="isChangelogOpen = true"
-        >
-          {{ `[v${version}]` }}
-        </button>
+    <div px4 flex gap-2>
+      <AmoxtliVueLogo class="shrink-0" />
+      <div>
+        <div text-xl text-primary font-bold font-mono dark:text-primary-dark>
+          {{ $t('amoxtli-vue') }}
+        </div>
+        <div class="text-xs text-foreground/50 dark:text-foreground-dark/50">
+          {{ $t('a-book-about-vue') }}
+          <button
+            type="button"
+            class="text-xs text-foreground/55 font-code underline-offset-2 inline-block cursor-pointer transition-opacity dark:text-primary-dark hover:text-primary dark:op80 hover:op100 hover:underline dark:hover:text-primary-dark"
+            :title="$t('changelog.title')"
+            @click="isChangelogOpen = true"
+          >
+            {{ `[v${version}]` }}
+          </button>
+        </div>
       </div>
     </div>
     <div class="mx-2 max-w-2xl hidden md:flex md:flex-1">
@@ -212,9 +215,7 @@ const isChangelogOpen = ref(false)
                 <button
                   v-for="locale of i18n.locales.value"
                   :key="locale.code"
-                  class="layout-menu-item"
-                  px2 py1 rounded
-                  hover="bg-active"
+                  class="layout-menu-item sc-menu-item"
                   :class="locale.code === i18n.locale.value ? 'text-primary dark:text-primary-dark' : ''"
                   @click="i18n.setLocale(locale.code)"
                 >

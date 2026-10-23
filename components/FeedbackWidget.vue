@@ -172,16 +172,14 @@ async function submit() {
             </div>
           </div>
         </UiScrollArea>
-        <button
+        <UiButton
           type="submit"
-          sticky
-          un-disabled="op40  pointer-events-none bg-bgr-200 dark:bg-bgr-700"
-          class="text-sm text-white font-medium my-4 py-2 rounded-md w-full transition-opacity bg-primary! hover:opacity-90 dark:bg-primary-dark!"
+          class="my-4 w-full"
           :disabled="sending || isFormEmpty"
           @click="submit"
         >
           {{ sending ? $t('feedback.sending') : $t('feedback.send') }}
-        </button>
+        </UiButton>
         <p text-xs op50 italic>
           {{ $t('feedback.p-s') }}
         </p>

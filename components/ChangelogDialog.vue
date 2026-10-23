@@ -96,13 +96,15 @@ watch(isOpen, (val) => {
             </section>
           </template>
 
-          <button
+          <UiButton
             v-if="hiddenCount > 0"
-            class="text-sm font-medium px-3 py-2 border border-base rounded-md bg-bgr-50 transition-colors hover:text-primary hover:border-primary dark:bg-bgr-800 dark:hover:text-primary-dark dark:hover:border-primary-dark"
+            type="button"
+            variant="outline"
+            size="sm"
             @click="showAll = !showAll"
           >
             {{ showAll ? $t('changelog.show-less') : $t('changelog.show-earlier', { count: hiddenCount }) }}
-          </button>
+          </UiButton>
         </div>
       </UiScrollArea>
     </UiDialogContent>

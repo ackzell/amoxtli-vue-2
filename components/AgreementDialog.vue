@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { buttonVariants } from '@/lib/button-variants'
+
 const props = defineProps<{
   name: string
 }>()
@@ -29,19 +31,25 @@ async function agree() {
       <UiAlertDialogHeader>
         <UiAlertDialogTitle>
           <div flex items-center justify-between>
-            <div text-xs font-normal flex gap-2>
+            <div text-xs font-normal flex="~ gap-2">
               <button
+                type="button"
+                class="cursor-pointer transition-colors hover:underline"
                 :class="{
                   'text-primary dark:text-primary-dark': locale === 'en',
-                }" @click="setLocale('en')"
+                }"
+                @click="setLocale('en')"
               >
                 {{ $t('english') }}
               </button>
 
               <button
+                type="button"
+                class="cursor-pointer transition-colors hover:underline"
                 :class="{
                   'text-primary dark:text-primary-dark': locale === 'es_mx',
-                }" @click="setLocale('es_mx')"
+                }"
+                @click="setLocale('es_mx')"
               >
                 {{ $t('espanol-mexico') }}
               </button>
@@ -70,13 +78,13 @@ async function agree() {
       </p>
 
       <UiAlertDialogFooter>
-        <UiAlertDialogAction>
-          <YvButton
-            :disabled="loading"
-            @click.prevent="agree"
-          >
-            {{ loading ? `${t('invite.agreement.entering')}\u2026` : t('invite.agreement.continue') }}
-          </YvButton>
+        <UiAlertDialogAction
+          type="button"
+          :disabled="loading"
+          :class="buttonVariants({ variant: 'default' })"
+          @click.prevent="agree"
+        >
+          {{ loading ? `${t('invite.agreement.entering')}\u2026` : t('invite.agreement.continue') }}
         </UiAlertDialogAction>
       </UiAlertDialogFooter>
     </UiAlertDialogContent>
