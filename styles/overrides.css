@@ -111,8 +111,9 @@
 }
 
 /* Floating Vue */
-.v-popper--theme-dropdown .v-popper__inner {
-  --uno: bg-base border-base border;
+.v-popper--theme-dropdown .v-popper__inner,
+.v-popper--theme-layout-dropdown .v-popper__inner {
+  --uno: 'bg-bgr-50 dark:bg-bgr-dark border border-bgr-500/30 dark:border-bgr-700 rounded-md shadow-md';
   color: inherit;
 }
 

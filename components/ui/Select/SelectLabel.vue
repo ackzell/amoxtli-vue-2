@@ -10,7 +10,7 @@ const props = defineProps<SelectLabelProps & { class?: HTMLAttributes['class'] }
 <template>
   <SelectLabel
     data-slot="select-label"
-    :class="cn('px-2 py-1.5 text-sm font-medium', props.class)"
+    :class="cn('px-2 py-1.5 text-sm font-medium text-bgr-500 dark:text-bgr-400', props.class)"
   >
     <slot />
   </SelectLabel>

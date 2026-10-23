@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+
 import extractorMdc from '@unocss/extractor-mdc'
 import {
   defineConfig,
@@ -11,7 +14,19 @@ import {
 
 import { presetAnimations } from 'unocss-preset-animations'
 
+// Tailwind's preflight reset ships as its own stylesheet when imported from
+// `app.vue`, and Nuxt emits it *after* `uno.css`. At equal specificity its
+// `button, [type='button'] { background-color: transparent }` then beats
+// single-class utilities like `bg-primary`, making every typed button blank.
+// Emitting the reset as a UnoCSS preflight keeps it inside `uno.css` and
+// ordered before the utilities, which is what the cascade expects.
+const require = createRequire(import.meta.url)
+const tailwindReset = readFileSync(require.resolve('@unocss/reset/tailwind.css'), 'utf-8')
+
 export default defineConfig({
+  preflights: [
+    { getCSS: () => tailwindReset },
+  ],
   shortcuts: {
     'border-base': 'border-gray-200 dark:border-bgr-800',
     'bg-active': 'dark:bg-bgr-700 bg-bgr-100',
@@ -33,11 +48,9 @@ export default defineConfig({
     'z-dialog-overlay': 'z-201',
     'z-dialog-content': 'z-202',
 
-    // brought in from YV
-    'sc-toolbar-btn': 'cursor-pointer hover:text-foreground/80 hover:scale-120 transition duration-200 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100 active:scale-95',
-    'sc-btn-base': 'p-2 rounded-lg bg-transparent',
-    'btn': 'sc-btn-base bg-bgr-800 text-bgr-200 dark:bg-bgr-200 dark:text-dark-900',
-    'sc-btn-outline': 'sc-btn-base outline-solid outline-bgr text-bgr hover',
+    // Menu-row styling (nav / color-mode / invite dropdowns). Button styling
+    // lives in `lib/button-variants.ts`.
+    'sc-menu-item': 'w-full px-2 py-1.5 rounded-sm text-sm text-left cursor-pointer transition-colors hover:bg-active focus-visible:bg-active focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
 
     // overriding shadcn as I didn't install it here
     'border-input': 'border-bgr-500/30',
@@ -296,6 +309,17 @@ export default defineConfig({
     extractorMdc(),
   ],
   content: {
+    // Button variants live in `lib/button-variants.ts`; plain `.ts` is not
+    // scanned by default, so add component/lib ts files to the pipeline (same
+    // as the upstream yehyecoa config) or their classes never get generated.
+    pipeline: {
+      include: [
+        // the default
+        /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
+        // `lib/button-variants.ts` + any other component/lib ts helper
+        /(?:components|lib)\/.*\.(?:js|ts)(?:\?|$)/,
+      ],
+    },
     filesystem: [
       './content/**/*.md',
     ],

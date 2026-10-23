@@ -24,14 +24,14 @@ const forwardedProps = useForwardProps(delegatedProps)
     v-bind="forwardedProps"
     :class="
       cn(
-        `focus:bg-bgr-100/70 dark:focus:bg-bgr-700 focus:text-primary focus:dark:text-primary-dark [&_svg:not([class*='text-'])]:text-bgr-500 relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2`,
+        `focus:bg-active focus:text-primary dark:focus:text-primary-dark [&_svg:not([class*='text-'])]:text-bgr-500 dark:[&_svg:not([class*='text-'])]:text-bgr-400 relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2`,
         props.class,
       )
     "
   >
     <span class="flex size-3.5 items-center right-2 justify-center absolute">
       <SelectItemIndicator>
-        <div i-mynaui-check class="size-4" />
+        <div i-mynaui-check class="text-primary size-4 dark:text-primary-dark" />
       </SelectItemIndicator>
     </span>
 

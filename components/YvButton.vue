@@ -14,10 +14,10 @@ const props = defineProps<YvButtonProps>()
   <button
     :class="cn(`group rounded
     cursor-pointer
-    bg-input
+    bg-bgr-200/50 dark:bg-bgr-800/60
     hover:scale-110
-    text-xs text-bgr-500
-    px-2 py-1 active:scale-100 active:bg-bgr-200 dark:active:bg-bgr-800
+    text-xs text-bgr-500 dark:text-bgr-400
+    px-2 py-1 active:scale-100 active:bg-bgr-200 dark:active:bg-bgr-700
     `, props.class)"
     flex="~ items-center gap-1"
   >
