@@ -2,7 +2,6 @@ import type { Logger, Plugin } from 'vite'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
 import { execaSync } from 'execa'
-import { searchForWorkspaceRoot } from 'vite'
 
 import {
   autoInjectChallengeCheck,
@@ -190,27 +189,8 @@ export default defineNuxtConfig({
       minify: 'esbuild',
       cssMinify: 'esbuild',
     },
-    /**
-     * `@calmecac-vue/playground-layout` and its `@ark-ui/vue` dependency are
-     * pnpm-linked from the sibling yehyecoa-vue repo. Externalizing them makes
-     * Node load the package's *own* Vue copy (from that repo), so components
-     * created by this app's runtime call `renderSlot` on a different runtime
-     * instance (`getCurrentInstance()` is null). Inlining them lets Vite's
-     * `dedupe: ['vue']` resolve everything to this project's Vue.
-     */
-    ssr: {
-      noExternal: ['@calmecac-vue/playground-layout', '@ark-ui/vue'],
-    },
     plugins: [silenceMissingSourcemap()],
     server: {
-      fs: {
-        // `@calmecac-vue/playground-layout` is pnpm-linked from the sibling
-        // yehyecoa-vue repo, so its dist lives outside this project root.
-        allow: [
-          searchForWorkspaceRoot(process.cwd()),
-          resolve(process.cwd(), '../calmecac-vue/yehyecoa-vue/packages/playground-layout'),
-        ],
-      },
       headers: {
         'Cross-Origin-Embedder-Policy': 'require-corp',
         'Cross-Origin-Opener-Policy': 'same-origin',

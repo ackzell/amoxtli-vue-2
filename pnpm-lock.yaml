@@ -268,8 +268,8 @@ importers:
         specifier: catalog:frontend
         version: 5.38.2(vue@3.5.44(typescript@5.9.3))
       '@calmecac-vue/playground-layout':
-        specifier: link:../calmecac-vue/yehyecoa-vue/packages/playground-layout
-        version: link:../calmecac-vue/yehyecoa-vue/packages/playground-layout
+        specifier: file:vendor/calmecac-vue-playground-layout-0.1.0.tgz
+        version: file:vendor/calmecac-vue-playground-layout-0.1.0.tgz(vue@3.5.44(typescript@5.9.3))
       '@shikijs/core':
         specifier: catalog:frontend
         version: 3.23.0
@@ -786,6 +786,12 @@ packages:
 
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
+
+  '@calmecac-vue/playground-layout@file:vendor/calmecac-vue-playground-layout-0.1.0.tgz':
+    resolution: {integrity: sha512-5uveStfEgV+2kZqyWvIiHY1MWrACgr2gSQMPvjsY6KJeVGlAWDmJjjJdoedzH6MI+r4dypGHvTn44w8zqfTmzw==, tarball: file:vendor/calmecac-vue-playground-layout-0.1.0.tgz}
+    version: 0.1.0
+    peerDependencies:
+      vue: ^3.5.44
 
   '@clack/core@0.5.0':
     resolution: {integrity: sha512-p3y0FIOwaYRUPRcMO7+dlmLh8PSRcrjuTndsiA0WAFbWES0mLZlrjVoBRZ9DzkPFJZG6KGkJmoEAY0ZcVWTkow==}
@@ -10518,7 +10524,7 @@ snapshots:
 
   '@babel/generator@7.29.8':
     dependencies:
-      '@babel/parser': 7.29.8
+      '@babel/parser': 7.29.9
       '@babel/types': 7.29.8
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
@@ -10658,7 +10664,7 @@ snapshots:
   '@babel/template@7.29.7':
     dependencies:
       '@babel/code-frame': 7.29.7
-      '@babel/parser': 7.29.8
+      '@babel/parser': 7.29.9
       '@babel/types': 7.29.8
 
   '@babel/traverse@7.29.8(supports-color@10.2.2)':
@@ -10666,7 +10672,7 @@ snapshots:
       '@babel/code-frame': 7.29.7
       '@babel/generator': 7.29.8
       '@babel/helper-globals': 7.29.7
-      '@babel/parser': 7.29.8
+      '@babel/parser': 7.29.9
       '@babel/template': 7.29.7
       '@babel/types': 7.29.8
       debug: 4.4.3(supports-color@10.2.2)
@@ -10690,6 +10696,11 @@ snapshots:
       commander: 14.0.3
 
   '@borewit/text-codec@0.2.2': {}
+
+  '@calmecac-vue/playground-layout@file:vendor/calmecac-vue-playground-layout-0.1.0.tgz(vue@3.5.44(typescript@5.9.3))':
+    dependencies:
+      '@ark-ui/vue': 5.38.2(vue@3.5.44(typescript@5.9.3))
+      vue: 3.5.44(typescript@5.9.3)
 
   '@clack/core@0.5.0':
     dependencies:
@@ -14128,7 +14139,7 @@ snapshots:
 
   '@unocss/transformer-attributify-jsx@66.4.2(supports-color@10.2.2)':
     dependencies:
-      '@babel/parser': 7.29.8
+      '@babel/parser': 7.29.9
       '@babel/traverse': 7.29.8(supports-color@10.2.2)
       '@unocss/core': 66.4.2
     transitivePeerDependencies:
@@ -16173,7 +16184,7 @@ snapshots:
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   css-tree@2.3.1:
     dependencies:
@@ -18425,9 +18436,9 @@ snapshots:
 
   magicast@0.5.4:
     dependencies:
-      '@babel/parser': 7.29.8
+      '@babel/parser': 7.29.9
       '@babel/types': 7.29.8
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   make-asynchronous@1.1.0:
     dependencies:
@@ -22045,7 +22056,7 @@ snapshots:
       esbuild: 0.28.2
       fdir: 6.5.0(picomatch@4.0.5)
       picomatch: 4.0.5
-      postcss: 8.5.26
+      postcss: 8.5.31
       rollup: 4.62.4
       tinyglobby: 0.2.17
     optionalDependencies:
@@ -22061,7 +22072,7 @@ snapshots:
       esbuild: 0.28.2
       fdir: 6.5.0(picomatch@4.0.5)
       picomatch: 4.0.5
-      postcss: 8.5.26
+      postcss: 8.5.31
       rollup: 4.62.4
       tinyglobby: 0.2.17
     optionalDependencies:
