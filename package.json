@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@ark-ui/vue": "catalog:frontend",
-    "@calmecac-vue/playground-layout": "file:vendor/calmecac-vue-playground-layout-0.1.0.tgz",
+    "@calmecac-vue/playground-layout": "file:vendor/calmecac-vue-playground-layout-0.1.1.tgz",
     "@shikijs/core": "catalog:frontend",
     "@shikijs/magic-move": "catalog:frontend",
     "@shikijs/monaco": "catalog:frontend",

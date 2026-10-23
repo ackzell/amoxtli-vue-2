@@ -268,8 +268,8 @@ importers:
         specifier: catalog:frontend
         version: 5.38.2(vue@3.5.44(typescript@5.9.3))
       '@calmecac-vue/playground-layout':
-        specifier: file:vendor/calmecac-vue-playground-layout-0.1.0.tgz
-        version: file:vendor/calmecac-vue-playground-layout-0.1.0.tgz(vue@3.5.44(typescript@5.9.3))
+        specifier: file:vendor/calmecac-vue-playground-layout-0.1.1.tgz
+        version: file:vendor/calmecac-vue-playground-layout-0.1.1.tgz(vue@3.5.44(typescript@5.9.3))
       '@shikijs/core':
         specifier: catalog:frontend
         version: 3.23.0
@@ -787,9 +787,9 @@ packages:
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
 
-  '@calmecac-vue/playground-layout@file:vendor/calmecac-vue-playground-layout-0.1.0.tgz':
-    resolution: {integrity: sha512-5uveStfEgV+2kZqyWvIiHY1MWrACgr2gSQMPvjsY6KJeVGlAWDmJjjJdoedzH6MI+r4dypGHvTn44w8zqfTmzw==, tarball: file:vendor/calmecac-vue-playground-layout-0.1.0.tgz}
-    version: 0.1.0
+  '@calmecac-vue/playground-layout@file:vendor/calmecac-vue-playground-layout-0.1.1.tgz':
+    resolution: {integrity: sha512-121+fPkBC+fk386MoiaB+xDhvz37qsI5wdjfmDAeaUiBOp4R0ZwYRzoxyKyRw3njWvLx2dhmvVmHamcamNC43A==, tarball: file:vendor/calmecac-vue-playground-layout-0.1.1.tgz}
+    version: 0.1.1
     peerDependencies:
       vue: ^3.5.44
 
@@ -10697,7 +10697,7 @@ snapshots:
 
   '@borewit/text-codec@0.2.2': {}
 
-  '@calmecac-vue/playground-layout@file:vendor/calmecac-vue-playground-layout-0.1.0.tgz(vue@3.5.44(typescript@5.9.3))':
+  '@calmecac-vue/playground-layout@file:vendor/calmecac-vue-playground-layout-0.1.1.tgz(vue@3.5.44(typescript@5.9.3))':
     dependencies:
       '@ark-ui/vue': 5.38.2(vue@3.5.44(typescript@5.9.3))
       vue: 3.5.44(typescript@5.9.3)
