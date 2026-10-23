@@ -48,6 +48,12 @@ body {
 }
 
 :root {
+  /* Shared playground dock drag/drop highlight. Light default lives on
+     `:root` so it does not depend on the `.light` class being present, and
+     the color comes from a scale step UnoCSS actually emits (300 is not
+     generated unless a utility uses it). */
+  --dock-highlight-bg: color-mix(in oklab, var(--colors-primary-400, oklch(0.81 0.11 70)) 20%, transparent);
+
   transition:
     --hdr-color-1 1s ease,
     --hdr-color-2 1s ease,
@@ -104,6 +110,9 @@ body {
 :root.dark {
   --amv-highlight: var(--colors-primary-dark-500);
   --av-text-primary: oklch(0.8385 0.0263 248.14);
+
+  /* Shared playground dock drag/drop highlight */
+  --dock-highlight-bg: color-mix(in oklab, var(--colors-primary-dark-600, oklch(0.44 0.2423 358.92)) 20%, transparent);
 
   --amv-links: var(--colors-primary-dark-300);
 
