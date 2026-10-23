@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>amoxtli-vue-2 · color palette</title>
+    <style>
+      :root {
+        --page: #fcfcfc;
+        --panel: #ffffff;
+        --ink: #324a62;
+        --ink-soft: #6c6867;
+        --line: #e5e7eb;
+        --line-soft: #f0f0f0;
+        --accent: #eca342;
+        --chip-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 0 0 1px rgb(0 0 0 / 6%) inset;
+        --radius: 12px;
+        color-scheme: light;
+      }
+      html[data-theme='dark'] {
+        --page: #0b0c07;
+        --panel: #14140f;
+        --ink: #f5f5f5;
+        --ink-soft: #a7a4a3;
+        --line: #2a2a22;
+        --line-soft: #211c1a;
+        --accent: #e4007c;
+        --chip-shadow: 0 1px 2px rgb(0 0 0 / 50%), 0 0 0 1px rgb(255 255 255 / 10%) inset;
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        font:
+          14px/1.5 -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        transition:
+          background 0.25s ease,
+          color 0.25s ease;
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+      }
+
+      header.bar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+      .bar-inner {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      h1 {
+        font-size: 15px;
+        margin: 0;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+      h1 span {
+        color: var(--ink-soft);
+        font-weight: 400;
+      }
+      .spacer {
+        flex: 1 1 auto;
+      }
+
+      input[type='search'] {
+        flex: 1 1 200px;
+        max-width: 280px;
+        padding: 7px 11px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        font: inherit;
+        outline: none;
+      }
+      input[type='search']:focus-visible {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+      }
+
+      .seg {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        overflow: hidden;
+        background: var(--panel);
+      }
+      .seg button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--ink-soft);
+        padding: 7px 11px;
+        font: inherit;
+        cursor: pointer;
+      }
+      .seg button + button {
+        border-left: 1px solid var(--line);
+      }
+      .seg button[aria-pressed='true'] {
+        background: var(--accent);
+        color: #fff;
+      }
+      html[data-theme='dark'] .seg button[aria-pressed='true'] {
+        color: #fff;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        padding: 7px 11px;
+        border-radius: 9px;
+        font: inherit;
+        cursor: pointer;
+      }
+      .btn:hover {
+        border-color: var(--accent);
+      }
+      .btn:focus-visible,
+      .swatch:focus-visible,
+      .seg button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 24px 20px 96px;
+      }
+
+      section {
+        margin: 0 0 34px;
+      }
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 4px;
+      }
+      .sec-head h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        margin: 0;
+        font-weight: 650;
+      }
+      .sec-head .file {
+        color: var(--ink-soft);
+        font-size: 12px;
+      }
+      .note {
+        color: var(--ink-soft);
+        font-size: 12.5px;
+        margin: 0 0 14px;
+        max-width: 78ch;
+      }
+      .note code {
+        background: color-mix(in srgb, var(--ink) 8%, transparent);
+        padding: 1px 5px;
+        border-radius: 5px;
+        font-size: 12px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(162px, 1fr));
+        gap: 10px;
+      }
+
+      .swatch {
+        position: relative;
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        border-radius: var(--radius);
+      }
+      .swatch .chip {
+        height: 74px;
+        border-radius: var(--radius);
+        box-shadow: var(--chip-shadow);
+        transition: transform 0.12s ease;
+      }
+      .swatch:hover .chip {
+        transform: translateY(-2px);
+      }
+      .swatch .meta {
+        padding: 7px 2px 0;
+        display: grid;
+        gap: 1px;
+      }
+      .swatch .stop {
+        font-weight: 600;
+        font-size: 12.5px;
+      }
+      .swatch .hex {
+        font-size: 12px;
+        color: var(--ink);
+        opacity: 0.82;
+      }
+      .swatch .raw {
+        font-size: 10.5px;
+        color: var(--ink-soft);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .swatch .varname {
+        font-size: 10.5px;
+        color: var(--ink-soft);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .swatch .done {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        border-radius: var(--radius);
+        background: color-mix(in srgb, var(--ink) 62%, transparent);
+        color: var(--page);
+        font-weight: 650;
+        font-size: 13px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+      }
+      .swatch.copied .done {
+        opacity: 1;
+      }
+
+      .empty {
+        color: var(--ink-soft);
+        padding: 24px 0;
+      }
+
+      footer {
+        color: var(--ink-soft);
+        font-size: 12px;
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+      }
+      footer code {
+        background: color-mix(in srgb, var(--ink) 8%, transparent);
+        padding: 1px 5px;
+        border-radius: 5px;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 26px;
+        transform: translate(-50%, 12px);
+        background: var(--ink);
+        color: var(--page);
+        padding: 9px 16px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 550;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.18s ease,
+          transform 0.18s ease;
+        z-index: 50;
+        max-width: 90vw;
+        text-align: center;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="bar">
+      <div class="bar-inner">
+        <h1>amoxtli-vue-2 <span>· color palette</span></h1>
+        <div class="spacer"></div>
+        <input id="filter" type="search" placeholder="Filter by name or hex…" aria-label="Filter swatches" />
+        <div class="seg" role="group" aria-label="Copy format">
+          <button data-fmt="hex" aria-pressed="true">Hex</button>
+          <button data-fmt="oklch" aria-pressed="false">oklch</button>
+          <button data-fmt="var" aria-pressed="false">var()</button>
+        </div>
+        <button class="btn" id="copy-css">Copy CSS vars</button>
+        <button class="btn" id="copy-json">Copy JSON</button>
+        <button class="btn" id="theme-toggle" aria-label="Toggle light or dark preview">◐</button>
+      </div>
+    </header>
+
+    <main id="main"></main>
+
+    <footer>
+      <p style="max-width: 78ch">
+        Source of truth: <code>uno.config.ts</code> → <code>theme.colors</code>; app tokens from the
+        <code>shortcuts</code> block and <code>styles/base.css</code>. Hex values are resolved live from the
+        <code>oklch()</code> definitions. Syntax-highlighting themes are separate:
+        <code>themes/amoxtli-light.ts</code> (light) and Shiki's <code>vesper</code> (dark).
+      </p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      'use strict'
+
+      /* ---------- resolve any CSS color to a copyable string ---------- */
+      const _cv = document.createElement('canvas')
+      _cv.width = _cv.height = 1
+      const _ctx = _cv.getContext('2d', { willReadFrequently: true })
+      const _h2 = (n) => Math.round(n).toString(16).padStart(2, '0')
+
+      /** Any CSS color -> { r,g,b,a } in 0..255, via canvas pixel read. */
+      function sample(color) {
+        _ctx.clearRect(0, 0, 1, 1)
+        _ctx.fillStyle = color
+        _ctx.fillRect(0, 0, 1, 1)
+        const d = _ctx.getImageData(0, 0, 1, 1).data
+        return { r: d[0], g: d[1], b: d[2], a: d[3] }
+      }
+
+      function resolve(color) {
+        try {
+          _ctx.fillStyle = '#000'
+          _ctx.fillStyle = color
+          const out = _ctx.fillStyle
+          if (typeof out === 'string' && out !== '#000') return out
+        } catch (e) {
+          /* fall through to pixel sampling */
+        }
+        const { r, g, b, a } = sample(color)
+        return a === 255 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`
+      }
+
+      function toHex(color) {
+        const r = resolve(color)
+        let m = r.match(/^#([0-9a-f]{6})$/i)
+        if (m) return r.toLowerCase()
+        m = r.match(/^rgba?\(([^)]+)\)$/i)
+        if (m) {
+          const p = m[1].split(/[\s,\/]+/).filter(Boolean)
+          let out = '#' + _h2(parseFloat(p[0])) + _h2(parseFloat(p[1])) + _h2(parseFloat(p[2]))
+          if (p[3] !== undefined && parseFloat(p[3]) < 1) out += _h2(parseFloat(p[3]) * 255)
+          return out.toLowerCase()
+        }
+        const { r: rr, g: gg, b: bb, a: aa } = sample(color)
+        let out = '#' + _h2(rr) + _h2(gg) + _h2(bb)
+        if (aa < 255) out += _h2(aa)
+        return out.toLowerCase()
+      }
+
+      /* ---------- palette data (verbatim from uno.config.ts) ---------- */
+      const vars = (name, stop) => (stop === 'DEFAULT' ? `--colors-${name}` : `--colors-${name}-${stop}`)
+
+      function family(name, stop, value) {
+        return { stop, value, varname: vars(name, stop) }
+      }
+
+      const SECTIONS = [
+        {
+          title: 'App tokens — light',
+          file: 'uno.config.ts shortcuts + styles/base.css',
+          note: "How the <code>bg-base</code> / <code>bg-active</code> / <code>border-base</code> / <code>text-faded</code> shortcuts resolve in light mode. <code>border-base</code> uses UnoCSS's built-in gray-200.",
+          swatches: [
+            { stop: 'page bg', sub: 'bg-base', value: '#ffffff' },
+            { stop: 'page bg (alt)', sub: 'bgr-50', value: 'oklch(0.99 0.0002 36)', varname: '--colors-bgr-50' },
+            { stop: 'active surface', sub: 'bg-active', value: 'oklch(0.93 0 0)', varname: '--colors-bgr-100' },
+            { stop: 'border', sub: 'border-base', value: 'oklch(92.8% 0.006 264.531)' },
+            {
+              stop: 'text',
+              sub: 'foreground / --av-text-primary',
+              value: 'oklch(40% 0.05 249)',
+              varname: '--colors-foreground',
+            },
+            { stop: 'muted text', sub: 'text-faded', value: 'oklch(0.52 0.0054 36)', varname: '--colors-bgr-500' },
+            { stop: 'accent', sub: '--amv-highlight', value: 'oklch(0.77 0.14 70)', varname: '--colors-primary-500' },
+            { stop: 'link', sub: '--amv-links', value: 'oklch(0.57 0.14 70)', varname: '--colors-primary-700' },
+            { stop: 'focus ring', sub: ':focus-visible', value: 'oklch(0.57 0.14 70)' },
+            { stop: 'header gradient 1', sub: '--hdr-color-1', value: 'oklch(0.77 0.14 70)' },
+            { stop: 'header gradient 2/3', sub: '--hdr-color-2/3', value: 'oklch(0.9702 0 0)' },
+          ],
+        },
+        {
+          title: 'App tokens — dark',
+          file: 'uno.config.ts shortcuts + styles/base.css',
+          note: 'Dark-mode role mapping. Note the accent flips from amber to magenta: dark primary is its own ramp (<code>primary-dark</code>), not a darker stop of light primary.',
+          swatches: [
+            { stop: 'page bg', sub: 'bg-base / bgr-dark', value: 'oklch(0.15 0.01 110)', varname: '--colors-bgr-dark' },
+            { stop: 'active surface', sub: 'bg-active', value: 'oklch(0.32 0.0075 36)', varname: '--colors-bgr-700' },
+            { stop: 'border', sub: 'border-base', value: 'oklch(0.23 0.0085 36)', varname: '--colors-bgr-800' },
+            { stop: 'text', sub: 'foreground-dark', value: '#f5f5f5', varname: '--colors-foreground-dark' },
+            { stop: 'body text', sub: '--av-text-primary', value: 'oklch(0.8385 0.0263 248.14)' },
+            { stop: 'muted text', sub: 'text-faded', value: 'oklch(0.72 0.0038 36)', varname: '--colors-bgr-300' },
+            {
+              stop: 'accent',
+              sub: '--amv-highlight',
+              value: 'oklch(0.5962 0.2423 358.92)',
+              varname: '--colors-primary-dark-500',
+            },
+            {
+              stop: 'link',
+              sub: '--amv-links',
+              value: 'oklch(0.78 0.2423 358.92)',
+              varname: '--colors-primary-dark-300',
+            },
+            { stop: 'focus ring', sub: ':focus-visible', value: 'oklch(0.78 0.2423 358.92)' },
+            { stop: 'header gradient 1/2', sub: '--hdr-color-1/2', value: 'oklch(60% 0.224 354)' },
+            { stop: 'header gradient 3', sub: '--hdr-color-3', value: 'oklch(15% 0.1 110)' },
+          ],
+        },
+        {
+          title: 'bgr',
+          file: 'theme.colors.bgr',
+          note: 'Neutral ramp for surfaces, borders and muted text. <code>bgr.dark</code> is the dark page background.',
+          swatches: [
+            family('bgr', 'DEFAULT', 'oklch(0.9702 0 0)'),
+            family('bgr', '50', 'oklch(0.99 0.0002 36)'),
+            family('bgr', '100', 'oklch(0.93 0.0 0)'),
+            family('bgr', '200', 'oklch(0.82 0.0022 36)'),
+            family('bgr', '300', 'oklch(0.72 0.0038 36)'),
+            family('bgr', '400', 'oklch(0.62 0.0045 36)'),
+            family('bgr', '500', 'oklch(0.52 0.0054 36)'),
+            family('bgr', '600', 'oklch(0.42 0.0065 36)'),
+            family('bgr', '700', 'oklch(0.32 0.0075 36)'),
+            family('bgr', '800', 'oklch(0.23 0.0085 36)'),
+            family('bgr', '900', 'oklch(0.17 0.0093 36)'),
+            family('bgr', 'dark', 'oklch(0.15 0.01 110)'),
+          ],
+        },
+        {
+          title: 'primary',
+          file: 'theme.colors.primary',
+          note: 'Light-mode accent — amber, hue 70.',
+          swatches: [
+            family('primary', '50', 'oklch(0.98 0.03 70)'),
+            family('primary', '100', 'oklch(0.95 0.05 70)'),
+            family('primary', '200', 'oklch(0.91 0.07 70)'),
+            family('primary', '300', 'oklch(0.86 0.09 70)'),
+            family('primary', '400', 'oklch(0.81 0.11 70)'),
+            family('primary', '500', 'oklch(0.77 0.14 70)'),
+            family('primary', '600', 'oklch(0.67 0.14 70)'),
+            family('primary', '700', 'oklch(0.57 0.14 70)'),
+            family('primary', '800', 'oklch(0.47 0.14 70)'),
+            family('primary', '900', 'oklch(0.37 0.14 70)'),
+            family('primary', '950', 'oklch(0.27 0.14 70)'),
+          ],
+        },
+        {
+          title: 'primary-dark',
+          file: 'theme.colors.primary.dark',
+          note: 'Dark-mode accent — magenta, hue 358.92. Flattens chroma across the whole ramp (except 50).',
+          swatches: [
+            family('primary-dark', '50', 'oklch(1 0.15 358.92)'),
+            family('primary-dark', '100', 'oklch(0.97 0.2423 358.92)'),
+            family('primary-dark', '200', 'oklch(0.88 0.2423 358.92)'),
+            family('primary-dark', '300', 'oklch(0.78 0.2423 358.92)'),
+            family('primary-dark', '400', 'oklch(0.69 0.2423 358.92)'),
+            family('primary-dark', '500', 'oklch(0.5962 0.2423 358.92)'),
+            family('primary-dark', '600', 'oklch(0.44 0.2423 358.92)'),
+            family('primary-dark', '700', 'oklch(0.34 0.2423 358.92)'),
+            family('primary-dark', '800', 'oklch(0.26 0.2423 358.92)'),
+            family('primary-dark', '900', 'oklch(0.18 0.2423 358.92)'),
+            family('primary-dark', '950', 'oklch(0.12 0.2423 358.92)'),
+          ],
+        },
+        {
+          title: 'info',
+          file: 'theme.colors.info',
+          note: 'Tailwind blue. Light uses -500/-700, dark uses -400. Also a <code>/pattern/</code> highlight color.',
+          swatches: [
+            family('info', '50', 'oklch(97% 0.014 254.604)'),
+            family('info', '100', 'oklch(97% 0.014 254.604)'),
+            family('info', '200', 'oklch(97% 0.014 254.604)'),
+            family('info', '250', 'oklch(80.9% 0.105 251.813 / 50%)'),
+            family('info', '300', 'oklch(80.9% 0.105 251.813)'),
+            family('info', '400', 'oklch(70.7% 0.165 254.624)'),
+            family('info', '500', 'oklch(62.3% 0.214 259.815)'),
+            family('info', '600', 'oklch(54.6% 0.245 262.881)'),
+            family('info', '700', 'oklch(48.8% 0.243 264.376)'),
+            family('info', '800', 'oklch(42.4% 0.199 265.638)'),
+            family('info', '900', 'oklch(37.9% 0.146 265.522)'),
+            family('info', '950', 'oklch(28.2% 0.091 267.935)'),
+            family('info', 'dark', 'oklch(6% 0.091 267.935)'),
+          ],
+        },
+        {
+          title: 'positive',
+          file: 'theme.colors.positive',
+          note: 'Tailwind emerald. Light uses -500/-700, dark uses -400.',
+          swatches: [
+            family('positive', '50', 'oklch(97.9% 0.021 166.113)'),
+            family('positive', '100', 'oklch(95% 0.052 163.051)'),
+            family('positive', '200', 'oklch(90.5% 0.093 164.15)'),
+            family('positive', '300', 'oklch(84.5% 0.143 164.978)'),
+            family('positive', '400', 'oklch(76.5% 0.177 163.223)'),
+            family('positive', '500', 'oklch(69.6% 0.17 162.48)'),
+            family('positive', '600', 'oklch(59.6% 0.145 163.225)'),
+            family('positive', '700', 'oklch(50.8% 0.118 165.612)'),
+            family('positive', '800', 'oklch(43.2% 0.095 166.913)'),
+            family('positive', '900', 'oklch(37.8% 0.077 168.94)'),
+            family('positive', '950', 'oklch(26.2% 0.051 172.552)'),
+          ],
+        },
+        {
+          title: 'warning',
+          file: 'theme.colors.warning',
+          note: 'Tailwind yellow — the only family defined with hex, not oklch. <code>warning.dark</code> is the -950 brown.',
+          swatches: [
+            family('warning', '50', '#fefce8'),
+            family('warning', '100', '#fef9c3'),
+            family('warning', '200', '#fef08a'),
+            family('warning', '300', '#fde047'),
+            family('warning', '400', '#facc15'),
+            family('warning', '500', '#eab308'),
+            family('warning', '600', '#ca8a04'),
+            family('warning', '700', '#a16207'),
+            family('warning', '800', '#854d0e'),
+            family('warning', '900', '#713f12'),
+            family('warning', '950', '#422006'),
+            family('warning', 'dark', '#422006'),
+          ],
+        },
+        {
+          title: 'negative',
+          file: 'theme.colors.negative',
+          note: 'Tailwind red. Light uses -500/-700, dark uses -400.',
+          swatches: [
+            family('negative', '50', 'oklch(97.1% 0.013 17.38)'),
+            family('negative', '100', 'oklch(93.6% 0.032 17.717)'),
+            family('negative', '200', 'oklch(88.5% 0.062 18.334)'),
+            family('negative', '300', 'oklch(80.8% 0.114 19.571)'),
+            family('negative', '400', 'oklch(70.4% 0.191 22.216)'),
+            family('negative', '500', 'oklch(63.7% 0.237 25.331)'),
+            family('negative', '600', 'oklch(57.7% 0.245 27.325)'),
+            family('negative', '700', 'oklch(50.5% 0.213 27.518)'),
+            family('negative', '800', 'oklch(44.4% 0.177 26.899)'),
+            family('negative', '900', 'oklch(39.6% 0.141 25.723)'),
+            family('negative', '950', 'oklch(25.8% 0.092 26.042)'),
+          ],
+        },
+        {
+          title: 'tip',
+          file: 'theme.colors.tip',
+          note: 'Tailwind purple. Light uses -500/-700, dark uses -400. Also a <code>/pattern/</code> highlight color.',
+          swatches: [
+            family('tip', '50', 'oklch(97.7% 0.014 308.299)'),
+            family('tip', '100', 'oklch(94.6% 0.033 307.174)'),
+            family('tip', '200', 'oklch(90.2% 0.063 306.703)'),
+            family('tip', '300', 'oklch(82.7% 0.119 306.383)'),
+            family('tip', '400', 'oklch(71.4% 0.203 305.504)'),
+            family('tip', '500', 'oklch(62.7% 0.265 303.9)'),
+            family('tip', '600', 'oklch(55.8% 0.288 302.321)'),
+            family('tip', '700', 'oklch(49.6% 0.265 301.924)'),
+            family('tip', '800', 'oklch(43.8% 0.218 303.724)'),
+            family('tip', '900', 'oklch(38.1% 0.176 304.987)'),
+            family('tip', '950', 'oklch(29.1% 0.149 302.717)'),
+            family('tip', 'dark', 'oklch(29.1% 0.149 302.717)'),
+          ],
+        },
+        {
+          title: 'challenge',
+          file: 'theme.colors.challenge',
+          note: 'Tailwind orange. Light uses -500/-700, dark uses -400. Also a <code>/pattern/</code> highlight color.',
+          swatches: [
+            family('challenge', '50', 'oklch(98% 0.016 73.684)'),
+            family('challenge', '100', 'oklch(95.4% 0.038 75.164)'),
+            family('challenge', '200', 'oklch(90.1% 0.076 70.697)'),
+            family('challenge', '300', 'oklch(83.7% 0.128 66.29)'),
+            family('challenge', '400', 'oklch(75% 0.183 55.934)'),
+            family('challenge', '500', 'oklch(70.5% 0.213 47.604)'),
+            family('challenge', '600', 'oklch(64.6% 0.222 41.116)'),
+            family('challenge', '700', 'oklch(55.3% 0.195 38.402)'),
+            family('challenge', '800', 'oklch(47% 0.157 37.304)'),
+            family('challenge', '900', 'oklch(40.8% 0.123 38.172)'),
+            family('challenge', '950', 'oklch(26.6% 0.079 36.259)'),
+            family('challenge', 'dark', 'oklch(26.6% 0.079 36.259)'),
+          ],
+        },
+      ]
+
+      /* ---------- render ---------- */
+      const main = document.getElementById('main')
+      const state = { fmt: 'hex', q: '' }
+
+      for (const sec of SECTIONS) {
+        const el = document.createElement('section')
+        el.dataset.search = (
+          sec.title +
+          ' ' +
+          sec.swatches.map((s) => s.stop + ' ' + s.sub + ' ' + s.value).join(' ')
+        ).toLowerCase()
+
+        const head = document.createElement('div')
+        head.className = 'sec-head'
+        const h2 = document.createElement('h2')
+        h2.textContent = sec.title
+        const f = document.createElement('span')
+        f.className = 'file mono'
+        f.textContent = sec.file
+        head.append(h2, f)
+
+        const note = document.createElement('p')
+        note.className = 'note'
+        note.innerHTML = sec.note
+
+        const grid = document.createElement('div')
+        grid.className = 'grid'
+
+        for (const s of sec.swatches) {
+          const hex = toHex(s.value)
+          const label = s.sub ? `${sec.title} · ${s.stop} (${s.sub})` : `${sec.title} · ${s.stop}`
+
+          const btn = document.createElement('button')
+          btn.type = 'button'
+          btn.className = 'swatch'
+          btn.dataset.search = (
+            sec.title +
+            ' ' +
+            s.stop +
+            ' ' +
+            (s.sub || '') +
+            ' ' +
+            s.value +
+            ' ' +
+            hex +
+            ' ' +
+            (s.varname || '')
+          ).toLowerCase()
+          btn.dataset.hex = hex
+          btn.dataset.oklch = s.value
+          btn.dataset.varname = s.varname || ''
+          btn.setAttribute('aria-label', `Copy ${hex} — ${label}`)
+
+          const chip = document.createElement('div')
+          chip.className = 'chip'
+          chip.style.background = s.value
+
+          const meta = document.createElement('div')
+          meta.className = 'meta'
+
+          const stop = document.createElement('div')
+          stop.className = 'stop'
+          stop.textContent = s.stop
+
+          const hexEl = document.createElement('div')
+          hexEl.className = 'hex mono'
+          hexEl.textContent = hex
+
+          const raw = document.createElement('div')
+          raw.className = 'raw mono'
+          raw.textContent = s.value
+
+          meta.append(stop)
+          if (s.sub) {
+            const sub = document.createElement('div')
+            sub.className = 'varname mono'
+            sub.textContent = s.sub
+            meta.append(sub)
+          }
+          meta.append(hexEl, raw)
+
+          if (s.varname) {
+            const vn = document.createElement('div')
+            vn.className = 'varname mono'
+            vn.textContent = s.varname
+            meta.append(vn)
+          }
+
+          const done = document.createElement('span')
+          done.className = 'done'
+          done.textContent = 'copied ✓'
+
+          btn.append(chip, meta, done)
+          btn.addEventListener('click', () => onCopy(btn, s.varname))
+          grid.append(btn)
+        }
+
+        el.append(head, note, grid)
+        main.append(el)
+      }
+
+      /* ---------- copy ---------- */
+      const toastEl = document.getElementById('toast')
+      let toastTimer
+      function toast(msg) {
+        toastEl.textContent = msg
+        toastEl.classList.add('show')
+        clearTimeout(toastTimer)
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800)
+      }
+
+      async function write(text) {
+        try {
+          await navigator.clipboard.writeText(text)
+          return true
+        } catch (e) {
+          const ta = document.createElement('textarea')
+          ta.value = text
+          ta.style.position = 'fixed'
+          ta.style.opacity = '0'
+          document.body.append(ta)
+          ta.select()
+          let ok = false
+          try {
+            ok = document.execCommand('copy')
+          } catch (_) {}
+          ta.remove()
+          return ok
+        }
+      }
+
+      function valueFor(btn) {
+        if (state.fmt === 'oklch') return btn.dataset.oklch
+        if (state.fmt === 'var') {
+          return btn.dataset.varname ? `var(${btn.dataset.varname})` : btn.dataset.hex
+        }
+        return btn.dataset.hex
+      }
+
+      async function onCopy(btn, varname) {
+        let text = valueFor(btn)
+        if (state.fmt === 'var' && !varname) text = btn.dataset.hex
+        const ok = await write(text)
+        toast(ok ? `Copied ${text}` : `Copy failed — select manually: ${text}`)
+        btn.classList.add('copied')
+        setTimeout(() => btn.classList.remove('copied'), 750)
+      }
+
+      /* ---------- format toggle ---------- */
+      for (const b of document.querySelectorAll('.seg button')) {
+        b.addEventListener('click', () => {
+          state.fmt = b.dataset.fmt
+          document.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)))
+          toast(`Copy format: ${b.textContent}`)
+        })
+      }
+
+      /* ---------- filter ---------- */
+      const filterInput = document.getElementById('filter')
+      filterInput.addEventListener('input', () => {
+        const q = filterInput.value.trim().toLowerCase()
+        let visibleSections = 0,
+          total = 0
+        for (const sec of main.children) {
+          const btns = sec.querySelectorAll('.swatch')
+          let shown = 0
+          for (const b of btns) {
+            const hit = !q || b.dataset.search.includes(q)
+            b.style.display = hit ? '' : 'none'
+            if (hit) shown++
+          }
+          const secHit = !q || sec.dataset.search.includes(q)
+          sec.style.display = q && shown === 0 && !secHit ? 'none' : ''
+          if (sec.style.display !== 'none') {
+            visibleSections++
+            total += shown
+          }
+        }
+        let empty = document.getElementById('empty')
+        if (!total) {
+          if (!empty) {
+            empty = document.createElement('p')
+            empty.id = 'empty'
+            empty.className = 'empty'
+            empty.textContent = 'No colors match that filter.'
+            main.prepend(empty)
+          }
+        } else if (empty) empty.remove()
+      })
+
+      /* ---------- bulk copy ---------- */
+      function allSwatches() {
+        return [...main.querySelectorAll('.swatch')]
+      }
+      document.getElementById('copy-css').addEventListener('click', async () => {
+        const lines = [':root {']
+        for (const b of allSwatches()) {
+          if (!b.dataset.varname) continue
+          lines.push(`  ${b.dataset.varname}: ${b.dataset.oklch};`)
+        }
+        lines.push('}')
+        const ok = await write(lines.join('\n'))
+        toast(ok ? `Copied ${lines.length - 2} CSS variables` : 'Copy failed')
+      })
+      document.getElementById('copy-json').addEventListener('click', async () => {
+        const out = {}
+        for (const b of allSwatches()) {
+          if (!b.dataset.varname) continue
+          out[b.dataset.varname] = { hex: b.dataset.hex, oklch: b.dataset.oklch }
+        }
+        const ok = await write(JSON.stringify(out, null, 2))
+        toast(ok ? `Copied ${Object.keys(out).length} entries as JSON` : 'Copy failed')
+      })
+
+      /* ---------- theme preview ---------- */
+      const root = document.documentElement
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'
+      })
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        root.dataset.theme = 'dark'
+      }
+    </script>
+  </body>
+</html>
