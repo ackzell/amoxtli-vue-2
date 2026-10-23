@@ -61,19 +61,20 @@ function getTextClass(status: PlaygroundStatus) {
   >
     <template v-if="getPlaygroundStore().status === 'interactive'">
       <div flex="~ gap-2 items-center" text-lg>
-        <div i-carbon-terminal text-2xl />
+        <div i-mynaui-terminal text-2xl />
         {{ $t('interactive-terminal-mode') }}
       </div>
-      <button
+      <UiButton
+        type="button"
+        variant="ghost"
+        size="sm"
         title="Restart terminal"
-        flex="~ gap-1 items-center"
-        hover="bg-active text-blue op100"
-        mx--1 px1 rounded op50
+        class="text-blue mx--1 op50 gap-1 hover:op100"
         @click="getPlaygroundStore().restartServer()"
       >
-        <div i-carbon-rotate-360 text-lg />
+        <div i-mynaui-refresh text-lg />
         {{ $t('restart-server') }}
-      </button>
+      </UiButton>
     </template>
     <div v-else-if="getPlaygroundStore().status !== 'error'" grid="~ cols-[max-content_1fr] gap-2 items-center justify-center" text-sm font-terminal>
       <div :class="getStatusIcon('init')" />
@@ -91,7 +92,7 @@ function getTextClass(status: PlaygroundStatus) {
           padding="sm"
           @click="ui.toggleTerminal()"
         >
-          <div i-carbon-terminal text-xl />
+          <div i-mynaui-terminal text-xl hover:i-mynaui-terminal-solid />
         </IconButton>
       </span>
       <div :class="getStatusIcon('start')" />

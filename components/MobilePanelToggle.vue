@@ -41,10 +41,11 @@ function showCode() {
 
     px3 pt2 border-t border-base bg-base h-auto min-h-12 bottom-0 left-0 right-0 fixed z-50 backdrop-blur-sm
   >
-    <button
-      flex="~ items-center gap-1.5"
-      text-sm px3 py1.5 rounded
-      :class="isDocsActive ? 'text-primary bg-active/40 dark:text-primary-dark' : 'hover:bg-active'"
+    <UiButton
+      type="button"
+      variant="ghost"
+      class="gap-1.5"
+      :class="isDocsActive ? 'text-primary bg-active/40 dark:text-primary-dark' : ''"
       @click="showDocs"
     >
       <div
@@ -52,21 +53,21 @@ function showCode() {
         :class="isDocsActive ? 'i-mynaui-book-open-solid' : 'i-mynaui-book-open'"
       />
       <span>{{ $t('docs') }}</span>
-    </button>
+    </UiButton>
 
-    <button
-      flex="~ items-center gap-1.5"
-      text-sm px3 py1.5 rounded
+    <UiButton
+      type="button"
+      variant="ghost"
+      class="gap-1.5"
       :disabled="isDocsOnly"
       :class="[
-        isCodeActive ? 'text-primary bg-active/40 dark:text-primary-dark' : 'hover:bg-active',
-        isDocsOnly ? 'op-30 cursor-not-allowed' : '',
+        isCodeActive ? 'text-primary bg-active/40 dark:text-primary-dark' : '',
       ]"
       @click="showCode"
     >
       <div i-mynaui-code text-lg />
       <span>{{ $t('code') }}</span>
-    </button>
+    </UiButton>
     <small v-if="isDocsOnly" class="text-[0.5rem]"> {{ $t('docs-only-lesson') }}</small>
   </div>
 </template>

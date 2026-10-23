@@ -14,7 +14,7 @@ const play = usePlaygroundStore()
       bg="dark:bgr-dark bgr-50"
       class="active:cursor-grabbing"
     >
-      <div i-carbon-terminal />
+      <div i-mynaui-terminal text-lg />
       <span text-xs font-mono>{{ $t('terminal.name') }}</span>
       <div flex-auto />
       <IconButton
@@ -24,7 +24,7 @@ const play = usePlaygroundStore()
         padding="sm"
         @click="play.restartServer(true)"
       >
-        <div i-carbon-rotate-360 />
+        <div i-mynaui-refresh text-lg hover:i-mynaui-refresh-solid />
       </IconButton>
       <IconButton
         :tooltip="$t('terminal.hide')"
@@ -32,7 +32,7 @@ const play = usePlaygroundStore()
         padding="sm"
         @click="ui.toggleTerminal()"
       >
-        <div i-carbon-close />
+        <div i-mynaui-x text-lg hover:i-mynaui-x-solid />
       </IconButton>
     </div>
     <PanelTerminalClient />

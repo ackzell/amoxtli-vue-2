@@ -18,7 +18,7 @@ const fm = useFileManagerStore()
           message: 'User triggered save from toolbar',
         })"
       >
-        <div text-md i-carbon-save />
+        <div i-mynaui-save text-lg hover:i-mynaui-save-solid />
       </IconButton>
 
       <IconButton
@@ -26,7 +26,7 @@ const fm = useFileManagerStore()
         tooltip-placement="bottom"
         @click="ui.toggleSnapshotSidebar()"
       >
-        <div text-md i-mynaui-clock-hexagon />
+        <div text-lg :class="ui.isSnapshotSidebarOpen ? 'i-mynaui-clock-hexagon-solid' : 'i-mynaui-clock-hexagon hover:i-mynaui-clock-hexagon-solid'" />
       </IconButton>
     </div>
     <div>
@@ -36,7 +36,7 @@ const fm = useFileManagerStore()
         :class="ui.showPreview ? '' : 'op50'"
         @click="ui.togglePreview()"
       >
-        <div text-md i-carbon-wikis />
+        <div text-lg :class="ui.showPreview ? 'i-mynaui-circle-solid' : 'i-mynaui-circle hover:i-mynaui-circle-solid'" />
       </IconButton>
 
       <IconButton
@@ -45,7 +45,7 @@ const fm = useFileManagerStore()
         :class="ui.showConsole ? '' : 'op50'"
         @click="ui.toggleConsole()"
       >
-        <div text-md i-carbon-cics-program />
+        <div text-lg :class="ui.showConsole ? 'i-mynaui-code-square-solid' : 'i-mynaui-code-square hover:i-mynaui-code-square-solid'" />
       </IconButton>
 
       <IconButton
@@ -54,7 +54,7 @@ const fm = useFileManagerStore()
         :class="ui.showTerminal ? '' : 'op50'"
         @click="ui.toggleTerminal()"
       >
-        <div text-md i-carbon-terminal />
+        <div text-lg :class="ui.showTerminal ? 'i-mynaui-terminal-solid' : 'i-mynaui-terminal hover:i-mynaui-terminal-solid'" />
       </IconButton>
     </div>
   </div>

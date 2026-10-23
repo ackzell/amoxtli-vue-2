@@ -43,7 +43,7 @@ function clearLunaConsole() {
       bg="dark:bgr-dark bgr-50"
       class="active:cursor-grabbing"
     >
-      <div i-carbon-cics-program />
+      <div i-mynaui-code-square text-lg />
       <span text-sm>{{ $t('console-output.name') }}</span>
       <div flex-auto />
       <IconButton
@@ -52,7 +52,7 @@ function clearLunaConsole() {
         padding="sm"
         @click="hideViteLogs = !hideViteLogs"
       >
-        <div :class="hideViteLogs ? 'i-carbon-filter' : 'i-carbon-filter-remove'" />
+        <div text-lg :class="hideViteLogs ? 'i-mynaui-filter hover:i-mynaui-filter-solid' : 'i-mynaui-filter-solid'" />
       </IconButton>
       <IconButton
         tooltip-placement="bottom"
@@ -61,7 +61,7 @@ function clearLunaConsole() {
         :tooltip="$t('console-output.clear')"
         @click="clearLunaConsole"
       >
-        <div i-carbon-clean />
+        <div i-mynaui-trash text-lg hover:i-mynaui-trash-solid />
       </IconButton>
     </div>
     <div class="luna-container" role="log" :aria-label="$t('console-output.name')">

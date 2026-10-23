@@ -121,7 +121,7 @@ watch(
         border="~ base"
         tracking-wide m1.5 px2 py0.5 rounded bg-faded
       >
-        <div i-carbon-wikis />
+        <div i-mynaui-circle text-lg />
         <span text-sm op50>{{ $t('preview') }}</span>
         <div
           text-sm
@@ -133,7 +133,7 @@ watch(
           <form w-full @submit.prevent="navigate">
             <input
               v-model="inputUrl" type="text"
-              bg-transparent flex-1 w-full rounded-sm focus:outline-none focus="ring-2 ring-primary/50 dark:ring-primary-dark/50"
+              rounded-sm bg-transparent flex-1 w-full focus:outline-none focus="ring-2 ring-primary/50 dark:ring-primary-dark/50"
             >
           </form>
         </div>
@@ -144,7 +144,7 @@ watch(
         padding="sm"
         @click="refreshIframe(true)"
       >
-        <div i-carbon-rotate-360 text-sm />
+        <div i-mynaui-refresh text-lg hover:i-mynaui-refresh-solid />
       </IconButton>
       <IconButton
         v-if="hasChallenge"
@@ -154,7 +154,7 @@ watch(
         :disabled="challengeRunning"
         @click="runChallengeTests"
       >
-        <div i-carbon-checklist text-sm />
+        <div i-mynaui-check text-lg hover:i-mynaui-check-solid />
       </IconButton>
       <ClientOnly>
         <VDropdown :distance="6">
@@ -163,7 +163,7 @@ watch(
             tooltip-placement="bottom"
             padding="sm"
           >
-            <div i-carbon-information text-sm />
+            <div i-mynaui-info text-lg hover:i-mynaui-info-solid />
           </IconButton>
           <template #popper>
             <div px5 py4 grid="~ gap-y-3 gap-x-2 cols-[max-content_1fr] items-center">
