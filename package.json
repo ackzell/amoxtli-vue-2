@@ -33,7 +33,7 @@
     "invites:revoke": "npx tsx scripts/revoke-invite.ts",
     "invites:backfill": "npx tsx scripts/backfill-invite-aliases.ts",
     "sync:almostnode": "rm -f vendor/almostnode-*.tgz && cd ../oss/almostnode && pnpm build:lib && (pnpm build:types || echo 'WARN almostnode build:types failed - see its tsc errors; dist/*.d.ts were still emitted') && pnpm pack --pack-destination ../../amoxtli-vue-2/vendor && cd - && pnpm install",
-    "sync:playground-layout": "rm -f vendor/calmecac-vue-playground-layout-*.tgz && cd ../calmecac-vue/yehyecoa-vue/packages/playground-layout && pnpm build && pnpm pack --pack-destination ../../../../amoxtli-vue-2/vendor && cd - && pnpm install"
+    "sync:playground-layout": "node scripts/sync-playground-layout.mjs"
   },
   "config": {
     "commitizen": {
