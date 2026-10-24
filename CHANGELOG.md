@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.4.0](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.5...v0.4.0) (2026-10-24)
+
+
+### Visual Refresh
+
+* **ui:** new image — logo, consistent buttons, and matching icons
+
+### Features
+
+* **playground:** adopt shared playground-layout dock and file tree ([65d176b](https://github.com/ackzell/amoxtli-vue-2/commit/65d176bb50f64a01b689a05659f7c34d8d03a984))
+* **ui:** add AmoxtliVue logo and color palette reference ([f5eff86](https://github.com/ackzell/amoxtli-vue-2/commit/f5eff86f34705ae97244337d813fd5fb457f4853))
+
+
+### Bug Fixes
+
+* **invites:** speed up status and repair legacy alias dedupe ([4a97939](https://github.com/ackzell/amoxtli-vue-2/commit/4a979396521696b45a42c08af1206c2f59ecb8aa))
+* **playground:** serve the linked layout package in dev and SSR ([dad2beb](https://github.com/ackzell/amoxtli-vue-2/commit/dad2beb586eacbd789fb6f3fc5717d551d16e8f4))
+* **ui:** give dialogs a primary-colored border ([9a35e6c](https://github.com/ackzell/amoxtli-vue-2/commit/9a35e6c5d318fdff527203a57d953b1a8c76b67c))
+* **ui:** make color mode toggle usable inside modals ([f857918](https://github.com/ackzell/amoxtli-vue-2/commit/f85791897acb5b7c71716aaf7d04c30c6c7969e2))
+
 ## [0.3.5](https://github.com/ackzell/amoxtli-vue-2/compare/v0.3.4...v0.3.5) (2026-10-19)
 
 
