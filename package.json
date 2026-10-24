@@ -54,7 +54,7 @@
     "@vue/language-service": "catalog:frontend",
     "@xterm/addon-fit": "catalog:frontend",
     "@xterm/xterm": "catalog:frontend",
-    "almostnode": "file:vendor/almostnode-0.5.4.tgz",
+    "almostnode": "file:vendor/almostnode-0.5.5.tgz",
     "birpc": "catalog:frontend",
     "class-variance-authority": "catalog:frontend",
     "clsx": "catalog:frontend",

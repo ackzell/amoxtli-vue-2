@@ -298,8 +298,8 @@ importers:
         specifier: catalog:frontend
         version: 5.5.0
       almostnode:
-        specifier: file:vendor/almostnode-0.5.4.tgz
-        version: file:vendor/almostnode-0.5.4.tgz(@swc/helpers@0.5.23)(react@19.2.8)(rollup@4.62.4)(supports-color@10.2.2)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0))
+        specifier: file:vendor/almostnode-0.5.5.tgz
+        version: file:vendor/almostnode-0.5.5.tgz(@swc/helpers@0.5.23)(react@19.2.8)(rollup@4.62.4)(supports-color@10.2.2)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0))
       birpc:
         specifier: catalog:frontend
         version: 4.2.0
@@ -4672,9 +4672,9 @@ packages:
   alien-signals@3.2.1:
     resolution: {integrity: sha512-I8FjmltrfnDFoZedi5CG8DghVYNhzb/Ijluz7tCSJH0xpd0484Kowhbb1XDYOxfJpU1p5wnM2X54dA+IfGyD1g==}
 
-  almostnode@file:vendor/almostnode-0.5.4.tgz:
-    resolution: {integrity: sha512-gDRGgTtAkCcUxf3yNon7gtbAjzUW16Ef/tDwq7W2L6Hr8dCcCGTL8PIIektqBoBrLoP8X8WUyD6pSFXYLqulqA==, tarball: file:vendor/almostnode-0.5.4.tgz}
-    version: 0.5.4
+  almostnode@file:vendor/almostnode-0.5.5.tgz:
+    resolution: {integrity: sha512-rHLd8EgUA8bK4ZNBDg0V+spraaOxsa3BbQzfBZqBJlqS7UdrBnuWF3ii2QeZGQB6+5kG8hPoXBTVEdugCrEuHw==, tarball: file:vendor/almostnode-0.5.5.tgz}
+    version: 0.5.5
     engines: {node: '>=20.0.0'}
 
   amdefine@1.0.1:
@@ -15418,7 +15418,7 @@ snapshots:
 
   alien-signals@3.2.1: {}
 
-  almostnode@file:vendor/almostnode-0.5.4.tgz(@swc/helpers@0.5.23)(react@19.2.8)(rollup@4.62.4)(supports-color@10.2.2)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0)):
+  almostnode@file:vendor/almostnode-0.5.5.tgz(@swc/helpers@0.5.23)(react@19.2.8)(rollup@4.62.4)(supports-color@10.2.2)(vite@7.3.6(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(yaml@2.9.0)):
     dependencies:
       '@ai-sdk/openai': 3.0.98(zod@4.4.3)
       '@ai-sdk/react': 3.0.262(react@19.2.8)(zod@4.4.3)
