@@ -33,7 +33,7 @@
     "invites:status": "npx tsx scripts/invites-status.ts",
     "invites:revoke": "npx tsx scripts/revoke-invite.ts",
     "invites:backfill": "npx tsx scripts/backfill-invite-aliases.ts",
-    "sync:almostnode": "rm -f vendor/almostnode-*.tgz && cd ../oss/almostnode && pnpm build:lib && (pnpm build:types || echo 'WARN almostnode build:types failed - see its tsc errors; dist/*.d.ts were still emitted') && pnpm pack --pack-destination ../../amoxtli-vue-2/vendor && cd - && pnpm install",
+    "sync:almostnode": "node scripts/sync-almostnode.mjs",
     "sync:playground-layout": "node scripts/sync-playground-layout.mjs",
     "sync:vendored": "npm run sync:almostnode && npm run sync:playground-layout"
   },
@@ -54,7 +54,7 @@
     "@vue/language-service": "catalog:frontend",
     "@xterm/addon-fit": "catalog:frontend",
     "@xterm/xterm": "catalog:frontend",
-    "almostnode": "file:vendor/almostnode-0.5.3.tgz",
+    "almostnode": "file:vendor/almostnode-0.5.4.tgz",
     "birpc": "catalog:frontend",
     "class-variance-authority": "catalog:frontend",
     "clsx": "catalog:frontend",
